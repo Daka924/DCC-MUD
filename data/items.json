@@ -1,0 +1,12 @@
+{
+  "oil_flask":  {"name": "Lamp-Oil Flask", "tags": ["glass", "fragile", "flammable", "liquid"], "color": "d9a441"},
+  "rag":        {"name": "Greasy Rag",     "tags": ["cloth", "flammable", "wick"],               "color": "b8b0a0"},
+  "flint":      {"name": "Flint Chip",     "tags": ["stone", "spark", "small"],                  "color": "8a8f99"},
+  "scrap":      {"name": "Scrap Plate",    "tags": ["metal", "sharp", "heavy"],                  "color": "9c6b4a"},
+  "nails":      {"name": "Bent Nails",     "tags": ["metal", "sharp", "small"],                  "color": "c9c9d1"},
+  "glue_pot":   {"name": "Glue Pot",       "tags": ["fragile", "liquid", "sticky"],              "color": "e8e0b0"},
+  "frost_moss": {"name": "Frost Moss",     "tags": ["plant", "cold"],                            "color": "7fd6e8"},
+  "glowcap":    {"name": "Glowcap",        "tags": ["plant", "luminous", "toxic"],               "color": "a6f25c"},
+  "rope":       {"name": "Frayed Rope",    "tags": ["cloth", "binding", "long"],                 "color": "a8875a"},
+  "bone":       {"name": "Knuckle Bone",   "tags": ["bone", "blunt", "heavy"],                   "color": "eee6d0"}
+}

@@ -1,0 +1,8 @@
+[
+  {"id": "first_kill",  "event": "kill",       "count": 1,  "title": "Pest Control Intern", "text": "You ended something smaller than your shoe. The audience is thrilled, in the strictly legal sense of the word.", "box": "tin"},
+  {"id": "kills_15",    "event": "kill",       "count": 15, "title": "Bulk Discount",       "text": "Fifteen bodies. Somewhere an accountant just updated a spreadsheet with your name on it.", "box": "copper"},
+  {"id": "first_death", "event": "death",      "count": 1,  "title": "Participation Trophy", "text": "You died. On camera. In the tutorial wing. We are waiving the cleanup fee this once.", "box": "tin"},
+  {"id": "first_party", "event": "party_join", "count": 1,  "title": "Emergency Contact",   "text": "You teamed up. Statistically, one of you is the bait. Do not ask which.", "box": "tin"},
+  {"id": "first_disc",  "event": "discovery",  "count": 1,  "title": "Patent Pending",      "text": "You invented something by doing the same reckless thing three times. Science!", "box": "copper"},
+  {"id": "throws_20",   "event": "throw",      "count": 20, "title": "Litterbug",           "text": "Twenty objects hurled. The janitorial drones have filed a formal complaint.", "box": "tin"}
+]
