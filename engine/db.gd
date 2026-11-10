@@ -11,7 +11,11 @@ const FILES := {
 	"achievements": "res://data/achievements.json",
 	"boxes": "res://data/boxes.json",
 	"narrator": "res://data/narrator.json",
-	"level": "res://data/level_01.json",
+	"floors": "res://data/floors.json",
+	"past_lives": "res://data/past_lives.json",
+	"companions": "res://data/companions.json",
+	"races": "res://data/races.json",
+	"classes": "res://data/classes.json",
 }
 
 static func load_json(path: String) -> Variant:

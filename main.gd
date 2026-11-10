@@ -12,6 +12,9 @@ const Bot := preload("res://client/bot.gd")
 var _name_edit: LineEdit
 var _addr_edit: LineEdit
 var _status: Label
+var _past_pick: OptionButton
+var _start_pick: OptionButton
+var _db: Dictionary
 var _menu: Node
 
 func _arg(args: Array, key: String, default: String) -> String:
@@ -36,8 +39,10 @@ func _ready() -> void:
 		bot.player_name = _arg(args, "--name", "Bot")
 		bot.seconds = float(_arg(args, "--seconds", "12"))
 		bot.passive = args.has("--passive")
+		bot.idle = args.has("--idle")
 		add_child(bot)
-		_connect_and_start(bot, _arg(args, "--join", "127.0.0.1"), port, bot.player_name)
+		_connect_and_start(bot, _arg(args, "--join", "127.0.0.1"), port, {"name": bot.player_name,
+			"past": _arg(args, "--past", "plumber"), "start": int(_arg(args, "--start", "0"))})
 		return
 	_build_menu()
 
@@ -48,7 +53,7 @@ func _build_menu() -> void:
 	var box := VBoxContainer.new()
 	box.set_anchors_preset(Control.PRESET_CENTER)
 	box.custom_minimum_size = Vector2(320, 0)
-	box.position = Vector2(-160, -120)
+	box.position = Vector2(-160, -190)
 	layer.add_child(box)
 	var title := Label.new()
 	title.text = "CRAWL SHOW\n(working title)"
@@ -57,6 +62,21 @@ func _build_menu() -> void:
 	_name_edit = LineEdit.new()
 	_name_edit.placeholder_text = "Your name"
 	box.add_child(_name_edit)
+	_db = DB.load_all()
+	var past_label := Label.new()
+	past_label.text = "Who were you before this?"
+	box.add_child(past_label)
+	_past_pick = OptionButton.new()
+	for p in _db.past_lives.past_lives:
+		_past_pick.add_item(p.name)
+	box.add_child(_past_pick)
+	var start_label := Label.new()
+	start_label.text = "Where do you wake up?"
+	box.add_child(start_label)
+	_start_pick = OptionButton.new()
+	for s in _db.floors.floors[0].starts:
+		_start_pick.add_item(s)
+	box.add_child(_start_pick)
 	_addr_edit = LineEdit.new()
 	_addr_edit.placeholder_text = "Server address (default 127.0.0.1)"
 	box.add_child(_addr_edit)
@@ -81,7 +101,11 @@ func _on_host() -> void:
 	_menu.queue_free()
 	add_child(game)
 	Net.client = game
-	Net.send("hello", _name_edit.text)
+	Net.send("hello", _character())
+
+func _character() -> Dictionary:
+	return {"name": _name_edit.text, "past": _db.past_lives.past_lives[_past_pick.selected].id,
+		"start": _start_pick.selected}
 
 func _on_join() -> void:
 	var address := _addr_edit.text.strip_edges()
@@ -91,9 +115,9 @@ func _on_join() -> void:
 	var game := GameClient.new()
 	game.visible = false
 	add_child(game)
-	_connect_and_start(game, address, Net.DEFAULT_PORT, _name_edit.text)
+	_connect_and_start(game, address, Net.DEFAULT_PORT, _character())
 
-func _connect_and_start(game: Node, address: String, port: int, player_name: String) -> void:
+func _connect_and_start(game: Node, address: String, port: int, character: Dictionary) -> void:
 	var err := Net.join(address, port)
 	if err != OK:
 		_fail(game, "Could not connect.")
@@ -105,7 +129,7 @@ func _connect_and_start(game: Node, address: String, port: int, player_name: Str
 			_menu = null
 		if game is CanvasItem:
 			game.visible = true
-		Net.send("hello", player_name), CONNECT_ONE_SHOT)
+		Net.send("hello", character), CONNECT_ONE_SHOT)
 	multiplayer.connection_failed.connect(func(): _fail(game, "Connection failed."), CONNECT_ONE_SHOT)
 	multiplayer.server_disconnected.connect(func(): _fail(game, "Server closed the connection."), CONNECT_ONE_SHOT)
 

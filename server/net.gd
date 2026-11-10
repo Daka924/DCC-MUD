@@ -28,6 +28,7 @@ func host(port: int = DEFAULT_PORT, world_seed: int = 0) -> Error:
 	world = World.new(DB.load_all(), world_seed)
 	world.event.connect(_on_world_event)
 	world.self_changed.connect(func(pid): _dirty[pid] = true)
+	world.floor_changed.connect(func(pid): _to(pid, "floor", world.floor_info(pid)))
 	return OK
 
 func join(address: String, port: int = DEFAULT_PORT) -> Error:
@@ -78,10 +79,10 @@ func _to(pid: int, kind: String, data: Dictionary) -> void:
 ## Every request is checked here. Clients are never trusted.
 func _handle(sender: int, method: String, arg: Variant) -> void:
 	if method == "hello":
-		if not world.players.has(sender) and typeof(arg) == TYPE_STRING:
+		if not world.players.has(sender) and typeof(arg) == TYPE_DICTIONARY:
 			world.add_player(sender, arg)
-			_to(sender, "welcome", {"id": sender, "grid": world.grid, "level": world.db.level.name,
-				"timer_total": world.timer_total})
+			_to(sender, "welcome", {"id": sender})
+			_to(sender, "floor", world.floor_info(sender))
 			_dirty[sender] = true
 		return
 	if not world.players.has(sender):
@@ -105,6 +106,13 @@ func _handle(sender: int, method: String, arg: Variant) -> void:
 		"chat":
 			if typeof(arg) == TYPE_STRING:
 				world.chat(sender, arg)
+		"choose":
+			if typeof(arg) == TYPE_DICTIONARY and typeof(arg.get("race")) == TYPE_STRING \
+					and typeof(arg.get("klass")) == TYPE_STRING:
+				world.choose(sender, arg.race, arg.klass)
+		"spend":
+			if typeof(arg) == TYPE_STRING:
+				world.spend_point(sender, arg)
 
 func _on_peer_left(pid: int) -> void:
 	if world != null:
@@ -129,10 +137,13 @@ func _physics_process(delta: float) -> void:
 			_to(pid, "self", world.self_state(pid))
 	_dirty.clear()
 	if _frame % SNAPSHOT_EVERY == 0:
-		var snap := world.snapshot()
+		var snaps := {}
 		for pid in world.players:
+			var index: int = world.players[pid].floor
+			if not snaps.has(index):
+				snaps[index] = world.snapshot(index)
 			if pid == 1:
 				if client != null:
-					client.on_snapshot(snap)
+					client.on_snapshot(snaps[index])
 			elif _peer_ok(pid):
-				s_snap.rpc_id(pid, snap)
+				s_snap.rpc_id(pid, snaps[index])

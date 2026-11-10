@@ -8,6 +8,7 @@ const TILE_H := 32.0
 const WALL_H := 26.0
 const FLOOR_COLORS := {
 	".": Color("3a3640"), ",": Color("4a4450"), "~": Color("27485c"), "S": Color("5a4a2c"),
+	">": Color("2f6b4f"),
 }
 const WALL_TOP := Color("6b6475")
 const WALL_LEFT := Color("4b4556")
@@ -19,7 +20,8 @@ var db: Dictionary
 var my_id := 0
 var grid: Array = []
 var timer_total := 1.0
-var snap := {"timer": 0.0, "p": [], "m": [], "d": []}
+var snap := {"timer": 0.0, "p": [], "m": [], "d": [], "n": []}
+var level_name := ""
 var me := {}
 var shown := {}
 var fx: Array = []
@@ -37,6 +39,13 @@ var _hotbar: Label
 var _log: RichTextLabel
 var _chat: LineEdit
 var _font: Font
+var _spend_box: HBoxContainer
+var _choice: PanelContainer
+var _choice_races: ItemList
+var _choice_classes: ItemList
+var _choice_detail: RichTextLabel
+var _choice_timer: Label
+var _choice_shown := false
 
 func _ready() -> void:
 	db = DB.load_all()
@@ -59,6 +68,17 @@ func _build_hud() -> void:
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	_stats = _label(layer, Control.PRESET_TOP_LEFT)
+	_spend_box = HBoxContainer.new()
+	layer.add_child(_spend_box)
+	_spend_box.position = Vector2(8, 112)
+	_spend_box.visible = false
+	for stat in ["str", "dex", "con", "int", "cha"]:
+		var b := Button.new()
+		b.text = "+" + stat.to_upper()
+		b.focus_mode = Control.FOCUS_NONE
+		b.add_theme_font_size_override("font_size", 10)
+		b.pressed.connect(func(): Net.send("spend", stat))
+		_spend_box.add_child(b)
 	_top = _label(layer, Control.PRESET_CENTER_TOP, 14)
 	_top.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_top.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -84,7 +104,7 @@ func _build_hud() -> void:
 	var help := _label(layer, Control.PRESET_BOTTOM_RIGHT, 10)
 	help.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	help.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	help.text = "WASD move   Space attack\nClick items, then click floor to throw\n1-5 use invention   Esc clear\nP invite   Y accept   L leave party\nEnter chat"
+	help.text = "WASD move   Space attack\nClick an item, then click the floor to throw\n1-5 use invention   Esc clear\nP invite player or recruit NPC\nY accept   L leave party   Enter chat\nGreen tiles are stairs down"
 
 	var chat_box := VBoxContainer.new()
 	layer.add_child(chat_box)
@@ -107,6 +127,91 @@ func _build_hud() -> void:
 	_chat.text_submitted.connect(_on_chat)
 	chat_box.add_child(_chat)
 
+	_build_choice(layer)
+
+## The level 3 race and class choice.
+func _build_choice(layer: CanvasLayer) -> void:
+	_choice = PanelContainer.new()
+	layer.add_child(_choice)
+	_choice.set_anchors_and_offsets_preset(Control.PRESET_CENTER, Control.PRESET_MODE_MINSIZE)
+	_choice.custom_minimum_size = Vector2(760, 400)
+	_choice.position = Vector2(100, 70)
+	_choice.visible = false
+	var bg := StyleBoxFlat.new()
+	bg.bg_color = Color("1b1822")
+	bg.border_color = NEON
+	bg.set_border_width_all(2)
+	bg.set_content_margin_all(12)
+	_choice.add_theme_stylebox_override("panel", bg)
+	var v := VBoxContainer.new()
+	_choice.add_child(v)
+	var title := Label.new()
+	title.text = "WE HAVE BEEN KEEPING A FILE ON YOU. CHOOSE WHAT YOU BECOME."
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_color_override("font_color", NEON)
+	v.add_child(title)
+	_choice_timer = Label.new()
+	_choice_timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_choice_timer.add_theme_font_size_override("font_size", 11)
+	v.add_child(_choice_timer)
+	var h := HBoxContainer.new()
+	h.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	v.add_child(h)
+	_choice_races = ItemList.new()
+	_choice_races.custom_minimum_size = Vector2(170, 280)
+	_choice_races.add_theme_font_size_override("font_size", 11)
+	h.add_child(_choice_races)
+	_choice_classes = ItemList.new()
+	_choice_classes.custom_minimum_size = Vector2(230, 280)
+	_choice_classes.add_theme_font_size_override("font_size", 11)
+	h.add_child(_choice_classes)
+	_choice_detail = RichTextLabel.new()
+	_choice_detail.bbcode_enabled = true
+	_choice_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_choice_detail.add_theme_font_size_override("normal_font_size", 11)
+	h.add_child(_choice_detail)
+	_choice_races.item_selected.connect(func(_i): _refresh_choice_detail())
+	_choice_classes.item_selected.connect(func(_i): _refresh_choice_detail())
+	var ok := Button.new()
+	ok.text = "Confirm (permanent)"
+	ok.pressed.connect(_confirm_choice)
+	v.add_child(ok)
+
+func _show_choice() -> void:
+	var offers: Dictionary = me.offers
+	_choice_races.clear()
+	for r in offers.races:
+		_choice_races.add_item(r.name)
+	_choice_classes.clear()
+	for c in offers.classes:
+		_choice_classes.add_item(c.name)
+	_choice_races.select(0)
+	_choice_classes.select(0)
+	_choice.visible = true
+	_choice_shown = true
+	_refresh_choice_detail()
+
+func _stat_line(stats: Dictionary) -> String:
+	var parts := []
+	for s in stats:
+		parts.append("%s %+d" % [str(s).to_upper(), int(stats[s])])
+	return ", ".join(parts) if not parts.is_empty() else "no stat changes"
+
+func _refresh_choice_detail() -> void:
+	if not me.has("offers"):
+		return
+	var r: Dictionary = me.offers.races[_choice_races.get_selected_items()[0]]
+	var c: Dictionary = me.offers.classes[_choice_classes.get_selected_items()[0]]
+	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
+		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback, me.get("points", 0)]
+
+func _confirm_choice() -> void:
+	if not me.has("offers"):
+		return
+	Net.send("choose", {
+		"race": me.offers.races[_choice_races.get_selected_items()[0]].id,
+		"klass": me.offers.classes[_choice_classes.get_selected_items()[0]].id})
+
 func _on_chat(text: String) -> void:
 	if text.strip_edges() != "":
 		Net.send("chat", text)
@@ -128,17 +233,39 @@ func _refresh_hud() -> void:
 			hp = p[3]
 			max_hp = p[4]
 	var skills: Dictionary = me.get("skills", {})
-	_stats.text = "HP %d/%d   Level %d   XP %d/%d\nBrawling %d  Throwing %d  Tinkering %d\nAchievements %d" % [
-		ceil(hp), max_hp, me.get("level", 1), me.get("xp", 0), me.get("xp_needed", 0),
+	var st: Dictionary = me.get("stats", {})
+	var who := "%s %s" % [me.get("race", ""), me.get("klass", "")] if me.get("klass", "") != "" else "No class yet (chosen on level 3)"
+	var points := int(me.get("points", 0))
+	var point_note := ""
+	if points > 0:
+		point_note = "   %d points %s" % [points, "to spend" if me.get("can_spend", false) else ("banked (spend in a safe room)" if me.get("klass", "") != "" else "banked until you pick a class")]
+	_stats.text = "HP %d/%d   MP %d   Level %d   XP %d/%d\nSTR %d  DEX %d  CON %d  INT %d  CHA %d%s\n%s   Past life: %s\nBrawling %d  Throwing %d  Tinkering %d\nAchievements %d%s%s" % [
+		ceil(hp), max_hp, me.get("mana", 0), me.get("level", 1), me.get("xp", 0), me.get("xp_needed", 0),
+		st.get("str", 0), st.get("dex", 0), st.get("con", 0), st.get("int", 0), st.get("cha", 0), point_note,
+		who, me.get("past", ""),
 		skills.get("brawling", 0), skills.get("throwing", 0), skills.get("tinkering", 0),
-		me.get("achievements", 0)]
+		me.get("achievements", 0),
+		"   %d prize boxes waiting (open in a safe room)" % me.boxes_waiting if me.get("boxes_waiting", 0) > 0 else "",
+		"   Companion: %s" % me.companion if me.get("companion", "") != "" else ""]
+	if me.get("perk", "") != "":
+		_stats.text += "\nPerk: %s\nDrawback: %s" % [me.perk, me.drawback]
+	_spend_box.visible = points > 0 and me.get("can_spend", false)
+	_spend_box.position.y = 112 + (44 if me.get("perk", "") != "" else 0)
+	if me.get("state", "play") == "choosing":
+		if not _choice_shown:
+			_show_choice()
+		_banner.text = ""
+		_choice_timer.text = "The choice is made for you in %d seconds" % int(me.get("choose_seconds", 0))
+	elif _choice_shown:
+		_choice.visible = false
+		_choice_shown = false
 	var t := int(snap.timer)
-	_top.text = "LEVEL COLLAPSE IN %02d:%02d\nViewers: %d" % [t / 60, t % 60, me.get("viewers", 0)]
+	_top.text = "%s COLLAPSES IN %02d:%02d\nViewers: %d" % [level_name.to_upper(), t / 60, t % 60, me.get("viewers", 0)]
 	var bar := []
 	var abilities: Array = me.get("abilities", [])
 	for i in abilities.size():
 		bar.append("[%d] %s Lv%d" % [i + 1, abilities[i].name, abilities[i].level])
-	_hotbar.text = "   ".join(bar) if not bar.is_empty() else "No inventions yet. Combine items and throw them at monsters."
+	_hotbar.text = "   ".join(bar)
 	if invite_from != "":
 		_hotbar.text += "\n%s invites you to a party. Press Y to accept." % invite_from
 
@@ -149,7 +276,7 @@ func _rebuild_inventory() -> void:
 	selected = selected.filter(func(item_id): return inv.has(item_id))
 	var head := Label.new()
 	head.add_theme_font_size_override("font_size", 11)
-	head.text = "PACK (click up to 3 to combine)"
+	head.text = "PACK (click up to 3 to combine)" if me.get("crafting", false) else "PACK (click one to throw)"
 	_inv_box.add_child(head)
 	for item_id in inv:
 		var b := Button.new()
@@ -173,8 +300,11 @@ func _rebuild_inventory() -> void:
 		_inv_box.add_child(pl)
 
 func _on_item_toggled(on: bool, item_id: String) -> void:
-	if on and not selected.has(item_id) and selected.size() < 3:
-		selected.append(item_id)
+	if on and not selected.has(item_id):
+		if not me.get("crafting", false):
+			selected.clear()
+		if selected.size() < 3:
+			selected.append(item_id)
 	elif not on:
 		selected.erase(item_id)
 	_rebuild_inventory()
@@ -185,9 +315,13 @@ func on_msg(kind: String, data: Dictionary) -> void:
 	match kind:
 		"welcome":
 			my_id = data.id
+		"floor":
 			grid = data.grid
 			timer_total = data.timer_total
-			_say("You are in %s. Find other crawlers, or don't." % data.level, "ffd75c")
+			level_name = data.name
+			shown.clear()
+			fx.clear()
+			_say("Level %d: %s." % [data.index + 1, data.name], "ffd75c")
 		"self":
 			me = data
 			_rebuild_inventory()
@@ -274,6 +408,8 @@ func _process(delta: float) -> void:
 		seen["p%d" % p[0]] = p[2]
 	for m in snap.m:
 		seen["m%d" % m[0]] = m[2]
+	for n in snap.get("n", []):
+		seen["n%d" % n[0]] = n[2]
 	for key in seen:
 		var target: Vector2 = seen[key]
 		var cur: Vector2 = shown.get(key, target)
@@ -290,6 +426,8 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if my_id == 0:
+		return
+	if me.get("state", "play") == "choosing":
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		if selected.is_empty():
@@ -346,6 +484,9 @@ func _draw() -> void:
 				col = col.lightened(0.04)
 			draw_colored_polygon(PackedVector2Array([iso(Vector2(x, y)), iso(Vector2(x + 1, y)),
 				iso(Vector2(x + 1, y + 1)), iso(Vector2(x, y + 1))]), col)
+			if c == ">":
+				var mid := iso(Vector2(x + 0.5, y + 0.5))
+				draw_colored_polygon(PackedVector2Array([mid + Vector2(-8, -4), mid + Vector2(8, -4), mid + Vector2(0, 6)]), Color("5cf2a6"))
 	for d in snap.d:
 		var dp := iso(d[2])
 		var dc := Color(db.items[d[1]].color)
@@ -363,6 +504,9 @@ func _draw() -> void:
 	for m in snap.m:
 		var pos: Vector2 = shown.get("m%d" % m[0], m[2])
 		tall.append([pos.x + pos.y, 2, m, pos])
+	for n in snap.get("n", []):
+		var pos: Vector2 = shown.get("n%d" % n[0], n[2])
+		tall.append([pos.x + pos.y, 3, n, pos])
 	tall.sort_custom(func(a, b): return a[0] < b[0])
 	var my_party: Array = me.get("party", [])
 	for t in tall:
@@ -370,6 +514,7 @@ func _draw() -> void:
 			0: _draw_wall(t[2])
 			1: _draw_player(t[2], t[3], my_party)
 			2: _draw_mob(t[2], t[3])
+			3: _draw_npc(t[2], t[3])
 	for f in fx:
 		_draw_fx(f)
 
@@ -402,7 +547,16 @@ func _draw_player(p: Array, pos: Vector2, my_party: Array) -> void:
 		var face: Vector2 = iso(p[7]).normalized() * 5.0
 		draw_circle(s + Vector2(0, -27) + face, 2, Color.BLACK)
 		_bar(s + Vector2(0, -40), p[3] / p[4], Color("5cf27a"))
-	draw_string(_font, s + Vector2(-50, -44), p[1], HORIZONTAL_ALIGNMENT_CENTER, 100, 10, Color.WHITE)
+	draw_string(_font, s + Vector2(-70, -44), p[1] if p[8] == "" else "%s, %s" % [p[1], p[8]], HORIZONTAL_ALIGNMENT_CENTER, 140, 10, Color.WHITE)
+
+func _draw_npc(n: Array, pos: Vector2) -> void:
+	var s := iso(pos)
+	var body := Color(n[3])
+	_ellipse(s, 10, 5, Color(0, 0, 0, 0.45))
+	draw_rect(Rect2(s + Vector2(-6, -22), Vector2(12, 20)), body)
+	draw_circle(s + Vector2(0, -27), 6, body.lightened(0.3))
+	var label: String = n[1] if n[4] != 0 else "%s (press P to recruit)" % n[1]
+	draw_string(_font, s + Vector2(-80, -38), label, HORIZONTAL_ALIGNMENT_CENTER, 160, 10, Color("c8c8ff"))
 
 func _draw_mob(m: Array, pos: Vector2) -> void:
 	var def: Dictionary = db.mobs[m[1]]
@@ -417,7 +571,8 @@ func _draw_mob(m: Array, pos: Vector2) -> void:
 	_ellipse(s + Vector2(0, -8 * size), 11 * size, 9 * size, col)
 	draw_circle(s + Vector2(-4 * size, -10 * size), 1.5 * size, Color("ff3030"))
 	draw_circle(s + Vector2(4 * size, -10 * size), 1.5 * size, Color("ff3030"))
-	_bar(s + Vector2(0, -22 * size - 4), m[3] / float(def.hp), Color("f25c5c"))
+	_bar(s + Vector2(0, -22 * size - 4), m[3] / float(m[6]), Color("f25c5c"))
+	draw_string(_font, s + Vector2(-40, -22 * size - 7), "Lv %d" % m[7], HORIZONTAL_ALIGNMENT_CENTER, 80, 9, Color("ffb0b0"))
 
 func _draw_fx(f: Dictionary) -> void:
 	var k: float = clamp((_clock - f.t0) / f.life, 0.0, 1.0)

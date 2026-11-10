@@ -6,8 +6,9 @@ extends RefCounted
 
 signal event(targets: Array, ev: Dictionary)  # targets empty = everyone
 signal self_changed(pid: int)
+signal floor_changed(pid: int)
 
-const PLAYER_SPEED := 4.0
+const BASE_SPEED := 4.0
 const PLAYER_RADIUS := 0.3
 const MELEE_RANGE := 1.3
 const MELEE_CD := 0.45
@@ -21,24 +22,19 @@ const ITEM_RESPAWN := 25.0
 const MOB_RESPAWN := 20.0
 const PARTY_RANGE := 4.0
 const SHARE_RANGE := 10.0
-const MAX_COMBO := 3
+const BASE_STAT := 4
+const POINTS_PER_LEVEL := 3
+const CHOICE_FLOOR := 2          # index of the level where race and class are chosen
+const BOX_INTERVAL := 1.5
+const STATS := ["str", "dex", "con", "int", "cha"]
 
 var db: Dictionary
 var rng := RandomNumberGenerator.new()
 var world_seed: int
 var now := 0.0
-var timer_total := 1800.0
-var timer_left := 1800.0
-var grid: Array = []
-var width := 0
-var height := 0
-var player_spawns: Array = []
-var mob_spawns: Array = []
-var item_spawns: Array = []
+var floors: Array = []
 var players := {}
-var mobs := {}
-var drops := {}
-var pending: Array = []
+var companions := {}
 var parties := {}
 var invites := {}
 var canon := {}
@@ -48,66 +44,84 @@ func _init(p_db: Dictionary, p_seed: int = 1) -> void:
 	db = p_db
 	world_seed = p_seed
 	rng.seed = p_seed
-	_load_level()
+	for i in db.floors.floors.size():
+		floors.append(_load_floor(i))
 
-# ---------------------------------------------------------------- level
+# ---------------------------------------------------------------- levels
 
-func _load_level() -> void:
-	var level: Dictionary = db.level
-	timer_total = float(level.timer_seconds)
-	timer_left = timer_total
-	grid.clear()
-	player_spawns.clear()
-	mob_spawns.clear()
-	item_spawns.clear()
-	var rows: Array = level.map
-	height = rows.size()
-	width = str(rows[0]).length()
-	for y in height:
+func _load_floor(index: int) -> Dictionary:
+	var def: Dictionary = db.floors.floors[index]
+	var f := {
+		"index": index, "name": def.name, "timer_total": float(def.timer_seconds),
+		"timer_left": float(def.timer_seconds), "grid": [], "width": 0, "height": 0,
+		"starts": [], "arrivals": [], "mob_spawns": [], "item_spawns": [],
+		"mobs": {}, "drops": {}, "pending": [],
+	}
+	var rows: Array = def.map
+	f.height = rows.size()
+	f.width = str(rows[0]).length()
+	var names: Array = def.get("starts", [])
+	for y in f.height:
 		var row: String = rows[y]
 		var out := ""
-		for x in width:
+		for x in f.width:
 			var c := row[x]
-			if c in ["P", "m", "G", "i"]:
+			if c in ["P", "m", "G", "i", "N", "1", "2", "3"]:
 				var floor_c := out[x - 1] if x > 0 and out[x - 1] != "#" else "."
 				var pos := Vector2(x + 0.5, y + 0.5)
 				match c:
-					"P": player_spawns.append(pos)
-					"m": mob_spawns.append({"pos": pos, "type": "drain_leech" if floor_c == "~" else "sump_rat", "mob": 0, "respawn_at": 0.0})
-					"G": mob_spawns.append({"pos": pos, "type": "scrap_golem", "mob": 0, "respawn_at": 0.0})
-					"i": item_spawns.append({"pos": pos, "drop": 0, "respawn_at": 0.0})
+					"P": f.arrivals.append(pos)
+					"m": f.mob_spawns.append({"pos": pos, "type": "drain_leech" if floor_c == "~" else "sump_rat", "mob": 0, "respawn_at": 0.0})
+					"G": f.mob_spawns.append({"pos": pos, "type": "scrap_golem", "mob": 0, "respawn_at": 0.0})
+					"i": f.item_spawns.append({"pos": pos, "drop": 0, "respawn_at": 0.0})
+					"N":
+						var defs: Array = db.companions.companions
+						var cdef: Dictionary = defs[companions.size() % defs.size()]
+						var id := _id()
+						companions[id] = {"id": id, "def": cdef, "floor": index, "pos": pos,
+							"home": pos, "home_floor": index, "owner": 0, "cd": 0.0}
+					_:
+						var n := int(c) - 1
+						f.starts.append({"pos": pos, "name": names[n] if n < names.size() else "Start %s" % c})
 				c = floor_c
 			out += c
-		grid.append(out)
+		f.grid.append(out)
+	if f.arrivals.is_empty():
+		for s in f.starts:
+			f.arrivals.append(s.pos)
+	return f
 
-func tile_at(pos: Vector2) -> String:
+func start_names() -> Array:
+	return floors[0].starts.map(func(s): return s.name)
+
+func tile_at(f: Dictionary, pos: Vector2) -> String:
 	var x := int(floor(pos.x))
 	var y := int(floor(pos.y))
-	if x < 0 or y < 0 or x >= width or y >= height:
+	if x < 0 or y < 0 or x >= f.width or y >= f.height:
 		return "#"
-	return grid[y][x]
+	return f.grid[y][x]
 
-func tags_at(pos: Vector2) -> Array:
-	match tile_at(pos):
+func tags_at(f: Dictionary, pos: Vector2) -> Array:
+	match tile_at(f, pos):
 		"~": return ["wet"]
 		",": return ["narrow"]
 		"S": return ["safe"]
-		".": return ["open"]
+		".", ">": return ["open"]
 	return []
 
-func _free(pos: Vector2, r: float, no_safe: bool) -> bool:
+func _free(f: Dictionary, pos: Vector2, r: float, no_safe: bool) -> bool:
 	for off in [Vector2(-r, -r), Vector2(r, -r), Vector2(-r, r), Vector2(r, r)]:
-		var c := tile_at(pos + off)
+		var c := tile_at(f, pos + off)
 		if c == "#" or (no_safe and c == "S"):
 			return false
 	return true
 
-func _move(pos: Vector2, delta: Vector2, r: float, no_safe := false) -> Vector2:
+func _move(f: Dictionary, pos: Vector2, delta: Vector2, r: float, no_safe := false) -> Vector2:
 	var nx := Vector2(pos.x + delta.x, pos.y)
-	if _free(nx, r, no_safe):
+	if _free(f, nx, r, no_safe):
 		pos = nx
 	var ny := Vector2(pos.x, pos.y + delta.y)
-	if _free(ny, r, no_safe):
+	if _free(f, ny, r, no_safe):
 		pos = ny
 	return pos
 
@@ -115,37 +129,85 @@ func _id() -> int:
 	_next_id += 1
 	return _next_id
 
+func _floor_of(p: Dictionary) -> Dictionary:
+	return floors[p.floor]
+
+func _in_safe(p: Dictionary) -> bool:
+	return tile_at(_floor_of(p), p.pos) == "S"
+
+func _on_floor(index: int) -> Array:
+	var out := []
+	for p in players.values():
+		if p.floor == index:
+			out.append(p.id)
+	return out
+
+## Send something only the players on one level should see or hear.
+func _floor_ev(index: int, ev: Dictionary) -> void:
+	var ids := _on_floor(index)
+	if not ids.is_empty():
+		event.emit(ids, ev)
+
 # ---------------------------------------------------------------- players
 
-func add_player(pid: int, player_name: String) -> void:
-	var clean := player_name.strip_edges().substr(0, 16)
+## info: {name, past, start}. past is a past-life id, start an index into the
+## first level's starting locations.
+func add_player(pid: int, info: Dictionary) -> void:
+	var clean := str(info.get("name", "")).strip_edges().substr(0, 16)
 	if clean == "":
 		clean = "Crawler%d" % (pid % 1000)
+	var past := ClassOffers.past_life(str(info.get("past", "")), db)
+	var starts: Array = floors[0].starts
+	var start: int = clamp(int(info.get("start", 0)), 0, starts.size() - 1)
+	var skills := {"brawling": 0, "throwing": 0, "tinkering": 0}
+	for s in past.skills:
+		skills[s] = int(pow(float(past.skills[s]), 2.0) * 5.0)
+	var stats := {}
+	for s in STATS:
+		stats[s] = BASE_STAT
 	players[pid] = {
-		"id": pid, "name": clean, "pos": _spawn_point(pid), "input": Vector2.ZERO,
-		"facing": Vector2(1, 1).normalized(), "hp": 30.0, "max_hp": 30.0, "level": 1, "xp": 0,
-		"inv": {"oil_flask": 3, "rag": 3, "flint": 2}, "abilities": [], "ability_ready": {},
-		"party": 0, "skills": {"brawling": 0, "throwing": 0, "tinkering": 0},
-		"combo": {}, "counters": {}, "ach": {}, "excite": 0.0,
+		"id": pid, "name": clean, "past": past.id, "start": start, "floor": 0,
+		"pos": starts[start].pos, "input": Vector2.ZERO, "facing": Vector2(1, 1).normalized(),
+		"stats": stats, "points": 0, "race": "", "klass": "", "mods": {}, "perk": "", "drawback": "",
+		"state": "play", "offers": {}, "choose_until": 0.0,
+		"hp": 1.0, "max_hp": 1.0, "level": 1, "xp": 0,
+		"inv": {"oil_flask": 2, "rag": 2, "flint": 1, "bone": 1}, "abilities": [], "ability_ready": {},
+		"party": 0, "companion": 0, "pet": null, "skills": skills,
+		"combo": {}, "dossier": {}, "ach": {}, "boxes": [], "next_box_at": 0.0, "excite": 0.0,
 		"cd_melee": 0.0, "cd_throw": 0.0, "dead_until": -1.0,
 	}
+	var p: Dictionary = players[pid]
+	_recalc(p)
+	p.hp = p.max_hp
 	_say("welcome", {"name": clean}, [pid])
-	_log("%s has entered the dungeon." % clean)
+	_log("%s (%s) has entered the dungeon at %s." % [clean, past.name, starts[start].name])
 	self_changed.emit(pid)
 
 func remove_player(pid: int) -> void:
 	if not players.has(pid):
 		return
 	var left_name: String = players[pid].name
+	_release_companion(players[pid], false)
 	_leave_party(pid)
 	invites.erase(pid)
 	players.erase(pid)
 	_log("%s has left the dungeon." % left_name)
 
-func _spawn_point(pid: int) -> Vector2:
-	if player_spawns.is_empty():
-		return Vector2(1.5, 1.5)
-	return player_spawns[pid % player_spawns.size()]
+func _mod(p: Dictionary, key: String, default: float) -> float:
+	return float(p.mods.get(key, default))
+
+func _recalc(p: Dictionary) -> void:
+	var old_max: float = p.max_hp
+	p.max_hp = round((20.0 + p.stats.con * 5.0 + (p.level - 1) * 4.0) * _mod(p, "hp_mult", 1.0))
+	if p.max_hp > old_max:
+		p.hp += p.max_hp - old_max
+	p.hp = min(p.hp, p.max_hp)
+
+func _arrival(p: Dictionary) -> Vector2:
+	var f := _floor_of(p)
+	if p.floor == 0:
+		return f.starts[p.start].pos
+	return f.arrivals[p.id % f.arrivals.size()]
 
 func set_input(pid: int, dir: Vector2) -> void:
 	if players.has(pid):
@@ -156,18 +218,23 @@ func chat(pid: int, text: String) -> void:
 		return
 	var clean := text.strip_edges().substr(0, 200)
 	if clean != "":
+		_note(players[pid], "chats")
 		event.emit([], {"type": "chat", "from": players[pid].name, "text": clean})
 
 func _alive(p: Dictionary) -> bool:
 	return p.dead_until < 0.0
 
+func _can_act(p: Dictionary) -> bool:
+	return _alive(p) and p.state == "play"
+
 func _skill_level(p: Dictionary, skill: String) -> int:
 	return min(15, int(sqrt(float(p.skills[skill]) / 5.0)))
 
 func _ctx(p: Dictionary) -> Dictionary:
+	var f := _floor_of(p)
 	return {
-		"room_tags": tags_at(p.pos), "hp_frac": p.hp / p.max_hp,
-		"allies_near": _allies_near(p).size(), "time_frac": timer_left / timer_total,
+		"room_tags": tags_at(f, p.pos), "hp_frac": p.hp / p.max_hp,
+		"allies_near": _allies_near(p).size(), "time_frac": f.timer_left / f.timer_total,
 		"player_level": p.level,
 	}
 
@@ -178,44 +245,69 @@ func _allies_near(p: Dictionary, dist := 6.0) -> Array:
 	for other_id in parties.get(p.party, []):
 		if other_id != p.id and players.has(other_id):
 			var o: Dictionary = players[other_id]
-			if _alive(o) and o.pos.distance_to(p.pos) <= dist:
+			if _alive(o) and o.floor == p.floor and o.pos.distance_to(p.pos) <= dist:
 				out.append(other_id)
 	return out
+
+## Damage bonus from party auras (a class perk), your own included.
+func _aura(p: Dictionary) -> float:
+	var best := _mod(p, "party_aura", 1.0)
+	for ally in _allies_near(p):
+		best = max(best, _mod(players[ally], "party_aura", 1.0))
+	return best
+
+## The dossier: a running count of what the player does. It drives
+## achievements and, at the level 3 choice, which classes they are offered.
+func _note(p: Dictionary, key: String, amount := 1.0) -> void:
+	p.dossier[key] = float(p.dossier.get(key, 0.0)) + amount
 
 # ---------------------------------------------------------------- combat
 
 func melee(pid: int) -> void:
 	var p: Dictionary = players.get(pid, {})
-	if p.is_empty() or not _alive(p) or now < p.cd_melee or tile_at(p.pos) == "S":
+	if p.is_empty() or not _can_act(p) or now < p.cd_melee or _in_safe(p):
 		return
 	p.cd_melee = now + MELEE_CD
+	var f := _floor_of(p)
 	var best := {}
 	var best_d := MELEE_RANGE
-	for m in mobs.values():
+	for m in f.mobs.values():
 		var d: float = m.pos.distance_to(p.pos)
 		if d <= best_d:
 			best = m
 			best_d = d
-	event.emit([], {"type": "swing", "id": pid})
+	_floor_ev(p.floor, {"type": "swing", "id": pid})
 	if best.is_empty():
 		return
 	p.facing = (best.pos - p.pos).normalized()
 	p.skills.brawling += 1
-	var dmg := MELEE_DAMAGE * (1.0 + 0.05 * _skill_level(p, "brawling"))
-	_damage_mob(best, dmg, pid)
+	var dmg: float = MELEE_DAMAGE * (1.0 + 0.08 * (p.stats.str - BASE_STAT)) \
+		* (1.0 + 0.05 * _skill_level(p, "brawling")) * _mod(p, "melee_mult", 1.0) * _aura(p)
+	if rng.randf() < _mod(p, "stun_chance", 0.0):
+		best.stun_until = max(best.stun_until, now + 1.0)
+	if rng.randf() < _mod(p, "heal_on_melee", 0.0):
+		var patient: Dictionary = p
+		for ally in _allies_near(p):
+			var o: Dictionary = players[ally]
+			if o.hp / o.max_hp < patient.hp / patient.max_hp:
+				patient = o
+		patient.hp = min(patient.max_hp, patient.hp + 4.0)
+	_damage_mob(f, best, dmg, pid, "melee")
 
 func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> bool:
 	var p: Dictionary = players.get(pid, {})
 	# No fighting from inside a safe room: you are safe there, and so is everything else.
-	if p.is_empty() or not _alive(p) or now < p.cd_throw or tile_at(p.pos) == "S":
+	if p.is_empty() or not _can_act(p) or now < p.cd_throw or _in_safe(p):
 		return false
+	var crafter := _mod(p, "crafting", 0.0) > 0.0
 	var ability := {}
 	if ability_idx >= 0:
 		if ability_idx >= p.abilities.size():
 			return false
 		ability = p.abilities[ability_idx]
 		items = ability.items
-	if items.is_empty() or items.size() > MAX_COMBO:
+	# Combining items is a class perk. Everyone else throws one thing at a time.
+	if items.is_empty() or items.size() > (3 if crafter else 1):
 		return false
 	var need := {}
 	for item_id in items:
@@ -244,11 +336,11 @@ func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> 
 	else:
 		payload = Invention.payload_for(ability, ctx, db)
 		p.ability_ready[sig] = now + payload.cooldown
-	var skill_mult := 1.0 + 0.05 * _skill_level(p, "throwing")
+	var mult: float = (1.0 + 0.06 * (p.stats.dex - BASE_STAT)) * (1.0 + 0.05 * _skill_level(p, "throwing")) \
+		* _mod(p, "throw_mult", 1.0) * _aura(p)
 	for i in payload.effects.size():
-		payload.effects[i] = Invention._scaled(payload.effects[i], skill_mult)
-	var offset: Vector2 = target - p.pos
-	offset = offset.limit_length(payload.range)
+		payload.effects[i] = Invention._scaled(payload.effects[i], mult)
+	var offset: Vector2 = (target - p.pos).limit_length(payload.range + _mod(p, "throw_range", 0.0))
 	var hit_pos: Vector2 = p.pos + offset
 	if offset.length() > 0.01:
 		p.facing = offset.normalized()
@@ -256,27 +348,27 @@ func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> 
 	p.skills.throwing += 1
 	if items.size() > 1:
 		p.skills.tinkering += 1
-	pending.append({
+	_floor_of(p).pending.append({
 		"at": now + THROW_FLIGHT + payload.delay, "pos": hit_pos, "owner": pid,
 		"payload": payload, "sig": sig, "items": items.duplicate(), "ctx": ctx,
 		"is_ability": not ability.is_empty(),
 	})
-	event.emit([], {"type": "throw", "from": p.pos, "to": hit_pos, "flight": THROW_FLIGHT,
+	_floor_ev(p.floor, {"type": "throw", "from": p.pos, "to": hit_pos, "flight": THROW_FLIGHT,
 		"delay": payload.delay, "color": db.items[items[0]].color})
-	_count(p, "throw")
+	_count(p, "throws")
 	self_changed.emit(pid)
 	return true
 
-func _detonate(d: Dictionary) -> void:
+func _detonate(f: Dictionary, d: Dictionary) -> void:
 	var payload: Dictionary = d.payload
 	var hit := []
-	for m in mobs.values():
+	for m in f.mobs.values():
 		if m.pos.distance_to(d.pos) <= payload.radius + float(db.mobs[m.type].size) * 0.3:
 			hit.append(m)
 	var effect_ids := []
 	for e in payload.effects:
 		effect_ids.append(e.id)
-	event.emit([], {"type": "boom", "pos": d.pos, "radius": payload.radius, "effects": effect_ids})
+	_floor_ev(f.index, {"type": "boom", "pos": d.pos, "radius": payload.radius, "effects": effect_ids})
 	var kills := 0
 	var first_family := ""
 	for m in hit:
@@ -301,7 +393,7 @@ func _detonate(d: Dictionary) -> void:
 		for e in payload.effects:
 			if e.kind == "damage":
 				dmg += e.power * mult
-		if _damage_mob(m, dmg, d.owner):
+		if _damage_mob(f, m, dmg, d.owner, "thrown"):
 			kills += 1
 	var p: Dictionary = players.get(d.owner, {})
 	if p.is_empty():
@@ -316,8 +408,8 @@ func _detonate(d: Dictionary) -> void:
 		return
 	_track_combo(p, d, hit.size(), kills, first_family)
 
-## Watch what the player keeps doing. When a combination has proved itself,
-## hand the history to the invention engine.
+## Crafting classes only: watch which combinations the player keeps using and
+## hand the history to the invention engine once one has proved itself.
 func _track_combo(p: Dictionary, d: Dictionary, hits: int, kills: int, family: String) -> void:
 	if d.items.size() < 2 or hits == 0:
 		return
@@ -337,7 +429,6 @@ func _track_combo(p: Dictionary, d: Dictionary, hits: int, kills: int, family: S
 		"hp_frac": rec.min_hp, "allies_near": d.ctx.allies_near, "time_frac": d.ctx.time_frac,
 		"player_id": p.id, "player_level": p.level, "world_seed": world_seed,
 	}, db)
-	# Canon registry: a name belongs to the first inventor's version.
 	var base_name: String = ability.name
 	var n := 2
 	while canon.has(ability.name):
@@ -349,42 +440,48 @@ func _track_combo(p: Dictionary, d: Dictionary, hits: int, kills: int, family: S
 	p.excite += 25.0
 	_say("discovery", {"name": p.name, "ability": ability.name, "quip": ability.quip})
 	event.emit([p.id], {"type": "discovery", "ability": ability})
-	_count(p, "discovery")
+	_count(p, "discoveries")
 	self_changed.emit(p.id)
 
-func _damage_mob(m: Dictionary, amount: float, owner: int) -> bool:
-	if not mobs.has(m.id):
+func _damage_mob(f: Dictionary, m: Dictionary, amount: float, owner: int, how := "") -> bool:
+	if not f.mobs.has(m.id):
 		return false
 	m.hp -= amount
-	m.target = owner
+	if owner != 0:
+		m.target = owner
 	if m.hp > 0.0:
 		return false
-	mobs.erase(m.id)
-	for s in mob_spawns:
+	f.mobs.erase(m.id)
+	for s in f.mob_spawns:
 		if s.mob == m.id:
 			s.mob = 0
 			s.respawn_at = now + MOB_RESPAWN
-	event.emit([], {"type": "mob_dead", "id": m.id, "pos": m.pos})
+	_floor_ev(f.index, {"type": "mob_dead", "id": m.id, "pos": m.pos})
 	if rng.randf() < 0.6:
-		_drop(_roll(db.boxes.tin.table), m.pos)
+		_drop(f, _roll(db.boxes.tin.table), m.pos)
 	var killer: Dictionary = players.get(owner, {})
 	if killer.is_empty():
 		return true
 	killer.excite += 3.0
-	_count(killer, "kill")
+	if how != "":
+		_note(killer, "kills_" + how)
+	if m.level > killer.level:
+		_count(killer, "kills_above")
+	_count(killer, "kills")
 	var share := [owner]
 	for ally in _allies_near(killer, SHARE_RANGE):
 		share.append(ally)
 	for pid in share:
-		_give_xp(players[pid], int(db.mobs[m.type].xp))
+		_give_xp(players[pid], int(m.xp))
 	return true
 
 func _give_xp(p: Dictionary, amount: int) -> void:
-	p.xp += amount
+	p.xp += int(round(amount * _mod(p, "xp_mult", 1.0)))
 	while p.xp >= _xp_needed(p.level):
 		p.xp -= _xp_needed(p.level)
 		p.level += 1
-		p.max_hp += 5.0
+		p.points += POINTS_PER_LEVEL
+		_recalc(p)
 		p.hp = p.max_hp
 		_say("levelup", {"name": p.name, "level": p.level}, [p.id])
 	self_changed.emit(p.id)
@@ -392,18 +489,24 @@ func _give_xp(p: Dictionary, amount: int) -> void:
 func _xp_needed(level: int) -> int:
 	return int(20.0 * pow(level, 1.5))
 
-func _damage_player(p: Dictionary, amount: float) -> void:
-	if not _alive(p) or tile_at(p.pos) == "S":
+func _damage_player(p: Dictionary, amount: float, by: Dictionary = {}) -> void:
+	if not _can_act(p) or _in_safe(p):
 		return
 	p.hp -= amount
+	_note(p, "hits_taken")
+	var thorns := _mod(p, "thorns", 0.0)
+	if thorns > 0.0 and not by.is_empty():
+		_damage_mob(_floor_of(p), by, thorns, p.id, "thorns")
 	if p.hp > 0.0:
+		if p.hp / p.max_hp < 0.15:
+			p["close_call"] = true
 		return
 	p.hp = 0.0
 	p.dead_until = now + RESPAWN_TIME
 	p.input = Vector2.ZERO
 	p.excite += 10.0
 	_say("death", {"name": p.name})
-	_count(p, "death")
+	_count(p, "deaths")
 	self_changed.emit(p.id)
 
 # ---------------------------------------------------------------- loot
@@ -419,29 +522,109 @@ func _roll(table: Dictionary) -> String:
 			return k
 	return table.keys()[0]
 
-func _drop(item_id: String, pos: Vector2) -> int:
+func _drop(f: Dictionary, item_id: String, pos: Vector2) -> int:
 	var id := _id()
-	drops[id] = {"id": id, "item": item_id, "pos": pos}
+	f.drops[id] = {"id": id, "item": item_id, "pos": pos}
 	return id
 
+## Count something in the dossier and check achievements. Prizes are not
+## handed over here: they queue up until the player reaches a safe room.
 func _count(p: Dictionary, ev: String) -> void:
-	p.counters[ev] = int(p.counters.get(ev, 0)) + 1
+	_note(p, ev)
 	for a in db.achievements:
-		if a.event == ev and p.counters[ev] >= int(a.count) and not p.ach.has(a.id):
+		if a.event == ev and p.dossier[ev] >= float(a.count) and not p.ach.has(a.id):
 			p.ach[a.id] = true
-			var box: Dictionary = db.boxes[a.box]
-			var loot := []
-			for i in int(box.rolls):
-				var item_id := _roll(box.table)
-				p.inv[item_id] = int(p.inv.get(item_id, 0)) + 1
-				loot.append(db.items[item_id].name)
-			event.emit([p.id], {"type": "achievement", "title": a.title, "text": a.text,
-				"box": box.name, "loot": loot})
+			p.boxes.append(a)
+			_note(p, "achievements")
+			_say("box_wait", {}, [p.id])
 			_log("%s earned the achievement \"%s\"." % [p.name, a.title])
 			self_changed.emit(p.id)
 
-# ---------------------------------------------------------------- parties
+func _open_box(p: Dictionary) -> void:
+	var a: Dictionary = p.boxes.pop_front()
+	var box: Dictionary = db.boxes[a.box]
+	var loot := []
+	for i in int(box.rolls) + int(_mod(p, "box_extra_roll", 0.0)):
+		var item_id := _roll(box.table)
+		p.inv[item_id] = int(p.inv.get(item_id, 0)) + 1
+		loot.append(db.items[item_id].name)
+	event.emit([p.id], {"type": "achievement", "title": a.title, "text": a.text,
+		"box": box.name, "loot": loot})
+	self_changed.emit(p.id)
 
+# ---------------------------------------------------------------- stairs and the choice
+
+func _descend(p: Dictionary) -> void:
+	if p.floor + 1 >= floors.size():
+		return
+	p.floor += 1
+	p.pos = _arrival(p)
+	p.input = Vector2.ZERO
+	p.excite += 15.0
+	if p.companion != 0:
+		var c: Dictionary = companions[p.companion]
+		c.floor = p.floor
+		c.pos = p.pos
+	_say("descend", {"name": p.name, "floor": _floor_of(p).name})
+	_count(p, "descents")
+	floor_changed.emit(p.id)
+	if p.floor >= CHOICE_FLOOR and p.klass == "":
+		_begin_choice(p)
+	self_changed.emit(p.id)
+
+func _begin_choice(p: Dictionary) -> void:
+	p.state = "choosing"
+	p.offers = ClassOffers.offers(p.dossier, p.past, db)
+	p.choose_until = now + float(db.classes.offer.seconds)
+	_say("choose_start", {"name": p.name}, [p.id])
+
+## The player's pick. Both ids must be among what they were offered.
+func choose(pid: int, race_id: String, class_id: String) -> bool:
+	var p: Dictionary = players.get(pid, {})
+	if p.is_empty() or p.state != "choosing":
+		return false
+	var race := {}
+	for r in p.offers.races:
+		if r.id == race_id:
+			race = r
+	var klass := {}
+	for c in p.offers.classes:
+		if c.id == class_id:
+			klass = c
+	if race.is_empty() or klass.is_empty():
+		return false
+	p.race = race.name if race.id != "human" else "Human"
+	p.klass = klass.name
+	p.perk = klass.perk
+	p.drawback = klass.drawback
+	for source in [race, klass]:
+		for s in source.get("stats", {}):
+			p.stats[s] = max(1, int(p.stats[s]) + int(source.stats[s]))
+	p.mods = ClassOffers.merge_mods([race.get("mods", {}), klass.get("mods", {})])
+	p.state = "play"
+	p.offers = {}
+	_recalc(p)
+	p.hp = p.max_hp
+	p.excite += 20.0
+	_say("chosen", {"name": p.name, "race": p.race, "klass": p.klass, "quip": klass.quip})
+	_count(p, "class_chosen")
+	self_changed.emit(pid)
+	return true
+
+## Banked stat points can be spent once a class is chosen, in a safe room.
+func spend_point(pid: int, stat: String) -> bool:
+	var p: Dictionary = players.get(pid, {})
+	if p.is_empty() or p.klass == "" or p.points <= 0 or not STATS.has(stat) or not _in_safe(p):
+		return false
+	p.points -= 1
+	p.stats[stat] = int(p.stats[stat]) + 1
+	_recalc(p)
+	self_changed.emit(pid)
+	return true
+
+# ---------------------------------------------------------------- parties and companions
+
+## Invite the nearest player, or failing that recruit a waiting NPC companion.
 func party_invite(pid: int) -> void:
 	var p: Dictionary = players.get(pid, {})
 	if p.is_empty():
@@ -449,17 +632,37 @@ func party_invite(pid: int) -> void:
 	var best := 0
 	var best_d := PARTY_RANGE
 	for o in players.values():
-		if o.id != pid and (p.party == 0 or o.party != p.party):
+		if o.id != pid and o.floor == p.floor and (p.party == 0 or o.party != p.party):
 			var d: float = o.pos.distance_to(p.pos)
 			if d <= best_d:
 				best = o.id
 				best_d = d
-	if best == 0:
-		event.emit([pid], {"type": "log", "text": "Nobody is close enough to invite."})
+	if best != 0:
+		invites[best] = pid
+		event.emit([best], {"type": "invite", "from": p.name})
+		event.emit([pid], {"type": "log", "text": "Invite sent to %s." % players[best].name})
 		return
-	invites[best] = pid
-	event.emit([best], {"type": "invite", "from": p.name})
-	event.emit([pid], {"type": "log", "text": "Invite sent to %s." % players[best].name})
+	if p.party == 0 and p.companion == 0:
+		for c in companions.values():
+			if c.owner == 0 and c.floor == p.floor and c.pos.distance_to(p.pos) <= PARTY_RANGE:
+				c.owner = pid
+				p.companion = c.id
+				_say("recruit", {"npc": c.def.name, "line": c.def.join}, [pid])
+				_count(p, "recruits")
+				self_changed.emit(pid)
+				return
+	event.emit([pid], {"type": "log", "text": "Nobody is close enough to invite."})
+
+func _release_companion(p: Dictionary, speak := true) -> void:
+	if p.companion == 0:
+		return
+	var c: Dictionary = companions[p.companion]
+	if speak:
+		_say("npc_leave", {"npc": c.def.name, "line": c.def.leave}, [p.id])
+	c.owner = 0
+	c.floor = c.home_floor
+	c.pos = c.home
+	p.companion = 0
 
 func party_accept(pid: int) -> void:
 	var from: int = invites.get(pid, 0)
@@ -472,12 +675,15 @@ func party_accept(pid: int) -> void:
 	if host.party == 0:
 		host.party = _id()
 		parties[host.party] = [from]
-		_count(host, "party_join")
+		_count(host, "parties")
 	p.party = host.party
 	parties[host.party].append(pid)
 	host.excite += 5.0
 	_say("party", {"a": host.name, "b": p.name})
-	_count(p, "party_join")
+	_count(p, "parties")
+	# NPC helpers step aside once real players have found each other.
+	_release_companion(host)
+	_release_companion(p)
 	for member in parties[host.party]:
 		self_changed.emit(member)
 
@@ -518,82 +724,139 @@ func _log(text: String) -> void:
 
 func tick(dt: float) -> void:
 	now += dt
-	timer_left -= dt
-	if timer_left <= 0.0:
-		_collapse()
 	_tick_players(dt)
-	_tick_mobs(dt)
-	var still := []
-	for d in pending:
-		if d.at <= now:
-			_detonate(d)
-		else:
-			still.append(d)
-	pending = still
-	_tick_spawns()
+	_tick_companions(dt)
+	for f in floors:
+		f.timer_left -= dt
+		if f.timer_left <= 0.0:
+			_collapse(f)
+		_tick_mobs(f, dt)
+		var still := []
+		for d in f.pending:
+			if d.at <= now:
+				_detonate(f, d)
+			else:
+				still.append(d)
+		f.pending = still
+		_tick_spawns(f)
 
-func _collapse() -> void:
-	timer_left = timer_total
-	mobs.clear()
-	for s in mob_spawns:
+func _collapse(f: Dictionary) -> void:
+	f.timer_left = f.timer_total
+	f.mobs.clear()
+	for s in f.mob_spawns:
 		s.mob = 0
 		s.respawn_at = 0.0
-	for p in players.values():
-		p.pos = _spawn_point(p.id)
+	var here := _on_floor(f.index)
+	for pid in here:
+		var p: Dictionary = players[pid]
+		p.pos = _arrival(p)
 		p.hp = p.max_hp
 		p.dead_until = -1.0
-		self_changed.emit(p.id)
-	_say("collapse", {})
+		self_changed.emit(pid)
+	if not here.is_empty():
+		_say("collapse", {}, here)
 
 func _tick_players(dt: float) -> void:
 	for p in players.values():
+		var f := _floor_of(p)
 		p.excite = max(0.0, p.excite - p.excite * 0.02 * dt)
+		if p.state == "choosing":
+			if now >= p.choose_until:
+				choose(p.id, p.offers.races[0].id, p.offers.classes[0].id)
+			continue
 		if not _alive(p):
 			if now >= p.dead_until:
 				p.dead_until = -1.0
 				p.hp = p.max_hp
-				p.pos = _spawn_point(p.id)
+				p.pos = _arrival(p)
 				_say("respawn", {"name": p.name}, [p.id])
 				self_changed.emit(p.id)
 			continue
 		if p.input.length() > 0.05:
 			p.facing = p.input.normalized()
-			p.pos = _move(p.pos, p.input * PLAYER_SPEED * dt, PLAYER_RADIUS)
-		if tile_at(p.pos) == "S" and p.hp < p.max_hp:
+			var speed: float = BASE_SPEED * _mod(p, "speed_mult", 1.0) * (1.0 + 0.02 * (p.stats.dex - BASE_STAT))
+			p.pos = _move(f, p.pos, p.input * speed * dt, PLAYER_RADIUS)
+		var safe := tile_at(f, p.pos) == "S"
+		if safe:
+			_note(p, "safe_seconds", dt)
 			p.hp = min(p.max_hp, p.hp + 3.0 * dt)
-		for d in drops.values():
+			if p.get("close_call", false):
+				p["close_call"] = false
+				_note(p, "close_calls")
+			if not p.boxes.is_empty() and now >= p.next_box_at:
+				p.next_box_at = now + BOX_INTERVAL
+				_open_box(p)
+		else:
+			p.hp = min(p.max_hp, p.hp + _mod(p, "regen", 0.0) * dt)
+		for d in f.drops.values():
 			if d.pos.distance_to(p.pos) <= PICKUP_RANGE:
 				p.inv[d.item] = int(p.inv.get(d.item, 0)) + 1
-				drops.erase(d.id)
-				for s in item_spawns:
+				f.drops.erase(d.id)
+				for s in f.item_spawns:
 					if s.drop == d.id:
 						s.drop = 0
 						s.respawn_at = now + ITEM_RESPAWN
+				_note(p, "pickups")
 				event.emit([p.id], {"type": "log", "text": "Picked up %s." % db.items[d.item].name})
 				self_changed.emit(p.id)
+		if tile_at(f, p.pos) == ">":
+			_descend(p)
 
-func _tick_mobs(dt: float) -> void:
-	for m in mobs.values():
-		var def: Dictionary = db.mobs[m.type]
-		# Damage over time
+func _tick_companions(dt: float) -> void:
+	for c in companions.values():
+		if c.owner == 0 or not players.has(c.owner):
+			c.owner = 0
+			continue
+		var p: Dictionary = players[c.owner]
+		var f := _floor_of(p)
+		if c.pos.distance_to(p.pos) > 8.0:
+			c.pos = p.pos
+		# Fight whatever is closest to the owner; otherwise tag along behind.
+		var target := {}
+		var best_d := 4.0
+		if not _in_safe(p) and _can_act(p):
+			for m in f.mobs.values():
+				var d: float = m.pos.distance_to(p.pos)
+				if d <= best_d:
+					target = m
+					best_d = d
+		var goal: Vector2 = p.pos - p.facing * 0.9
+		if not target.is_empty():
+			goal = target.pos
+		var to_goal: Vector2 = goal - c.pos
+		if not target.is_empty() and to_goal.length() <= 1.0:
+			if now >= c.cd:
+				c.cd = now + 0.9
+				_floor_ev(f.index, {"type": "npc_swing", "id": c.id})
+				_damage_mob(f, target, float(c.def.damage) * _mod(p, "companion_mult", 1.0), p.id, "companion")
+		elif to_goal.length() > 0.3:
+			c.pos = _move(f, c.pos, to_goal.normalized() * BASE_SPEED * 1.05 * dt, 0.25)
+
+func _tick_mobs(f: Dictionary, dt: float) -> void:
+	for m in f.mobs.values():
 		var live := []
 		for dot in m.dots:
 			if dot.until > now:
 				live.append(dot)
-			if mobs.has(m.id):
-				_damage_mob(m, dot.dps * dt, dot.owner)
+			if f.mobs.has(m.id):
+				_damage_mob(f, m, dot.dps * dt, dot.owner, "thrown")
 		m.dots = live
-		if not mobs.has(m.id) or now < m.stun_until:
+		if not f.mobs.has(m.id) or now < m.stun_until:
 			continue
-		# Pick the nearest living player who is not hiding in a safe room
+		# Chase the nearest living player who is not in a safe room. Each
+		# player's class can change how far away they get noticed.
 		var target := {}
-		var best_d := AGGRO_RANGE
+		var best_d := 999.0
 		for p in players.values():
-			if _alive(p) and tile_at(p.pos) != "S":
-				var d: float = p.pos.distance_to(m.pos)
-				if d <= best_d or (p.id == m.target and d <= AGGRO_RANGE * 2.0 and target.is_empty()):
-					target = p
-					best_d = min(best_d, d)
+			if p.floor != f.index or not _can_act(p) or tile_at(f, p.pos) == "S":
+				continue
+			var d: float = p.pos.distance_to(m.pos)
+			var reach := AGGRO_RANGE * _mod(p, "aggro_mult", 1.0)
+			if p.id == m.target:
+				reach = max(reach, AGGRO_RANGE * 2.0)
+			if d <= reach and d < best_d:
+				target = p
+				best_d = d
 		var goal: Vector2 = m.home
 		if not target.is_empty():
 			goal = target.pos
@@ -602,49 +865,66 @@ func _tick_mobs(dt: float) -> void:
 		if not target.is_empty() and dist <= 0.9:
 			if now >= m.cd_attack:
 				m.cd_attack = now + 1.0
-				_damage_player(target, float(def.damage))
-				event.emit([], {"type": "bite", "id": m.id, "target": target.id})
+				_floor_ev(f.index, {"type": "bite", "id": m.id, "target": target.id})
+				_damage_player(target, m.damage, m)
 			continue
 		if dist < 0.1 or now < m.root_until:
 			continue
-		var speed: float = def.speed
+		var speed: float = db.mobs[m.type].speed
 		if now < m.slow_until:
 			speed *= m.slow_factor
 		else:
 			m.slow_factor = 1.0
-		m.pos = _move(m.pos, to_goal.normalized() * speed * dt, 0.25, true)
+		m.pos = _move(f, m.pos, to_goal.normalized() * speed * dt, 0.25, true)
 
-func _tick_spawns() -> void:
-	for s in mob_spawns:
+func _tick_spawns(f: Dictionary) -> void:
+	# Deeper levels have tougher versions of everything.
+	var scale: float = 1.0 + 0.6 * f.index
+	for s in f.mob_spawns:
 		if s.mob == 0 and now >= s.respawn_at:
+			var def: Dictionary = db.mobs[s.type]
 			var id := _id()
-			mobs[id] = {
+			f.mobs[id] = {
 				"id": id, "type": s.type, "pos": s.pos, "home": s.pos,
-				"hp": float(db.mobs[s.type].hp), "target": 0, "cd_attack": 0.0, "dots": [],
+				"hp": float(def.hp) * scale, "max_hp": float(def.hp) * scale,
+				"damage": float(def.damage) * scale, "xp": int(def.xp * scale),
+				"level": int(def.level) + 2 * f.index,
+				"target": 0, "cd_attack": 0.0, "dots": [],
 				"slow_until": 0.0, "slow_factor": 1.0, "root_until": 0.0, "stun_until": 0.0,
 			}
 			s.mob = id
-	for s in item_spawns:
+	for s in f.item_spawns:
 		if s.drop == 0 and now >= s.respawn_at:
-			s.drop = _drop(db.items.keys()[rng.randi() % db.items.size()], s.pos)
+			s.drop = _drop(f, db.items.keys()[rng.randi() % db.items.size()], s.pos)
 
 # ---------------------------------------------------------------- views
 
 func viewers(p: Dictionary) -> int:
-	return int(round(5.0 + p.excite * 10.0))
+	return int(round((5.0 + p.excite * 10.0) * (1.0 + 0.1 * (p.stats.cha - BASE_STAT)) * _mod(p, "viewers_mult", 1.0)))
 
-## Small, frequent state everyone needs.
-func snapshot() -> Dictionary:
+func floor_info(pid: int) -> Dictionary:
+	var f := _floor_of(players[pid])
+	return {"index": f.index, "name": f.name, "grid": f.grid, "timer_total": f.timer_total}
+
+## Small, frequent state for everyone on one level.
+func snapshot(index: int) -> Dictionary:
+	var f: Dictionary = floors[index]
 	var ps := []
 	for p in players.values():
-		ps.append([p.id, p.name, p.pos, p.hp, p.max_hp, p.party, not _alive(p), p.facing])
+		if p.floor == index:
+			ps.append([p.id, p.name, p.pos, p.hp, p.max_hp, p.party, not _alive(p), p.facing, p.klass])
 	var ms := []
-	for m in mobs.values():
-		ms.append([m.id, m.type, m.pos, m.hp, now < m.slow_until or now < m.root_until or now < m.stun_until, not m.dots.is_empty()])
+	for m in f.mobs.values():
+		ms.append([m.id, m.type, m.pos, m.hp, now < m.slow_until or now < m.root_until or now < m.stun_until,
+			not m.dots.is_empty(), m.max_hp, m.level])
 	var ds := []
-	for d in drops.values():
+	for d in f.drops.values():
 		ds.append([d.id, d.item, d.pos])
-	return {"timer": timer_left, "p": ps, "m": ms, "d": ds}
+	var ns := []
+	for c in companions.values():
+		if c.floor == index:
+			ns.append([c.id, c.def.name, c.pos, c.def.color, c.owner])
+	return {"timer": f.timer_left, "p": ps, "m": ms, "d": ds, "n": ns}
 
 ## Private state for one player, sent only when it changes.
 func self_state(pid: int) -> Dictionary:
@@ -654,8 +934,18 @@ func self_state(pid: int) -> Dictionary:
 	var skills := {}
 	for s in p.skills:
 		skills[s] = _skill_level(p, s)
-	return {
+	var state := {
 		"id": pid, "level": p.level, "xp": p.xp, "xp_needed": _xp_needed(p.level),
+		"stats": p.stats, "points": p.points, "mana": p.stats.int * 3,
+		"race": p.race, "klass": p.klass, "perk": p.perk, "drawback": p.drawback,
+		"past": ClassOffers.past_life(p.past, db).name,
+		"crafting": _mod(p, "crafting", 0.0) > 0.0, "can_spend": p.klass != "" and _in_safe(p),
 		"inv": p.inv, "abilities": p.abilities, "party": parties.get(p.party, []),
-		"skills": skills, "viewers": viewers(p), "achievements": p.ach.size(),
+		"companion": companions[p.companion].def.name if p.companion != 0 else "",
+		"pet": p.pet, "skills": skills, "viewers": viewers(p),
+		"achievements": p.ach.size(), "boxes_waiting": p.boxes.size(), "state": p.state,
 	}
+	if p.state == "choosing":
+		state["offers"] = p.offers
+		state["choose_seconds"] = max(0.0, p.choose_until - now)
+	return state

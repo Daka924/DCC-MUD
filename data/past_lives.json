@@ -1,0 +1,204 @@
+{
+ "_doc": "Past lives picked at character creation. 'skills' are starting skill levels. noun/mods/perk feed the class generator.",
+ "past_lives": [
+  {
+   "id": "baker",
+   "name": "Night-Shift Baker",
+   "tags": [
+    "food"
+   ],
+   "skills": {
+    "brawling": 1
+   },
+   "noun": "Baker",
+   "mods": {
+    "regen": 0.6
+   },
+   "perk": "Slowly regenerates health anywhere"
+  },
+  {
+   "id": "cashier",
+   "name": "Supermarket Cashier",
+   "tags": [
+    "retail"
+   ],
+   "skills": {
+    "throwing": 1
+   },
+   "noun": "Cashier",
+   "mods": {
+    "box_extra_roll": 1
+   },
+   "perk": "Every loot box holds one extra item"
+  },
+  {
+   "id": "forklift",
+   "name": "Warehouse Forklift Driver",
+   "tags": [
+    "warehouse"
+   ],
+   "skills": {
+    "throwing": 2
+   },
+   "noun": "Forklift Driver",
+   "mods": {
+    "throw_mult": 1.25
+   },
+   "perk": "+25% thrown damage"
+  },
+  {
+   "id": "referee",
+   "name": "Youth Soccer Referee",
+   "tags": [
+    "sports"
+   ],
+   "skills": {
+    "brawling": 1
+   },
+   "noun": "Referee",
+   "mods": {
+    "speed_mult": 1.15
+   },
+   "perk": "+15% movement speed"
+  },
+  {
+   "id": "magician",
+   "name": "Failed Stage Magician",
+   "tags": [
+    "performer"
+   ],
+   "skills": {
+    "throwing": 1
+   },
+   "noun": "Magician",
+   "mods": {
+    "aggro_mult": 0.7
+   },
+   "perk": "Monsters notice you from 30% less far"
+  },
+  {
+   "id": "karaoke",
+   "name": "Karaoke Host",
+   "tags": [
+    "performer"
+   ],
+   "skills": {},
+   "noun": "Karaoke Host",
+   "mods": {
+    "viewers_mult": 1.6
+   },
+   "perk": "+60% viewers"
+  },
+  {
+   "id": "plumber",
+   "name": "Emergency Plumber",
+   "tags": [
+    "trades"
+   ],
+   "skills": {
+    "brawling": 2
+   },
+   "noun": "Plumber",
+   "mods": {
+    "melee_mult": 1.2
+   },
+   "perk": "+20% melee damage"
+  },
+  {
+   "id": "nurse",
+   "name": "Triage Nurse",
+   "tags": [
+    "medical"
+   ],
+   "skills": {},
+   "noun": "Nurse",
+   "mods": {
+    "heal_on_melee": 0.2
+   },
+   "perk": "Melee hits have a 20% chance to patch up you or an ally"
+  },
+  {
+   "id": "accountant",
+   "name": "Tax Accountant",
+   "tags": [
+    "office"
+   ],
+   "skills": {},
+   "noun": "Accountant",
+   "mods": {
+    "xp_mult": 1.15
+   },
+   "perk": "+15% experience"
+  },
+  {
+   "id": "guard",
+   "name": "Mall Security Guard",
+   "tags": [
+    "security"
+   ],
+   "skills": {
+    "brawling": 1
+   },
+   "noun": "Security Guard",
+   "mods": {
+    "hp_mult": 1.2
+   },
+   "perk": "+20% health"
+  },
+  {
+   "id": "dogwalker",
+   "name": "Dog Walker",
+   "tags": [
+    "animals"
+   ],
+   "skills": {},
+   "noun": "Dog Walker",
+   "mods": {
+    "companion_mult": 1.5
+   },
+   "perk": "Companions deal +50% damage"
+  },
+  {
+   "id": "tinkerer",
+   "name": "Garage Tinkerer",
+   "tags": [
+    "tinkerer"
+   ],
+   "skills": {
+    "tinkering": 2,
+    "throwing": 1
+   },
+   "noun": "Tinkerer",
+   "mods": {
+    "throw_range": 1.5
+   },
+   "perk": "+1.5 throwing range"
+  },
+  {
+   "id": "eater",
+   "name": "Competitive Eater",
+   "tags": [
+    "food"
+   ],
+   "skills": {},
+   "noun": "Eater",
+   "mods": {
+    "hp_mult": 1.25
+   },
+   "perk": "+25% health"
+  },
+  {
+   "id": "courier",
+   "name": "Bike Courier",
+   "tags": [
+    "sports"
+   ],
+   "skills": {},
+   "noun": "Courier",
+   "mods": {
+    "speed_mult": 1.2
+   },
+   "perk": "+20% movement speed"
+  }
+ ]
+}

@@ -6,6 +6,9 @@ extends Node
 var player_name := "Bot"
 var seconds := 12.0
 var passive := false
+var idle := false
+var companion := ""
+var levels_seen := []
 var my_id := 0
 var snap := {}
 var me := {}
@@ -22,8 +25,12 @@ func on_msg(kind: String, data: Dictionary) -> void:
 		"welcome":
 			my_id = data.id
 			Net.send("chat", "hello from %s" % player_name)
+		"floor":
+			levels_seen.append(data.name)
 		"self":
 			me = data
+			if data.companion != "":
+				companion = data.companion
 			max_party = max(max_party, data.party.size())
 		"event":
 			match data.type:
@@ -51,9 +58,9 @@ func _process(delta: float) -> void:
 		return
 	elapsed += delta
 	if elapsed >= seconds:
-		print("BOT %s: players_seen=%d party=%d level=%d abilities=%s achievements=%s chat_seen=%d pos=%s" % [
-			player_name, max_players_seen, max_party, me.get("level", 0),
-			discoveries, achievements, chat_seen, _my_pos().snapped(Vector2(0.1, 0.1))])
+		print("BOT %s: players_seen=%d party=%d level=%d companion=%s levels=%s achievement_count=%d achievements=%s chat_seen=%d pos=%s" % [
+			player_name, max_players_seen, max_party, me.get("level", 0), companion, levels_seen,
+			me.get("achievements", 0), achievements, chat_seen, _my_pos().snapped(Vector2(0.1, 0.1))])
 		multiplayer.multiplayer_peer.close()
 		set_process(false)
 		get_tree().create_timer(0.3).timeout.connect(func(): get_tree().quit(0))
@@ -64,8 +71,10 @@ func _process(delta: float) -> void:
 	var pos := _my_pos()
 	if elapsed < 1.0:
 		return
-	if me.get("party", []).is_empty() and elapsed < 3.0:
+	if me.get("party", []).is_empty() and companion == "" and elapsed < 3.0:
 		Net.send("invite")
+	if idle:
+		return
 	# Leave the safe room through the east door, then hunt.
 	var nearest := Vector2.ZERO
 	var best := 999.0
@@ -81,7 +90,7 @@ func _process(delta: float) -> void:
 		Net.send("input", Vector2.ZERO if best < 3.0 else (nearest - pos).normalized())
 		if passive:
 			return
-		# Monsters charge, so aim where they will be when the fuse runs out: at our feet.
-		Net.send("throw", {"items": ["oil_flask", "rag"], "target": pos.lerp(nearest, 0.2), "ability": -1})
+		# Monsters charge, so aim between us and them.
+		Net.send("throw", {"items": ["oil_flask"], "target": pos.lerp(nearest, 0.5), "ability": -1})
 	else:
 		Net.send("input", (Vector2(9.5, 5.5) - pos).normalized())

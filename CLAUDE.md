@@ -2,8 +2,13 @@
 
 Multiplayer isometric pixel-art dungeon game-show crawler in Godot 4.3 (GDScript).
 
-- No paid or hosted AI. The "creative brain" is `engine/invention.gd`: deterministic
-  rules over item tags and player history. Keep it pure and testable.
+- No paid or hosted AI. Everything "creative" is deterministic rules over data.
+- The core loop: no class for two levels while a hidden dossier records what the
+  player does, then a personal race and class offer on level 3
+  (`engine/class_offers.gd`). Free-form crafting (`engine/invention.gd`) is one
+  class's perk, not a universal mechanic. Keep both engines pure and testable.
+- Players create their own characters. NPC companions help solo players until
+  they party with real players. There is a pet slot; pets are not built yet.
 - The server (`server/world.gd`) is authoritative. Clients only render and send
   requests; validate every request in `server/net.gd`.
 - Content lives in `data/*.json`. Prefer adding data over adding code.

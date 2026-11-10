@@ -1,0 +1,383 @@
+{
+ "_doc": "Classes offered at the level 3 choice. needs = minimum dossier counts, needs_max = maximum, needs_past = past-life tags (any). mods are multipliers (*_mult) or flat amounts. 'behaviours' pair with a past life to generate extra classes.",
+ "classes": [
+  {
+   "id": "bruiser",
+   "name": "Bruiser",
+   "family": "classic",
+   "stats": {
+    "str": 2,
+    "con": 1
+   },
+   "mods": {
+    "melee_mult": 1.25,
+    "throw_mult": 0.8
+   },
+   "perk": "+25% melee damage",
+   "drawback": "-20% thrown damage",
+   "quip": "You hit things. It is not a personality, but it is a plan."
+  },
+  {
+   "id": "slinger",
+   "name": "Slinger",
+   "family": "classic",
+   "stats": {
+    "dex": 2
+   },
+   "mods": {
+    "throw_mult": 1.3,
+    "throw_range": 1.0,
+    "hp_mult": 0.9
+   },
+   "perk": "+30% thrown damage and +1 range",
+   "drawback": "-10% health",
+   "quip": "Everything is a projectile if you believe in yourself."
+  },
+  {
+   "id": "hedge_medic",
+   "name": "Hedge Medic",
+   "family": "classic",
+   "stats": {
+    "int": 1,
+    "con": 1
+   },
+   "mods": {
+    "heal_on_melee": 0.25,
+    "regen": 0.5,
+    "melee_mult": 0.85
+   },
+   "perk": "Melee hits may heal; slow regeneration",
+   "drawback": "-15% melee damage",
+   "quip": "Unqualified, uninsured, and the best they have got."
+  },
+  {
+   "id": "sneak",
+   "name": "Sneak",
+   "family": "classic",
+   "stats": {
+    "dex": 2
+   },
+   "mods": {
+    "aggro_mult": 0.5,
+    "hp_mult": 0.8
+   },
+   "perk": "Monsters notice you from half as far",
+   "drawback": "-20% health",
+   "quip": "Brave of you to choose a class about not being seen on a television show."
+  },
+  {
+   "id": "coupon_paladin",
+   "name": "Coupon Paladin",
+   "family": "past",
+   "needs_past": [
+    "retail"
+   ],
+   "needs": {
+    "pickups": 6
+   },
+   "stats": {
+    "str": 1,
+    "cha": 1
+   },
+   "mods": {
+    "box_extra_roll": 1,
+    "melee_mult": 1.15,
+    "xp_mult": 0.9
+   },
+   "perk": "One extra item in every loot box; +15% melee damage",
+   "drawback": "-10% experience (you keep stopping to check prices)",
+   "quip": "A holy warrior of the clearance aisle."
+  },
+  {
+   "id": "karaoke_warlord",
+   "name": "Karaoke Warlord",
+   "family": "past",
+   "needs_past": [
+    "performer"
+   ],
+   "stats": {
+    "cha": 3
+   },
+   "mods": {
+    "viewers_mult": 2.0,
+    "party_aura": 1.15,
+    "aggro_mult": 1.6
+   },
+   "perk": "Double viewers; you and nearby allies deal +15% damage",
+   "drawback": "Monsters hear you from 60% further away",
+   "quip": "Nobody asked for an encore. You are doing one anyway."
+  },
+  {
+   "id": "forklift_savant",
+   "name": "Night-Shift Forklift Savant",
+   "family": "past",
+   "needs_past": [
+    "warehouse"
+   ],
+   "stats": {
+    "str": 2
+   },
+   "mods": {
+    "throw_mult": 1.4,
+    "throw_range": 2.0,
+    "speed_mult": 0.85
+   },
+   "perk": "+40% thrown damage and +2 range",
+   "drawback": "-15% movement speed",
+   "quip": "Certified to lift. Not certified to throw. And yet."
+  },
+  {
+   "id": "night_baker",
+   "name": "Dough Sergeant",
+   "family": "past",
+   "needs_past": [
+    "food"
+   ],
+   "stats": {
+    "con": 2
+   },
+   "mods": {
+    "regen": 1.0,
+    "hp_mult": 1.1,
+    "speed_mult": 0.9
+   },
+   "perk": "Strong regeneration; +10% health",
+   "drawback": "-10% movement speed",
+   "quip": "You have been awake since 3 a.m. for nine years. Nothing here scares you."
+  },
+  {
+   "id": "whistle_tyrant",
+   "name": "Whistle Tyrant",
+   "family": "past",
+   "needs_past": [
+    "sports"
+   ],
+   "stats": {
+    "dex": 1,
+    "cha": 1
+   },
+   "mods": {
+    "speed_mult": 1.2,
+    "stun_chance": 0.15,
+    "hp_mult": 0.9
+   },
+   "perk": "+20% speed; melee hits may stun",
+   "drawback": "-10% health",
+   "quip": "You once red-carded a nine-year-old. The dungeon respects that."
+  },
+  {
+   "id": "chiropractor",
+   "name": "Unlicensed Chiropractor",
+   "family": "behaviour",
+   "needs": {
+    "kills_melee": 6
+   },
+   "stats": {
+    "str": 1,
+    "int": 1
+   },
+   "mods": {
+    "stun_chance": 0.3,
+    "heal_on_melee": 0.2,
+    "hp_mult": 0.85
+   },
+   "perk": "Melee hits often stun and sometimes heal",
+   "drawback": "-15% health",
+   "quip": "You have adjusted a lot of spines today. None of them consented."
+  },
+  {
+   "id": "bystander",
+   "name": "Professional Bystander",
+   "family": "behaviour",
+   "needs_max": {
+    "kills": 3
+   },
+   "stats": {
+    "cha": 1
+   },
+   "mods": {
+    "aggro_mult": 0.3,
+    "xp_mult": 1.2,
+    "hp_mult": 0.6
+   },
+   "perk": "Monsters barely notice you; +20% experience",
+   "drawback": "-40% health",
+   "quip": "Two levels survived and almost nothing killed. Impressive, in a way we cannot air."
+  },
+  {
+   "id": "dumpster_alchemist",
+   "name": "Dumpster Alchemist",
+   "family": "behaviour",
+   "needs": {
+    "throws": 6
+   },
+   "stats": {
+    "int": 2
+   },
+   "mods": {
+    "crafting": 1,
+    "throw_mult": 1.1,
+    "melee_mult": 0.7
+   },
+   "perk": "Can combine up to three items into one throw and invent named concoctions from what works",
+   "drawback": "-30% melee damage",
+   "quip": "You kept throwing garbage at problems until one of them exploded. We made it official."
+  },
+  {
+   "id": "hall_monitor",
+   "name": "Volunteer Hall Monitor",
+   "family": "behaviour",
+   "needs": {
+    "parties": 1
+   },
+   "stats": {
+    "con": 1,
+    "cha": 1
+   },
+   "mods": {
+    "party_aura": 1.2,
+    "regen": 0.5,
+    "throw_mult": 0.8
+   },
+   "perk": "You and nearby allies deal +20% damage; slow regeneration",
+   "drawback": "-20% thrown damage",
+   "quip": "Nobody elected you. You brought your own sash."
+  },
+  {
+   "id": "disgraced_mascot",
+   "name": "Disgraced Mascot",
+   "family": "joke",
+   "needs": {
+    "deaths": 2
+   },
+   "stats": {
+    "con": 2,
+    "cha": 2
+   },
+   "mods": {
+    "aggro_mult": 2.0,
+    "hp_mult": 1.4,
+    "viewers_mult": 1.5,
+    "melee_mult": 0.8
+   },
+   "perk": "+40% health and +50% viewers",
+   "drawback": "Every monster wants you first; -20% melee damage",
+   "quip": "You have died so often the audience made you a costume."
+  },
+  {
+   "id": "human_pinata",
+   "name": "Human Pinata",
+   "family": "joke",
+   "needs": {
+    "hits_taken": 15
+   },
+   "stats": {
+    "con": 1
+   },
+   "mods": {
+    "thorns": 3,
+    "box_extra_roll": 2,
+    "hp_mult": 0.7,
+    "aggro_mult": 1.5
+   },
+   "perk": "Things that bite you get hurt; two extra items in every loot box",
+   "drawback": "-30% health and monsters love you",
+   "quip": "Hit you enough and prizes fall out. We checked."
+  }
+ ],
+ "behaviours": [
+  {
+   "id": "feral",
+   "adj": "Feral",
+   "key": "kills_melee",
+   "min": 5,
+   "mods": {
+    "melee_mult": 1.15,
+    "throw_mult": 0.75
+   },
+   "text": "+15% melee damage, -25% thrown damage"
+  },
+  {
+   "id": "litterbug",
+   "adj": "Littering",
+   "key": "throws",
+   "min": 8,
+   "mods": {
+    "throw_mult": 1.15,
+    "melee_mult": 0.75
+   },
+   "text": "+15% thrown damage, -25% melee damage"
+  },
+  {
+   "id": "twice_dead",
+   "adj": "Twice-Dead",
+   "key": "deaths",
+   "min": 1,
+   "mods": {
+    "hp_mult": 1.15,
+    "xp_mult": 0.9
+   },
+   "text": "+15% health, -10% experience"
+  },
+  {
+   "id": "adrenal",
+   "adj": "Jittery",
+   "key": "close_calls",
+   "min": 1,
+   "mods": {
+    "speed_mult": 1.1,
+    "hp_mult": 0.85
+   },
+   "text": "+10% speed, -15% health"
+  },
+  {
+   "id": "chatty",
+   "adj": "Chatty",
+   "key": "chats",
+   "min": 3,
+   "mods": {
+    "viewers_mult": 1.5,
+    "aggro_mult": 1.4
+   },
+   "text": "+50% viewers, monsters hear you from 40% further"
+  },
+  {
+   "id": "loiter",
+   "adj": "Loitering",
+   "key": "safe_seconds",
+   "min": 90,
+   "mods": {
+    "regen": 0.5,
+    "speed_mult": 0.9
+   },
+   "text": "Slow regeneration, -10% speed"
+  },
+  {
+   "id": "hoarder",
+   "adj": "Hoarding",
+   "key": "pickups",
+   "min": 10,
+   "mods": {
+    "box_extra_roll": 1,
+    "speed_mult": 0.9
+   },
+   "text": "One extra item per loot box, -10% speed"
+  },
+  {
+   "id": "clingy",
+   "adj": "Clingy",
+   "key": "recruits",
+   "min": 1,
+   "mods": {
+    "companion_mult": 1.3,
+    "hp_mult": 0.9
+   },
+   "text": "Companions deal +30% damage, -10% health"
+  }
+ ],
+ "offer": {
+  "hand_written_max": 6,
+  "generated_max": 3,
+  "seconds": 120
+ }
+}
