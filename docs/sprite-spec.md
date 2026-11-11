@@ -37,3 +37,9 @@ yellow) reserved for the UI, loot boxes and sponsor drops.
 `art/<kind>/<id>.png` plus `<id>.json` from Aseprite, where `<id>` matches the id
 in the data files, for example `art/mobs/sump_rat.png`, `art/items/oil_flask.png`.
 Aseprite tags name the animations: `idle_s`, `walk_sw`, and so on.
+
+## Current pipeline
+
+`make_sprites.bat` converts `art_inbox/<kind>/<id>.*` into `art/<kind>/<id>.png` (one still frame per thing)
+using `tools/sprite_pipeline.lua`. Animation tags and facing directions above are the target, not yet read by
+the game.

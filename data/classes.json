@@ -1,5 +1,5 @@
 {
- "_doc": "Classes offered at the level 3 choice. needs = minimum dossier counts, needs_max = maximum, needs_past = past-life tags (any). mods are multipliers (*_mult) or flat amounts. 'behaviours' pair with a past life to generate extra classes.",
+ "_doc": "Hand-written classes offered at the level 3 choice. needs = minimum dossier counts, needs_max = maximum, needs_past = past-life group (any). mods are multipliers (*_mult) or flat amounts. Generated classes are built from class_parts.json.",
  "classes": [
   {
    "id": "bruiser",
@@ -285,99 +285,9 @@
    "quip": "Hit you enough and prizes fall out. We checked."
   }
  ],
- "behaviours": [
-  {
-   "id": "feral",
-   "adj": "Feral",
-   "key": "kills_melee",
-   "min": 5,
-   "mods": {
-    "melee_mult": 1.15,
-    "throw_mult": 0.75
-   },
-   "text": "+15% melee damage, -25% thrown damage"
-  },
-  {
-   "id": "litterbug",
-   "adj": "Littering",
-   "key": "throws",
-   "min": 8,
-   "mods": {
-    "throw_mult": 1.15,
-    "melee_mult": 0.75
-   },
-   "text": "+15% thrown damage, -25% melee damage"
-  },
-  {
-   "id": "twice_dead",
-   "adj": "Twice-Dead",
-   "key": "deaths",
-   "min": 1,
-   "mods": {
-    "hp_mult": 1.15,
-    "xp_mult": 0.9
-   },
-   "text": "+15% health, -10% experience"
-  },
-  {
-   "id": "adrenal",
-   "adj": "Jittery",
-   "key": "close_calls",
-   "min": 1,
-   "mods": {
-    "speed_mult": 1.1,
-    "hp_mult": 0.85
-   },
-   "text": "+10% speed, -15% health"
-  },
-  {
-   "id": "chatty",
-   "adj": "Chatty",
-   "key": "chats",
-   "min": 3,
-   "mods": {
-    "viewers_mult": 1.5,
-    "aggro_mult": 1.4
-   },
-   "text": "+50% viewers, monsters hear you from 40% further"
-  },
-  {
-   "id": "loiter",
-   "adj": "Loitering",
-   "key": "safe_seconds",
-   "min": 90,
-   "mods": {
-    "regen": 0.5,
-    "speed_mult": 0.9
-   },
-   "text": "Slow regeneration, -10% speed"
-  },
-  {
-   "id": "hoarder",
-   "adj": "Hoarding",
-   "key": "pickups",
-   "min": 10,
-   "mods": {
-    "box_extra_roll": 1,
-    "speed_mult": 0.9
-   },
-   "text": "One extra item per loot box, -10% speed"
-  },
-  {
-   "id": "clingy",
-   "adj": "Clingy",
-   "key": "recruits",
-   "min": 1,
-   "mods": {
-    "companion_mult": 1.3,
-    "hp_mult": 0.9
-   },
-   "text": "Companions deal +30% damage, -10% health"
-  }
- ],
  "offer": {
   "hand_written_max": 6,
-  "generated_max": 3,
+  "generated_max": 6,
   "seconds": 120
  }
 }

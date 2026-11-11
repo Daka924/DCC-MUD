@@ -356,6 +356,9 @@ func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> 
 	_floor_ev(p.floor, {"type": "throw", "from": p.pos, "to": hit_pos, "flight": THROW_FLIGHT,
 		"delay": payload.delay, "color": db.items[items[0]].color})
 	_count(p, "throws")
+	for item_id in items:
+		for tag in db.items[item_id].tags:
+			_note(p, "threw_" + str(tag))
 	self_changed.emit(pid)
 	return true
 
@@ -465,6 +468,9 @@ func _damage_mob(f: Dictionary, m: Dictionary, amount: float, owner: int, how :=
 	killer.excite += 3.0
 	if how != "":
 		_note(killer, "kills_" + how)
+	_note(killer, "killed_" + str(db.mobs[m.type].family))
+	for tag in tags_at(f, killer.pos):
+		_note(killer, "kills_in_" + str(tag))
 	if m.level > killer.level:
 		_count(killer, "kills_above")
 	_count(killer, "kills")
@@ -506,6 +512,8 @@ func _damage_player(p: Dictionary, amount: float, by: Dictionary = {}) -> void:
 	p.input = Vector2.ZERO
 	p.excite += 10.0
 	_say("death", {"name": p.name})
+	if by.has("type"):
+		_note(p, "died_to_" + str(db.mobs[by.type].family))
 	_count(p, "deaths")
 	self_changed.emit(p.id)
 
@@ -574,7 +582,7 @@ func _descend(p: Dictionary) -> void:
 
 func _begin_choice(p: Dictionary) -> void:
 	p.state = "choosing"
-	p.offers = ClassOffers.offers(p.dossier, p.past, db)
+	p.offers = ClassOffers.offers(p.dossier, p.past, db, p.start)
 	p.choose_until = now + float(db.classes.offer.seconds)
 	_say("choose_start", {"name": p.name}, [p.id])
 

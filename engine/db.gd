@@ -16,6 +16,7 @@ const FILES := {
 	"companions": "res://data/companions.json",
 	"races": "res://data/races.json",
 	"classes": "res://data/classes.json",
+	"class_parts": "res://data/class_parts.json",
 }
 
 static func load_json(path: String) -> Variant:

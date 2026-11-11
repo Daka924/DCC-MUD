@@ -112,10 +112,31 @@ func test_offers(db: Dictionary) -> void:
 	check(not ids.has("bystander"), "a killer is not offered the bystander")
 	check(_names(brawler.races).has("ratblood"), "ten kills unlock a race")
 	var gen: Array = brawler.classes.filter(func(c): return c.family == "generated")
-	check(gen.size() >= 2, "generated classes are offered")
-	if not gen.is_empty():
-		print("    generated: ", gen.map(func(c): return c.name))
-		check(str(gen[0].name).ends_with("Cashier"), "generated class is named after the past life")
+	check(gen.size() >= 4, "several generated classes are offered")
+	print("    cashier brawler: ", gen.map(func(c): return c.name))
+	check(gen.any(func(c): return str(c.name).contains("Checkout")), "generated names draw on the past life")
+	check(gen.all(func(c): return str(c.why).begins_with("Offered because")), "every generated class says why it was offered")
+	check(gen.all(func(c): return c.perk != "" and c.quip != ""), "generated classes have a perk and a line")
+	var seen_names := {}
+	for c in gen:
+		seen_names[c.name] = true
+	check(seen_names.size() == gen.size(), "generated classes are all different")
+	var pyro := ClassOffers.offers({"kills": 9, "throws": 14, "threw_flammable": 8, "threw_spark": 6}, "baker", db)
+	var pyro_gen: Array = pyro.classes.filter(func(c): return c.family == "generated")
+	print("    baker fire-thrower: ", pyro_gen.map(func(c): return c.name))
+	check(pyro_gen.any(func(c): return str(c.id).ends_with("arsonist") or str(c.id).ends_with("fire_marshal")), "playing with fire offers a fire class")
+	var meek := ClassOffers.offers({"safe_seconds": 200}, "librarian", db, 1)
+	var meek_gen: Array = meek.classes.filter(func(c): return c.family == "generated")
+	print("    librarian who hid: ", meek_gen.map(func(c): return c.name))
+	check(_names(meek_gen) != _names(pyro_gen), "different play gives different generated classes")
+	var all_names := {}
+	for past in db.past_lives.past_lives:
+		for d in [{}, {"kills": 12, "kills_melee": 9}, {"throws": 20, "threw_toxic": 6, "deaths": 3}, {"chats": 9, "parties": 2, "pickups": 20}]:
+			for c in ClassOffers.generated(d, past, db):
+				all_names[c.name] = true
+				check(c.mods.size() > 0, "generated class %s has effects" % c.name) if c.mods.is_empty() else null
+	print("    distinct generated names across 26 past lives x 4 play styles: ", all_names.size())
+	check(all_names.size() > 250, "the generator produces a wide range")
 	var other := ClassOffers.offers({"kills": 12, "kills_melee": 9}, "baker", db)
 	check(_names(other.classes) != ids, "a different past life gives a different list")
 	check(str(ClassOffers.offers({"kills": 12}, "baker", db)) == str(ClassOffers.offers({"kills": 12}, "baker", db)), "offers are deterministic")

@@ -97,3 +97,12 @@ No code changes are needed for any of these:
 - A past life, race, companion, achievement, loot box, monster or item: a row in
   the matching file in `data/`.
 - A level: a map in `data/floors.json`.
+
+## Design files
+
+`design/` holds the rules and content in plain words and tables, split by topic. Start at `design/README.md`.
+
+## Adding art
+
+Put pictures in the folders inside `art_inbox`, then double-click `make_sprites.bat` (needs Aseprite). See
+`design/07-art.md`.

@@ -14,7 +14,13 @@ Multiplayer isometric pixel-art dungeon game-show crawler in Godot 4.3 (GDScript
 - Content lives in `data/*.json`. Prefer adding data over adding code.
 - All names, creatures, items and narrator lines must be original. Do not use
   names, characters or text from any book series.
-- Art is placeholder shapes for now; follow `docs/sprite-spec.md`.
+- Generated classes come from `data/class_parts.json` (tag profile, jobs, describing
+  words). Widen the range by adding rows there, not code.
+- Art: `make_sprites.bat` runs `tools/sprite_pipeline.lua` through Aseprite to turn
+  `art_inbox/<kind>/<id>.*` into `art/<kind>/<id>.png`. `client/sprites.gd` loads those
+  and falls back to placeholder shapes. Sizes are in `docs/sprite-spec.md`.
+- `design/*.md` is the owner's readable version of the rules and content. When they
+  edit it, carry the changes into `data/` or code, then keep the two in step.
 
 ## Checks before pushing
 

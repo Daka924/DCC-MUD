@@ -46,6 +46,8 @@ var _choice_classes: ItemList
 var _choice_detail: RichTextLabel
 var _choice_timer: Label
 var _choice_shown := false
+var _sprites := Sprites.new()
+const TILE_ART := {".": "floor", ",": "doorway", "~": "water", "S": "safe", ">": "stairs"}
 
 func _ready() -> void:
 	db = DB.load_all()
@@ -202,8 +204,8 @@ func _refresh_choice_detail() -> void:
 		return
 	var r: Dictionary = me.offers.races[_choice_races.get_selected_items()[0]]
 	var c: Dictionary = me.offers.classes[_choice_classes.get_selected_items()[0]]
-	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
-		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback, me.get("points", 0)]
+	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n[color=#9aa0b0]%s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
+		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback, c.get("why", ""), me.get("points", 0)]
 
 func _confirm_choice() -> void:
 	if not me.has("offers"):
@@ -479,16 +481,24 @@ func _draw() -> void:
 			var c: String = grid[y][x]
 			if c == "#":
 				continue
-			var col: Color = FLOOR_COLORS.get(c, FLOOR_COLORS["."])
-			if (x + y) % 2 == 0:
-				col = col.lightened(0.04)
-			draw_colored_polygon(PackedVector2Array([iso(Vector2(x, y)), iso(Vector2(x + 1, y)),
-				iso(Vector2(x + 1, y + 1)), iso(Vector2(x, y + 1))]), col)
-			if c == ">":
+			var tile_tex := _sprites.first("tiles", [TILE_ART.get(c, "floor"), "floor"])
+			if tile_tex != null:
+				draw_texture(tile_tex, Vector2(iso(Vector2(x, y + 1)).x, iso(Vector2(x, y)).y))
+			else:
+				var col: Color = FLOOR_COLORS.get(c, FLOOR_COLORS["."])
+				if (x + y) % 2 == 0:
+					col = col.lightened(0.04)
+				draw_colored_polygon(PackedVector2Array([iso(Vector2(x, y)), iso(Vector2(x + 1, y)),
+					iso(Vector2(x + 1, y + 1)), iso(Vector2(x, y + 1))]), col)
+			if c == ">" and _sprites.get_tex("tiles", "stairs") == null:
 				var mid := iso(Vector2(x + 0.5, y + 0.5))
 				draw_colored_polygon(PackedVector2Array([mid + Vector2(-8, -4), mid + Vector2(8, -4), mid + Vector2(0, 6)]), Color("5cf2a6"))
 	for d in snap.d:
 		var dp := iso(d[2])
+		var item_tex := _sprites.get_tex("items", d[1])
+		if item_tex != null:
+			draw_texture(item_tex, dp - Vector2(item_tex.get_width() / 2.0, item_tex.get_height() - 3.0))
+			continue
 		var dc := Color(db.items[d[1]].color)
 		draw_colored_polygon(PackedVector2Array([dp + Vector2(0, -7), dp + Vector2(6, -2), dp + Vector2(0, 3), dp + Vector2(-6, -2)]), dc)
 		draw_polyline(PackedVector2Array([dp + Vector2(0, -7), dp + Vector2(6, -2), dp + Vector2(0, 3), dp + Vector2(-6, -2), dp + Vector2(0, -7)]), Color.WHITE, 1.0)
@@ -518,7 +528,15 @@ func _draw() -> void:
 	for f in fx:
 		_draw_fx(f)
 
+## Draw a sprite standing on the ground at s (feet at the bottom centre).
+func _stand(tex: Texture2D, s: Vector2, tint: Color) -> void:
+	draw_texture(tex, (s - Vector2(tex.get_width() / 2.0, tex.get_height() - 4.0)).round(), tint)
+
 func _draw_wall(tile: Vector2) -> void:
+	var wall_tex := _sprites.get_tex("tiles", "wall")
+	if wall_tex != null:
+		draw_texture(wall_tex, Vector2(iso(tile + Vector2(0, 1)).x, iso(tile + Vector2(1, 1)).y - wall_tex.get_height()))
+		return
 	var up := Vector2(0, -WALL_H)
 	var top := iso(tile)
 	var right := iso(tile + Vector2(1, 0))
@@ -539,7 +557,14 @@ func _draw_player(p: Array, pos: Vector2, my_party: Array) -> void:
 	if dead:
 		body = Color("555555")
 	_ellipse(s, 10, 5, Color(0, 0, 0, 0.45))
-	if dead:
+	var ptex := _sprites.first("players", ["default"])
+	if ptex != null:
+		# One look for everyone for now; a ring on the ground shows who is who.
+		_ellipse(s, 11, 5.5, body, false, 1.5)
+		_stand(ptex, s, Color(0.4, 0.4, 0.4) if dead else Color.WHITE)
+		if not dead:
+			_bar(s + Vector2(0, -ptex.get_height() - 4.0), p[3] / p[4], Color("5cf27a"))
+	elif dead:
 		draw_rect(Rect2(s + Vector2(-10, -6), Vector2(20, 6)), body)
 	else:
 		draw_rect(Rect2(s + Vector2(-6, -22), Vector2(12, 20)), body)
@@ -553,8 +578,12 @@ func _draw_npc(n: Array, pos: Vector2) -> void:
 	var s := iso(pos)
 	var body := Color(n[3])
 	_ellipse(s, 10, 5, Color(0, 0, 0, 0.45))
-	draw_rect(Rect2(s + Vector2(-6, -22), Vector2(12, 20)), body)
-	draw_circle(s + Vector2(0, -27), 6, body.lightened(0.3))
+	var ntex := _sprites.first("npcs", [str(n[1]).to_lower(), "default"])
+	if ntex != null:
+		_stand(ntex, s, Color.WHITE)
+	else:
+		draw_rect(Rect2(s + Vector2(-6, -22), Vector2(12, 20)), body)
+		draw_circle(s + Vector2(0, -27), 6, body.lightened(0.3))
 	var label: String = n[1] if n[4] != 0 else "%s (press P to recruit)" % n[1]
 	draw_string(_font, s + Vector2(-80, -38), label, HORIZONTAL_ALIGNMENT_CENTER, 160, 10, Color("c8c8ff"))
 
@@ -568,9 +597,13 @@ func _draw_mob(m: Array, pos: Vector2) -> void:
 	elif m[4]:
 		col = col.lerp(Color("7fd6e8"), 0.5)
 	_ellipse(s, 11 * size, 5.5 * size, Color(0, 0, 0, 0.45))
-	_ellipse(s + Vector2(0, -8 * size), 11 * size, 9 * size, col)
-	draw_circle(s + Vector2(-4 * size, -10 * size), 1.5 * size, Color("ff3030"))
-	draw_circle(s + Vector2(4 * size, -10 * size), 1.5 * size, Color("ff3030"))
+	var mtex := _sprites.get_tex("mobs", m[1])
+	if mtex != null:
+		_stand(mtex, s, Color.WHITE.lerp(col, 0.5) if (m[4] or m[5]) else Color.WHITE)
+	else:
+		_ellipse(s + Vector2(0, -8 * size), 11 * size, 9 * size, col)
+		draw_circle(s + Vector2(-4 * size, -10 * size), 1.5 * size, Color("ff3030"))
+		draw_circle(s + Vector2(4 * size, -10 * size), 1.5 * size, Color("ff3030"))
 	_bar(s + Vector2(0, -22 * size - 4), m[3] / float(m[6]), Color("f25c5c"))
 	draw_string(_font, s + Vector2(-40, -22 * size - 7), "Lv %d" % m[7], HORIZONTAL_ALIGNMENT_CENTER, 80, 9, Color("ffb0b0"))
 

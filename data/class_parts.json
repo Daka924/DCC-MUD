@@ -1,0 +1,1300 @@
+{
+ "_doc": "Building blocks for generated classes. A player's tag profile is built from their past life (weight past_weight per tag), their starting location (start_weight) and 'signals' read from the hidden dossier. Each signal adds count/per (up to cap) to its tag; a 'below' signal adds 'weight' when the total is under the number. The generator then picks the best-matching 'cores' (the job, with its upside) and pairs each with a 'twist' (a describing word with an upside and a downside). Names follow 'patterns'. Perk and drawback text is written automatically from the mods.",
+ "past_weight": 3,
+ "start_weight": 1,
+ "signals": [
+  {
+   "keys": [
+    "kills_melee"
+   ],
+   "per": 3,
+   "tag": "brawl",
+   "cap": 4,
+   "why": "you settled things with your hands"
+  },
+  {
+   "keys": [
+    "throws"
+   ],
+   "per": 4,
+   "tag": "throw",
+   "cap": 4,
+   "why": "you kept throwing things"
+  },
+  {
+   "keys": [
+    "deaths"
+   ],
+   "per": 1,
+   "tag": "doomed",
+   "cap": 4,
+   "why": "you kept dying"
+  },
+  {
+   "keys": [
+    "hits_taken"
+   ],
+   "per": 6,
+   "tag": "punished",
+   "cap": 4,
+   "why": "you got hit a lot"
+  },
+  {
+   "keys": [
+    "close_calls"
+   ],
+   "per": 1,
+   "tag": "lucky",
+   "cap": 4,
+   "why": "you escaped with almost no health left"
+  },
+  {
+   "keys": [
+    "safe_seconds"
+   ],
+   "per": 45,
+   "tag": "cautious",
+   "cap": 4,
+   "why": "you spent a long time in safe rooms"
+  },
+  {
+   "keys": [
+    "chats"
+   ],
+   "per": 3,
+   "tag": "loud",
+   "cap": 4,
+   "why": "you would not stop talking"
+  },
+  {
+   "keys": [
+    "pickups"
+   ],
+   "per": 5,
+   "tag": "greedy",
+   "cap": 4,
+   "why": "you picked up everything in sight"
+  },
+  {
+   "keys": [
+    "recruits",
+    "parties"
+   ],
+   "per": 1,
+   "tag": "social",
+   "cap": 4,
+   "why": "you did not go it alone"
+  },
+  {
+   "keys": [
+    "kills_above"
+   ],
+   "per": 1,
+   "tag": "bold",
+   "cap": 4,
+   "why": "you fought things above your level"
+  },
+  {
+   "keys": [
+    "threw_flammable",
+    "threw_spark"
+   ],
+   "per": 2,
+   "tag": "fire",
+   "cap": 4,
+   "why": "you played with fire"
+  },
+  {
+   "keys": [
+    "threw_cold"
+   ],
+   "per": 2,
+   "tag": "cold",
+   "cap": 4,
+   "why": "you kept throwing cold things"
+  },
+  {
+   "keys": [
+    "threw_toxic"
+   ],
+   "per": 2,
+   "tag": "poison",
+   "cap": 4,
+   "why": "you threw poison around"
+  },
+  {
+   "keys": [
+    "threw_sticky"
+   ],
+   "per": 2,
+   "tag": "sticky",
+   "cap": 4,
+   "why": "you glued things to the floor"
+  },
+  {
+   "keys": [
+    "threw_sharp"
+   ],
+   "per": 3,
+   "tag": "sharp",
+   "cap": 4,
+   "why": "you threw sharp objects"
+  },
+  {
+   "keys": [
+    "threw_heavy"
+   ],
+   "per": 3,
+   "tag": "heavy",
+   "cap": 4,
+   "why": "you threw heavy objects"
+  },
+  {
+   "keys": [
+    "threw_luminous"
+   ],
+   "per": 2,
+   "tag": "light",
+   "cap": 4,
+   "why": "you threw glowing things"
+  },
+  {
+   "keys": [
+    "threw_binding"
+   ],
+   "per": 2,
+   "tag": "rope",
+   "cap": 4,
+   "why": "you tied things up"
+  },
+  {
+   "keys": [
+    "threw_liquid",
+    "kills_in_wet"
+   ],
+   "per": 3,
+   "tag": "water",
+   "cap": 4,
+   "why": "you made a mess in the water"
+  },
+  {
+   "keys": [
+    "killed_vermin",
+    "died_to_vermin"
+   ],
+   "per": 4,
+   "tag": "vermin",
+   "cap": 4,
+   "why": "you spent your time among vermin"
+  },
+  {
+   "keys": [
+    "killed_ooze",
+    "died_to_ooze"
+   ],
+   "per": 3,
+   "tag": "slime",
+   "cap": 4,
+   "why": "you got very familiar with slime"
+  },
+  {
+   "keys": [
+    "killed_construct"
+   ],
+   "per": 1,
+   "tag": "machines",
+   "cap": 4,
+   "why": "you broke a machine"
+  },
+  {
+   "keys": [
+    "kills"
+   ],
+   "below": 4,
+   "tag": "pacifist",
+   "weight": 3,
+   "why": "you barely killed anything"
+  },
+  {
+   "keys": [
+    "recruits",
+    "parties"
+   ],
+   "below": 1,
+   "tag": "loner",
+   "weight": 2,
+   "why": "you never teamed up with anyone"
+  }
+ ],
+ "cores": [
+  {
+   "id": "arsonist",
+   "noun": "Arsonist",
+   "tags": [
+    "fire",
+    "heat"
+   ],
+   "mods": {
+    "throw_mult": 1.25
+   },
+   "quip": "We are not saying you started the fire. We have footage of you starting the fire."
+  },
+  {
+   "id": "pit_boss",
+   "noun": "Pit Boss",
+   "tags": [
+    "money",
+    "greedy",
+    "rules"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "xp_mult": 1.1
+   },
+   "quip": "The house always wins. You are not the house, but you dress like it."
+  },
+  {
+   "id": "bouncer",
+   "noun": "Bouncer",
+   "tags": [
+    "security",
+    "brawl",
+    "night"
+   ],
+   "mods": {
+    "hp_mult": 1.2,
+    "stun_chance": 0.1
+   },
+   "quip": "Your name is not on the list. Nobody's name is on the list."
+  },
+  {
+   "id": "bonesetter",
+   "noun": "Bonesetter",
+   "tags": [
+    "medical",
+    "brawl",
+    "pain"
+   ],
+   "mods": {
+    "heal_on_melee": 0.25,
+    "stun_chance": 0.1
+   },
+   "quip": "It only hurts until the screaming stops."
+  },
+  {
+   "id": "plague_vendor",
+   "noun": "Plague Vendor",
+   "tags": [
+    "poison",
+    "food",
+    "chemicals"
+   ],
+   "mods": {
+    "throw_mult": 1.2,
+    "regen": 0.3
+   },
+   "quip": "Free samples. No refunds. No survivors."
+  },
+  {
+   "id": "hype_man",
+   "noun": "Hype Man",
+   "tags": [
+    "loud",
+    "performer",
+    "social"
+   ],
+   "mods": {
+    "viewers_mult": 1.8,
+    "party_aura": 1.15
+   },
+   "quip": "You cannot fight, but you can make it sound like someone else can."
+  },
+  {
+   "id": "hermit",
+   "noun": "Hermit",
+   "tags": [
+    "loner",
+    "quiet",
+    "cautious"
+   ],
+   "mods": {
+    "aggro_mult": 0.5,
+    "regen": 0.5
+   },
+   "quip": "You came to a televised death game to be left alone. Bold."
+  },
+  {
+   "id": "pack_rat",
+   "noun": "Pack Rat",
+   "tags": [
+    "greedy",
+    "vermin",
+    "retail"
+   ],
+   "mods": {
+    "box_extra_roll": 2
+   },
+   "quip": "You might need that later. You will not need that later."
+  },
+  {
+   "id": "ratcatcher",
+   "noun": "Ratcatcher",
+   "tags": [
+    "vermin",
+    "animals",
+    "trades"
+   ],
+   "mods": {
+    "melee_mult": 1.2,
+    "aggro_mult": 0.8
+   },
+   "quip": "The rats have a word for you. It is not a nice word."
+  },
+  {
+   "id": "mop_knight",
+   "noun": "Mop Knight",
+   "tags": [
+    "water",
+    "slime",
+    "trades"
+   ],
+   "mods": {
+    "hp_mult": 1.15,
+    "melee_mult": 1.15
+   },
+   "quip": "Sworn to the bucket. Anointed with grey water."
+  },
+  {
+   "id": "wrangler",
+   "noun": "Wrangler",
+   "tags": [
+    "animals",
+    "social",
+    "rope",
+    "care"
+   ],
+   "mods": {
+    "companion_mult": 1.6
+   },
+   "quip": "You do not fight. You have people for that. Some of them are people."
+  },
+  {
+   "id": "understudy",
+   "noun": "Understudy",
+   "tags": [
+    "doomed",
+    "performer",
+    "punished"
+   ],
+   "mods": {
+    "hp_mult": 1.3,
+    "viewers_mult": 1.3
+   },
+   "quip": "You know every death scene by heart, having rehearsed them all."
+  },
+  {
+   "id": "crash_test_dummy",
+   "noun": "Crash Test Dummy",
+   "tags": [
+    "punished",
+    "doomed",
+    "machines"
+   ],
+   "mods": {
+    "thorns": 3,
+    "hp_mult": 1.2
+   },
+   "quip": "Your job is to be hit so that we may learn from it. We have learned nothing."
+  },
+  {
+   "id": "sprinter",
+   "noun": "Sprinter",
+   "tags": [
+    "speed",
+    "sports",
+    "lucky"
+   ],
+   "mods": {
+    "speed_mult": 1.25
+   },
+   "quip": "Courage is a choice. So is leaving quickly."
+  },
+  {
+   "id": "shot_putter",
+   "noun": "Shot-Putter",
+   "tags": [
+    "heavy",
+    "lifting",
+    "throw",
+    "sports"
+   ],
+   "mods": {
+    "throw_mult": 1.3,
+    "throw_range": 1.0
+   },
+   "quip": "Technique is everything. Aim is more of a suggestion."
+  },
+  {
+   "id": "knife_juggler",
+   "noun": "Knife Juggler",
+   "tags": [
+    "sharp",
+    "tricks",
+    "hands",
+    "throw"
+   ],
+   "mods": {
+    "throw_mult": 1.35
+   },
+   "quip": "Most of them were caught. By something."
+  },
+  {
+   "id": "lamplighter",
+   "noun": "Lamplighter",
+   "tags": [
+    "light",
+    "night",
+    "quiet"
+   ],
+   "mods": {
+    "aggro_mult": 0.6,
+    "xp_mult": 1.1
+   },
+   "quip": "You bring light to dark places, then stand well away from it."
+  },
+  {
+   "id": "ice_cream_man",
+   "noun": "Ice Cream Man",
+   "tags": [
+    "cold",
+    "food",
+    "loud"
+   ],
+   "mods": {
+    "throw_mult": 1.15,
+    "viewers_mult": 1.4
+   },
+   "quip": "The jingle is the last thing they hear."
+  },
+  {
+   "id": "glue_sniffer",
+   "noun": "Glue Sniffer",
+   "tags": [
+    "sticky",
+    "chemicals",
+    "guts"
+   ],
+   "mods": {
+    "hp_mult": 1.15,
+    "throw_mult": 1.15
+   },
+   "quip": "You are stuck with this. And to this."
+  },
+  {
+   "id": "knot_enthusiast",
+   "noun": "Knot Enthusiast",
+   "tags": [
+    "rope",
+    "patience",
+    "hands"
+   ],
+   "mods": {
+    "throw_range": 2.0,
+    "stun_chance": 0.1
+   },
+   "quip": "There is a knot for every occasion, and you will describe each one."
+  },
+  {
+   "id": "loss_adjuster",
+   "noun": "Loss Adjuster",
+   "tags": [
+    "office",
+    "money",
+    "rules",
+    "cautious"
+   ],
+   "mods": {
+    "xp_mult": 1.25
+   },
+   "quip": "You have assessed the damage. The damage is you."
+  },
+  {
+   "id": "human_shield",
+   "noun": "Human Shield",
+   "tags": [
+    "punished",
+    "care",
+    "security",
+    "social"
+   ],
+   "mods": {
+    "hp_mult": 1.35,
+    "party_aura": 1.1
+   },
+   "quip": "Somebody has to stand at the front. Everybody else voted."
+  },
+  {
+   "id": "coward",
+   "noun": "Coward",
+   "tags": [
+    "pacifist",
+    "lucky",
+    "cautious",
+    "speed"
+   ],
+   "mods": {
+    "speed_mult": 1.2,
+    "aggro_mult": 0.5
+   },
+   "quip": "Alive, which is more than the brave ones can say."
+  },
+  {
+   "id": "conscientious_objector",
+   "noun": "Conscientious Objector",
+   "tags": [
+    "pacifist",
+    "rules",
+    "quiet"
+   ],
+   "mods": {
+    "xp_mult": 1.3,
+    "regen": 0.5
+   },
+   "quip": "You object. It has been noted. Nothing will change."
+  },
+  {
+   "id": "daredevil",
+   "noun": "Daredevil",
+   "tags": [
+    "bold",
+    "lucky",
+    "showoff"
+   ],
+   "mods": {
+    "melee_mult": 1.2,
+    "viewers_mult": 1.5
+   },
+   "quip": "No helmet, no plan, excellent ratings."
+  },
+  {
+   "id": "giant_killer",
+   "noun": "Giant-Killer",
+   "tags": [
+    "bold",
+    "brawl",
+    "heavy"
+   ],
+   "mods": {
+    "melee_mult": 1.3
+   },
+   "quip": "The bigger they are, the longer the paperwork."
+  },
+  {
+   "id": "line_cook",
+   "noun": "Line Cook",
+   "tags": [
+    "food",
+    "heat",
+    "speed",
+    "hands"
+   ],
+   "mods": {
+    "melee_mult": 1.15,
+    "speed_mult": 1.1
+   },
+   "quip": "Fourteen orders behind and armed. Stay out of the kitchen."
+  },
+  {
+   "id": "grease_monkey",
+   "noun": "Grease Monkey",
+   "tags": [
+    "machines",
+    "tools",
+    "tinkerer"
+   ],
+   "mods": {
+    "throw_mult": 1.15,
+    "throw_range": 1.0,
+    "thorns": 1
+   },
+   "quip": "If it moves, you can break it. If it does not, you already did."
+  },
+  {
+   "id": "scrap_baron",
+   "noun": "Scrap Baron",
+   "tags": [
+    "machines",
+    "greedy",
+    "warehouse",
+    "lifting"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "hp_mult": 1.15
+   },
+   "quip": "One crawler's trash is still trash, but now it is yours."
+  },
+  {
+   "id": "sewer_lifeguard",
+   "noun": "Sewer Lifeguard",
+   "tags": [
+    "water",
+    "care",
+    "outdoors"
+   ],
+   "mods": {
+    "regen": 1.0,
+    "heal_on_melee": 0.15
+   },
+   "quip": "No running. No diving. No hope."
+  },
+  {
+   "id": "leech_farmer",
+   "noun": "Leech Farmer",
+   "tags": [
+    "slime",
+    "medical",
+    "patience"
+   ],
+   "mods": {
+    "heal_on_melee": 0.3,
+    "regen": 0.4
+   },
+   "quip": "They are not parasites. They are colleagues."
+  },
+  {
+   "id": "pallbearer",
+   "noun": "Pallbearer",
+   "tags": [
+    "doomed",
+    "night",
+    "lifting",
+    "quiet"
+   ],
+   "mods": {
+    "hp_mult": 1.25,
+    "melee_mult": 1.1
+   },
+   "quip": "You have carried heavier. Usually yourself."
+  },
+  {
+   "id": "heckler",
+   "noun": "Heckler",
+   "tags": [
+    "loud",
+    "showoff",
+    "throw"
+   ],
+   "mods": {
+    "viewers_mult": 1.6,
+    "throw_mult": 1.15
+   },
+   "quip": "Everyone is a critic. You are the one with projectiles."
+  },
+  {
+   "id": "cage_fighter",
+   "noun": "Cage Fighter",
+   "tags": [
+    "brawl",
+    "sports",
+    "guts",
+    "pain"
+   ],
+   "mods": {
+    "melee_mult": 1.25,
+    "hp_mult": 1.1
+   },
+   "quip": "There is no cage. You asked for one anyway."
+  },
+  {
+   "id": "street_dentist",
+   "noun": "Street Dentist",
+   "tags": [
+    "pain",
+    "tools",
+    "medical",
+    "sharp"
+   ],
+   "mods": {
+    "stun_chance": 0.25,
+    "melee_mult": 1.1
+   },
+   "quip": "This will not hurt a bit. It will hurt all of it."
+  },
+  {
+   "id": "card_sharp",
+   "noun": "Card Sharp",
+   "tags": [
+    "tricks",
+    "money",
+    "lucky"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "aggro_mult": 0.7
+   },
+   "quip": "Pick a card. Any card. Now run."
+  },
+  {
+   "id": "tour_guide",
+   "noun": "Tour Guide",
+   "tags": [
+    "outdoors",
+    "social",
+    "loud",
+    "patience"
+   ],
+   "mods": {
+    "party_aura": 1.2,
+    "speed_mult": 1.1
+   },
+   "quip": "On your left, certain death. On your right, the gift shop."
+  },
+  {
+   "id": "night_manager",
+   "noun": "Night Manager",
+   "tags": [
+    "night",
+    "retail",
+    "rules",
+    "patience"
+   ],
+   "mods": {
+    "xp_mult": 1.15,
+    "regen": 0.5
+   },
+   "quip": "You would like to speak to yourself. You are unavailable."
+  },
+  {
+   "id": "taste_tester",
+   "noun": "Taste Tester",
+   "tags": [
+    "guts",
+    "food",
+    "poison"
+   ],
+   "mods": {
+    "hp_mult": 1.3,
+    "regen": 0.3
+   },
+   "quip": "If you are still standing, it is probably fine."
+  },
+  {
+   "id": "stuntman",
+   "noun": "Stuntman",
+   "tags": [
+    "showoff",
+    "punished",
+    "speed"
+   ],
+   "mods": {
+    "thorns": 2,
+    "speed_mult": 1.15,
+    "viewers_mult": 1.3
+   },
+   "quip": "Do not try this at home. Try it here, where we can film it."
+  },
+  {
+   "id": "bin_diver",
+   "noun": "Bin Diver",
+   "tags": [
+    "greedy",
+    "sticky",
+    "guts"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "regen": 0.4
+   },
+   "quip": "Dinner and a show, from the same bin."
+  },
+  {
+   "id": "fire_marshal",
+   "noun": "Fire Marshal",
+   "tags": [
+    "fire",
+    "rules",
+    "security"
+   ],
+   "mods": {
+    "hp_mult": 1.2,
+    "throw_mult": 1.15
+   },
+   "quip": "You know every fire code. You are in breach of all of them."
+  },
+  {
+   "id": "mail_carrier",
+   "noun": "Mail Carrier",
+   "tags": [
+    "cold",
+    "outdoors",
+    "speed"
+   ],
+   "mods": {
+    "speed_mult": 1.15,
+    "hp_mult": 1.1
+   },
+   "quip": "Neither snow nor rain nor an audience of millions."
+  },
+  {
+   "id": "spotlight_operator",
+   "noun": "Spotlight Operator",
+   "tags": [
+    "light",
+    "performer",
+    "tools"
+   ],
+   "mods": {
+    "viewers_mult": 1.5,
+    "stun_chance": 0.15
+   },
+   "quip": "You make other people look good. Briefly. Then blind."
+  },
+  {
+   "id": "mascot_wrangler",
+   "noun": "Mascot Wrangler",
+   "tags": [
+    "animals",
+    "performer",
+    "care"
+   ],
+   "mods": {
+    "companion_mult": 1.4,
+    "viewers_mult": 1.3
+   },
+   "quip": "The thing in the costume is not your friend, but it is on your payroll."
+  },
+  {
+   "id": "bucket_brigadier",
+   "noun": "Bucket Brigadier",
+   "tags": [
+    "water",
+    "lifting",
+    "social"
+   ],
+   "mods": {
+    "party_aura": 1.15,
+    "hp_mult": 1.1
+   },
+   "quip": "Many hands make light work. You brought the bucket."
+  },
+  {
+   "id": "quiet_car_enforcer",
+   "noun": "Quiet Car Enforcer",
+   "tags": [
+    "quiet",
+    "rules",
+    "pain"
+   ],
+   "mods": {
+    "stun_chance": 0.2,
+    "aggro_mult": 0.7
+   },
+   "quip": "Shh. That was your warning."
+  },
+  {
+   "id": "complaints_desk",
+   "noun": "Complaints Desk",
+   "tags": [
+    "patience",
+    "office",
+    "punished"
+   ],
+   "mods": {
+    "thorns": 2,
+    "xp_mult": 1.15
+   },
+   "quip": "Your suffering is important to us. Please hold."
+  }
+ ],
+ "twists": [
+  {
+   "id": "feral",
+   "adj": "Feral",
+   "tags": [
+    "brawl",
+    "animals"
+   ],
+   "mods": {
+    "melee_mult": 1.15,
+    "throw_mult": 0.75
+   }
+  },
+  {
+   "id": "littering",
+   "adj": "Littering",
+   "tags": [
+    "throw"
+   ],
+   "mods": {
+    "throw_mult": 1.15,
+    "melee_mult": 0.75
+   }
+  },
+  {
+   "id": "twice_dead",
+   "adj": "Twice-Dead",
+   "tags": [
+    "doomed"
+   ],
+   "mods": {
+    "hp_mult": 1.15,
+    "xp_mult": 0.9
+   }
+  },
+  {
+   "id": "jittery",
+   "adj": "Jittery",
+   "tags": [
+    "lucky",
+    "speed"
+   ],
+   "mods": {
+    "speed_mult": 1.1,
+    "hp_mult": 0.85
+   }
+  },
+  {
+   "id": "chatty",
+   "adj": "Chatty",
+   "tags": [
+    "loud"
+   ],
+   "mods": {
+    "viewers_mult": 1.5,
+    "aggro_mult": 1.4
+   }
+  },
+  {
+   "id": "loitering",
+   "adj": "Loitering",
+   "tags": [
+    "cautious"
+   ],
+   "mods": {
+    "regen": 0.5,
+    "speed_mult": 0.9
+   }
+  },
+  {
+   "id": "hoarding",
+   "adj": "Hoarding",
+   "tags": [
+    "greedy"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "speed_mult": 0.9
+   }
+  },
+  {
+   "id": "clingy",
+   "adj": "Clingy",
+   "tags": [
+    "social"
+   ],
+   "mods": {
+    "companion_mult": 1.3,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "singed",
+   "adj": "Singed",
+   "tags": [
+    "fire",
+    "heat"
+   ],
+   "mods": {
+    "throw_mult": 1.15,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "damp",
+   "adj": "Damp",
+   "tags": [
+    "water",
+    "slime"
+   ],
+   "mods": {
+    "regen": 0.4,
+    "speed_mult": 0.92
+   }
+  },
+  {
+   "id": "frostbitten",
+   "adj": "Frostbitten",
+   "tags": [
+    "cold"
+   ],
+   "mods": {
+    "hp_mult": 1.1,
+    "speed_mult": 0.9
+   }
+  },
+  {
+   "id": "sticky_fingered",
+   "adj": "Sticky-Fingered",
+   "tags": [
+    "sticky",
+    "tricks"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "melee_mult": 0.85
+   }
+  },
+  {
+   "id": "toxic",
+   "adj": "Toxic",
+   "tags": [
+    "poison",
+    "chemicals"
+   ],
+   "mods": {
+    "thorns": 2,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "bruised",
+   "adj": "Bruised",
+   "tags": [
+    "punished",
+    "pain"
+   ],
+   "mods": {
+    "thorns": 2,
+    "speed_mult": 0.92
+   }
+  },
+  {
+   "id": "reckless",
+   "adj": "Reckless",
+   "tags": [
+    "bold"
+   ],
+   "mods": {
+    "melee_mult": 1.2,
+    "hp_mult": 0.85
+   }
+  },
+  {
+   "id": "squeamish",
+   "adj": "Squeamish",
+   "tags": [
+    "pacifist"
+   ],
+   "mods": {
+    "aggro_mult": 0.6,
+    "melee_mult": 0.8
+   }
+  },
+  {
+   "id": "unsupervised",
+   "adj": "Unsupervised",
+   "tags": [
+    "loner"
+   ],
+   "mods": {
+    "xp_mult": 1.15,
+    "companion_mult": 0.5
+   }
+  },
+  {
+   "id": "overqualified",
+   "adj": "Overqualified",
+   "tags": [
+    "office",
+    "rules",
+    "medical"
+   ],
+   "mods": {
+    "xp_mult": 1.2,
+    "viewers_mult": 0.7
+   }
+  },
+  {
+   "id": "underpaid",
+   "adj": "Underpaid",
+   "tags": [
+    "retail",
+    "trades",
+    "warehouse"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "xp_mult": 0.9
+   }
+  },
+  {
+   "id": "sleep_deprived",
+   "adj": "Sleep-Deprived",
+   "tags": [
+    "night"
+   ],
+   "mods": {
+    "speed_mult": 1.1,
+    "aggro_mult": 1.3
+   }
+  },
+  {
+   "id": "televised",
+   "adj": "Televised",
+   "tags": [
+    "showoff",
+    "performer"
+   ],
+   "mods": {
+    "viewers_mult": 1.6,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "rat_bitten",
+   "adj": "Rat-Bitten",
+   "tags": [
+    "vermin"
+   ],
+   "mods": {
+    "aggro_mult": 0.8,
+    "hp_mult": 0.92
+   }
+  },
+  {
+   "id": "rust_proof",
+   "adj": "Rust-Proof",
+   "tags": [
+    "machines",
+    "tools",
+    "tinkerer"
+   ],
+   "mods": {
+    "hp_mult": 1.12,
+    "speed_mult": 0.93
+   }
+  },
+  {
+   "id": "heavy_handed",
+   "adj": "Heavy-Handed",
+   "tags": [
+    "heavy",
+    "lifting"
+   ],
+   "mods": {
+    "stun_chance": 0.12,
+    "speed_mult": 0.9
+   }
+  },
+  {
+   "id": "prickly",
+   "adj": "Prickly",
+   "tags": [
+    "sharp"
+   ],
+   "mods": {
+    "thorns": 1.5,
+    "viewers_mult": 0.8
+   }
+  },
+  {
+   "id": "tangled",
+   "adj": "Tangled",
+   "tags": [
+    "rope"
+   ],
+   "mods": {
+    "throw_range": 1.5,
+    "speed_mult": 0.92
+   }
+  },
+  {
+   "id": "glowing",
+   "adj": "Glowing",
+   "tags": [
+    "light"
+   ],
+   "mods": {
+    "viewers_mult": 1.3,
+    "aggro_mult": 1.4
+   }
+  },
+  {
+   "id": "well_fed",
+   "adj": "Well-Fed",
+   "tags": [
+    "food",
+    "guts"
+   ],
+   "mods": {
+    "hp_mult": 1.2,
+    "speed_mult": 0.9
+   }
+  },
+  {
+   "id": "patient",
+   "adj": "Patient",
+   "tags": [
+    "patience",
+    "quiet"
+   ],
+   "mods": {
+    "regen": 0.6,
+    "melee_mult": 0.9
+   }
+  },
+  {
+   "id": "nimble",
+   "adj": "Nimble",
+   "tags": [
+    "hands",
+    "sports"
+   ],
+   "mods": {
+    "speed_mult": 1.12,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "outdoorsy",
+   "adj": "Outdoorsy",
+   "tags": [
+    "outdoors"
+   ],
+   "mods": {
+    "regen": 0.3,
+    "viewers_mult": 0.8
+   }
+  },
+  {
+   "id": "thrifty",
+   "adj": "Thrifty",
+   "tags": [
+    "money"
+   ],
+   "mods": {
+    "box_extra_roll": 1,
+    "hp_mult": 0.9
+   }
+  },
+  {
+   "id": "bandaged",
+   "adj": "Bandaged",
+   "tags": [
+    "care",
+    "security"
+   ],
+   "mods": {
+    "heal_on_melee": 0.15,
+    "melee_mult": 0.9
+   }
+  }
+ ],
+ "patterns": [
+  "{adj} {noun}",
+  "{past} {noun}",
+  "{adj} {past} {noun}",
+  "{adj} {past} {noun}"
+ ]
+}
