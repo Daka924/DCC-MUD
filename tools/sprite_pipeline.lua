@@ -13,12 +13,12 @@
 -- Sprite sizes per folder: width, height, output folder.
 local KINDS = {
   tiles      = { w = 64, h = 32, out = "tiles" },
-  players    = { w = 32, h = 48, out = "players" },
-  npcs       = { w = 32, h = 48, out = "npcs" },
-  pets       = { w = 32, h = 32, out = "pets" },
-  mobs       = { w = 32, h = 32, out = "mobs" },
-  mobs_large = { w = 64, h = 64, out = "mobs" },
-  items      = { w = 16, h = 16, out = "items" },
+  players    = { w = 64, h = 64, out = "players" },
+  npcs       = { w = 64, h = 64, out = "npcs" },
+  pets       = { w = 48, h = 48, out = "pets" },
+  mobs       = { w = 64, h = 64, out = "mobs" },
+  mobs_large = { w = 128, h = 128, out = "mobs" },
+  items      = { w = 24, h = 24, out = "items" },
   fx         = { w = 64, h = 32, out = "fx" },
 }
 -- Tiles with their own size (a wall is a 64 x 32 footprint that rises 26 px).

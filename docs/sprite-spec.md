@@ -15,21 +15,21 @@ in `art/`.
 
 | Thing | Frame size | Anchor (feet) | Directions | Animations (frames) |
 | --- | --- | --- | --- | --- |
-| Player | 32 x 48 | bottom centre, 4 px up | 8 (S, SW, W, NW, N, NE, E, SE) | idle 4, walk 6, attack 4, throw 4, hurt 2, dead 1 |
-| Small monster | 32 x 32 | bottom centre, 4 px up | 4 (SW, NW, NE, SE) | idle 4, walk 4, attack 3, dead 1 |
-| Large monster | 64 x 64 | bottom centre, 6 px up | 4 | idle 4, walk 6, attack 4, dead 1 |
+| Player, companion | 64 x 64 (figure about 52 tall) | bottom centre, 4 px up | 8 (S, SW, W, NW, N, NE, E, SE) | idle 4, walk 6, attack 4, throw 4, hurt 2, dead 1 |
+| Small monster | 64 x 64 (figure 30 to 50 tall) | bottom centre, 4 px up | 4 (SW, NW, NE, SE) | idle 4, walk 4, attack 3, dead 1 |
+| Large monster | 128 x 128 | bottom centre, 6 px up | 4 | idle 4, walk 6, attack 4, dead 1 |
 
 Mirroring west-facing frames for east is fine to halve the work.
 
 ## Items, effects, UI
 
-- Item icons: **16 x 16** (ground and pack use the same icon).
+- Item icons: **24 x 24** (ground and pack use the same icon).
 - Effects (fire, splash, frost, poison cloud): 64 x 32 footprint, 6 frames.
 - UI: 9-slice frames with 4 px borders; show-style neon accents on dark panels.
 
 ## Palette
 
-About 32 colours. Grimy dungeon tones for the world; bright neon (pink, cyan,
+About 48 colours, taken from the style target (`art_inbox/palette_from_style_target.png`). Grimy dungeon tones for the world; bright neon (pink, cyan,
 yellow) reserved for the UI, loot boxes and sponsor drops.
 
 ## File naming
