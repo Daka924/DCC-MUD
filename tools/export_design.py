@@ -428,6 +428,7 @@ These files are the game written down in plain words and tables. They are yours 
 | `05-monsters-items-companions.md` | Items and their tags, monsters, companions |
 | `06-show.md` | Achievements, loot boxes, narrator lines |
 | `07-art.md` | How to turn pictures into sprites |
+| `08-reference-to-game.md` | How the research reference maps onto the game, with proposed changes for you to accept or reject |
 
 ## How changes reach the game
 
