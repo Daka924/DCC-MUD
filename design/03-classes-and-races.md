@@ -154,6 +154,62 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Thrifty | money | +1 loot box item; -10% health |
 | Bandaged | care, security | 15% chance to heal on melee hits; -10% melee damage |
 
+### Signature abilities
+
+Every generated class comes with one ability, built along the axes of the research reference: what it does
+(function), how it arrives (delivery), its element or manner (flavour) and what it costs. The class's own tags
+choose a value on each axis, weighed by the player's profile, and a player's six offers are pushed toward
+different functions. The name is a flavour word plus a function word, for example "Scorching Fumigation" or
+"Itemised Flop". In play it is used with Q, spends mana (Intelligence x 3, refilling over 40 seconds) and has a
+cooldown. Intelligence adds 6% power per point above 4. Hand-written classes do not have abilities yet.
+
+| Function | What it does | Cooldown | Mana | Words used in names |
+| --- | --- | --- | --- | --- |
+| damage | deals 10 damage | 8s | 4 | Volley, Barrage, Delivery; Fumigation, Smog, Haze; Tirade, Roast, Heckle; Body Slam, Shoulder Check, Flop |
+| control | deals 2 damage | 10s | 4 | Lockdown, Cordon, Paperweight; Fog Bank, Queue, Bottleneck; Lecture, Stern Word, Announcement; Tackle, Bear Hug, Sit-In |
+| healing | restores 14 health to you and nearby party members | 14s | 5 | Patch-Up, Second Opinion, Home Remedy; Pep Talk, Bedside Manner, Lullaby |
+| protection | halves the damage you take for 5 seconds | 16s | 4 | Brace, Flinch, Hard Hat |
+| movement | +60% movement speed for 4 seconds | 12s | 3 | Getaway, Shortcut, Fire Drill |
+| support | you and nearby party members deal +30% damage for 6 seconds | 16s | 5 | Huddle, Team Meeting, Rally; Motivational Speech, Chant, Singalong |
+| mind | nearby monsters forget about you for 4 seconds | 14s | 4 | Blank Stare, Change of Subject, Vanishing Act; Excuse, Alibi, Polite Cough |
+| survive | the first hit that would kill you leaves you on 1 health instead | 60s | 0 | Extra Time, Second Wind, Encore |
+
+| Delivery | How it arrives | Reach | Area | Power |
+| --- | --- | --- | --- | --- |
+| thrown | Thrown up to 6 tiles | 6 tiles | x1 | x1 |
+| cloud | A cloud placed up to 4 tiles away | 4 tiles | x1.6 | x0.7 |
+| speech | Spoken aloud around you, stronger the more viewers you have | around you | x1.8 | x0.8 |
+| body | Done with your own body, right where you stand | around you | x0.8 | x1.5 |
+| self | Used on yourself | around you | x1 | x1 |
+
+| Cost | What you pay | Power |
+| --- | --- | --- |
+| mana | Costs its mana | +0% |
+| health | Costs a tenth of your health | +25% |
+| item | Uses up one item from your pack | +35% |
+
+Which tags pull toward which value:
+
+| Axis | Value | Tags |
+| --- | --- | --- |
+| Function | damage | fire, heat, throw, sharp, heavy, brawl, bold, poison, chemicals, machines |
+| Function | control | sticky, rope, cold, rules, slime, water, lifting |
+| Function | protection | security, patience, punished, warehouse, trades |
+| Function | survive | doomed, lucky, guts, night |
+| Function | healing | medical, care, food |
+| Function | movement | speed, sports, outdoors, cautious |
+| Function | mind | quiet, tricks, pacifist, loner, office, money |
+| Function | support | loud, performer, social, showoff, animals, retail |
+| Delivery | thrown | throw, heavy, sharp, lifting, warehouse, rope, sticky |
+| Delivery | cloud | fire, poison, chemicals, cold, slime, water, heat, food |
+| Delivery | speech | loud, performer, showoff, social, rules, office, retail, care |
+| Delivery | body | brawl, sports, guts, punished, bold, security, pain |
+| Cost | health | pain, guts, doomed, punished, bold |
+| Cost | item | greedy, retail, throw, warehouse |
+
+Flavours that add an effect to attacks: fire (sets targets burning), heat (sets targets burning), cold (chills targets to half speed), poison (poisons targets), chemicals (poisons targets), sticky (gums targets up to half speed), slime (slimes targets to half speed), light (dazzles targets), loud (deafens targets), rope (tangles targets), heavy (flattens targets).
+Every other tag has two flavour words of its own and no extra effect; they are listed in `data/ability_parts.json`.
+
 ### Effects that exist today
 
 A job or describing word can use any of these without new code: melee damage, thrown damage, throwing range,

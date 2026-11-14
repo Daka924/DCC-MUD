@@ -151,6 +151,7 @@ static func generated(dossier: Dictionary, past: Dictionary, db: Dictionary, sta
 	var out := []
 	var used_cores := {}
 	var used_twists := {}
+	var used_functions := {}
 	for n in int(db.classes.offer.generated_max):
 		var core := {}
 		var best := 0.0
@@ -192,6 +193,8 @@ static func generated(dossier: Dictionary, past: Dictionary, db: Dictionary, sta
 				weights[t] = float(weights[t]) * 0.4
 		var mods := merge_mods([past.mods, core.mods, twist.mods])
 		var text := describe(mods)
+		var ability := AbilityGen.build(core.tags + twist.tags, prof.weights, db, seed_text + core.id, used_functions, core.tags.size())
+		used_functions[ability.function] = true
 		var reasons := []
 		for t in core.tags + twist.tags:
 			if prof.why.has(t) and not reasons.has(prof.why[t]):
@@ -202,7 +205,7 @@ static func generated(dossier: Dictionary, past: Dictionary, db: Dictionary, sta
 			"family": "generated", "stats": {}, "mods": mods,
 			"perk": _sentence(text.good, "Nothing in particular"),
 			"drawback": _sentence(text.bad, "None"),
-			"quip": core.quip,
+			"quip": core.quip, "ability": ability,
 			"why": "Offered because " + ", and ".join(reasons.slice(0, 3)) + ".",
 		})
 	return out

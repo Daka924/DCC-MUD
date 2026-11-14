@@ -17,6 +17,7 @@ func _init() -> void:
 	test_resolve(db)
 	test_invent(db)
 	test_offers(db)
+	test_signatures(db)
 	test_world_basics(db)
 	test_companion_and_party(db)
 	test_boxes_and_safety(db)
@@ -95,6 +96,98 @@ func _step(w: World, seconds: float) -> void:
 
 func _names(list: Array) -> Array:
 	return list.map(func(c): return c.id)
+
+func test_signatures(db: Dictionary) -> void:
+	print("signature abilities")
+	var seen := {}
+	var functions := {}
+	var deliveries := {}
+	var costs := {}
+	for past in db.past_lives.past_lives:
+		for d in [{}, {"kills": 12, "kills_melee": 9, "hits_taken": 30}, {"throws": 20, "threw_toxic": 6, "threw_flammable": 8, "deaths": 3},
+				{"chats": 9, "parties": 2, "pickups": 20, "safe_seconds": 200}]:
+			var gen := ClassOffers.generated(d, past, db)
+			var fns := {}
+			for c in gen:
+				var a: Dictionary = c.ability
+				seen[a.name] = true
+				functions[a.function] = true
+				deliveries[a.delivery] = true
+				costs[a.cost] = true
+				fns[a.function] = true
+				if a.name == "" or a.text == "" or a.cooldown <= 0.0:
+					check(false, "ability on %s is complete" % c.name)
+				if a.kind == "burst" and a.effects.is_empty():
+					check(false, "burst ability on %s has effects" % c.name)
+			if gen.size() >= 5 and fns.size() < 3:
+				check(false, "offers for %s vary in function" % past.id)
+	print("    distinct ability names: %d, functions: %s, deliveries: %s, costs: %s" % [seen.size(), functions.keys(), deliveries.keys(), costs.keys()])
+	check(functions.size() == db.ability_parts.functions.size(), "every function is reachable")
+	check(deliveries.size() >= 4, "several deliveries are reachable")
+	check(costs.size() == 3, "all three cost types are reachable")
+	check(seen.size() > 150, "abilities come in a wide range")
+	var pyro := ClassOffers.generated({"kills": 9, "throws": 14, "threw_flammable": 8, "threw_spark": 6}, ClassOffers.past_life("baker", db), db)
+	for c in pyro:
+		print("    %s: %s. %s" % [c.name, c.ability.name, c.ability.text])
+	var burner: Array = pyro.filter(func(c): return c.ability.kind == "burst" and c.ability.effects.any(func(e): return e.kind == "dot"))
+	check(not burner.is_empty(), "a fire-thrower is offered a burning attack")
+	if burner.is_empty():
+		burner = pyro
+	check(str(ClassOffers.generated({"kills": 9}, ClassOffers.past_life("nurse", db), db)) == str(ClassOffers.generated({"kills": 9}, ClassOffers.past_life("nurse", db), db)), "abilities are deterministic")
+
+	# In play.
+	var w := World.new(db, 7)
+	w.add_player(1, {"name": "Tess", "past": "baker", "start": 0})
+	var p: Dictionary = w.players[1]
+	check(not w.use_signature(1, p.pos), "no ability before a class is chosen")
+	var f: Dictionary = w.floors[0]
+	w.tick(0.05)
+	p.pos = Vector2(9.5, 9.5)
+	var mob: Dictionary = {}
+	for m in f.mobs.values():
+		m.pos = Vector2(40, 40)
+	mob = f.mobs.values()[0]
+	mob.pos = p.pos + Vector2(2, 0)
+	mob.hp = 500.0
+	mob.max_hp = 500.0
+	p.signature = burner[0].ability
+	p.mana = 12.0
+	var hp_before: float = mob.hp
+	check(w.use_signature(1, mob.pos), "a burst ability can be used")
+	check(not w.use_signature(1, mob.pos), "it then goes on cooldown")
+	for i in 40:
+		w.tick(0.05)
+		mob.pos = p.pos + Vector2(2, 0)
+	check(mob.hp < hp_before, "the burst damaged the monster (%.1f lost)" % (hp_before - mob.hp))
+	check(p.mana < 12.0, "it spent mana")
+	p.signature = AbilityGen.build(["doomed"], {"doomed": 4.0}, db, "t")
+	check(p.signature.kind == "last_stand", "dying a lot leads to a survive-a-lethal-hit ability")
+	p.cd_signature = 0.0
+	p.hp = 3.0
+	w._damage_player(p, 50.0)
+	check(is_equal_approx(p.hp, 1.0) and w._alive(p), "the lethal hit is survived once")
+	w._damage_player(p, 50.0)
+	check(not w._alive(p), "and not twice")
+	p.dead_until = -1.0
+	p.hp = p.max_hp
+	p.signature = AbilityGen.build(["security"], {"security": 4.0}, db, "t")
+	p.cd_signature = 0.0
+	p.mana = 12.0
+	check(p.signature.kind == "buff" and w.use_signature(1, p.pos), "a protection ability can be used")
+	var before: float = p.hp
+	w._damage_player(p, 10.0)
+	check(is_equal_approx(before - p.hp, 5.0), "it halves damage taken")
+	p.signature = AbilityGen.build(["quiet"], {"quiet": 4.0}, db, "t")
+	p.cd_signature = 0.0
+	p.mana = 12.0
+	mob.pos = p.pos + Vector2(1.5, 0)
+	mob.target = 1
+	check(p.signature.kind == "forget" and w.use_signature(1, p.pos), "a mind ability can be used")
+	var mob_at: Vector2 = mob.pos
+	p.hp = p.max_hp
+	for i in 20:
+		w.tick(0.05)
+	check(p.hp >= p.max_hp - 0.01, "monsters leave you alone while they have forgotten you")
 
 func test_offers(db: Dictionary) -> void:
 	print("class offers")

@@ -47,6 +47,7 @@ var _choice_detail: RichTextLabel
 var _choice_timer: Label
 var _choice_shown := false
 var _sprites := Sprites.new()
+var _sig_seen := 0.0
 const TILE_ART := {".": "floor", ",": "doorway", "~": "water", "S": "safe", ">": "stairs"}
 
 func _ready() -> void:
@@ -106,7 +107,7 @@ func _build_hud() -> void:
 	var help := _label(layer, Control.PRESET_BOTTOM_RIGHT, 10)
 	help.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	help.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	help.text = "WASD move   Space attack\nClick an item, then click the floor to throw\n1-5 use invention   Esc clear\nP invite player or recruit NPC\nY accept   L leave party   Enter chat\nGreen tiles are stairs down"
+	help.text = "WASD move   Space attack\nClick an item, then click the floor to throw\nQ signature ability   1-5 inventions\nP invite player or recruit NPC\nY accept   L leave party   Enter chat\nGreen tiles are stairs down"
 
 	var chat_box := VBoxContainer.new()
 	layer.add_child(chat_box)
@@ -204,8 +205,10 @@ func _refresh_choice_detail() -> void:
 		return
 	var r: Dictionary = me.offers.races[_choice_races.get_selected_items()[0]]
 	var c: Dictionary = me.offers.classes[_choice_classes.get_selected_items()[0]]
-	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n[color=#9aa0b0]%s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
-		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback, c.get("why", ""), me.get("points", 0)]
+	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n%s[color=#9aa0b0]%s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
+		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback,
+		("[color=#ffe066]Ability: %s. %s[/color]\n" % [c.ability.name, c.ability.text]) if c.has("ability") else "",
+		c.get("why", ""), me.get("points", 0)]
 
 func _confirm_choice() -> void:
 	if not me.has("offers"):
@@ -241,8 +244,8 @@ func _refresh_hud() -> void:
 	var point_note := ""
 	if points > 0:
 		point_note = "   %d points %s" % [points, "to spend" if me.get("can_spend", false) else ("banked (spend in a safe room)" if me.get("klass", "") != "" else "banked until you pick a class")]
-	_stats.text = "HP %d/%d   MP %d   Level %d   XP %d/%d\nSTR %d  DEX %d  CON %d  INT %d  CHA %d%s\n%s   Past life: %s\nBrawling %d  Throwing %d  Tinkering %d\nAchievements %d%s%s" % [
-		ceil(hp), max_hp, me.get("mana", 0), me.get("level", 1), me.get("xp", 0), me.get("xp_needed", 0),
+	_stats.text = "HP %d/%d   MP %d/%d   Level %d   XP %d/%d\nSTR %d  DEX %d  CON %d  INT %d  CHA %d%s\n%s   Past life: %s\nBrawling %d  Throwing %d  Tinkering %d\nAchievements %d%s%s" % [
+		ceil(hp), max_hp, me.get("mana", 0), me.get("mana_max", 0), me.get("level", 1), me.get("xp", 0), me.get("xp_needed", 0),
 		st.get("str", 0), st.get("dex", 0), st.get("con", 0), st.get("int", 0), st.get("cha", 0), point_note,
 		who, me.get("past", ""),
 		skills.get("brawling", 0), skills.get("throwing", 0), skills.get("tinkering", 0),
@@ -264,6 +267,11 @@ func _refresh_hud() -> void:
 	var t := int(snap.timer)
 	_top.text = "%s COLLAPSES IN %02d:%02d\nViewers: %d" % [level_name.to_upper(), t / 60, t % 60, me.get("viewers", 0)]
 	var bar := []
+	var sig: Dictionary = me.get("signature", {})
+	if not sig.is_empty():
+		var left := float(me.get("signature_cd", 0.0)) - (_clock - _sig_seen)
+		var state := "passive" if sig.passive else ("ready" if left <= 0.0 else "%ds" % int(ceil(left)))
+		bar.append("[Q] %s (%s)" % [sig.name, state])
 	var abilities: Array = me.get("abilities", [])
 	for i in abilities.size():
 		bar.append("[%d] %s Lv%d" % [i + 1, abilities[i].name, abilities[i].level])
@@ -326,6 +334,7 @@ func on_msg(kind: String, data: Dictionary) -> void:
 			_say("Level %d: %s." % [data.index + 1, data.name], "ffd75c")
 		"self":
 			me = data
+			_sig_seen = _clock
 			_rebuild_inventory()
 		"event":
 			_on_event(data)
@@ -347,6 +356,8 @@ func _on_event(ev: Dictionary) -> void:
 		"achievement":
 			_show_banner("ACHIEVEMENT: %s\n%s\nReward: %s (%s)" % [ev.title, ev.text, ev.box, ", ".join(ev.loot)], 9.0)
 			_say("Achievement: %s. %s contained %s." % [ev.title, ev.box, ", ".join(ev.loot)], "ffd75c")
+		"last_stand":
+			_say("%s saved your life." % ev.ability, "ffe066")
 		"discovery":
 			var a: Dictionary = ev.ability
 			_say("You invented %s:" % a.name, "5cf2a6")
@@ -367,6 +378,10 @@ func _on_event(ev: Dictionary) -> void:
 				c = Color("a6f25c")
 			elif ev.effects.has("gum") or ev.effects.has("snare"):
 				c = Color("e8e0b0")
+			elif ev.effects.has("heal"):
+				c = Color("5cf27a")
+			elif ev.effects.has("buff") or ev.effects.has("forget"):
+				c = Color("c9a0ff")
 			fx.append({"type": "boom", "pos": ev.pos, "radius": ev.radius, "t0": _clock, "life": 0.45, "color": c})
 		"swing":
 			fx.append({"type": "swing", "id": ev.id, "t0": _clock, "life": 0.18})
@@ -440,6 +455,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		match event.physical_keycode:
 			KEY_SPACE:
 				Net.send("melee")
+			KEY_Q:
+				Net.send("signature", uniso(get_local_mouse_position()))
 			KEY_P:
 				Net.send("invite")
 			KEY_Y:

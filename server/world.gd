@@ -175,6 +175,7 @@ func add_player(pid: int, info: Dictionary) -> void:
 		"party": 0, "companion": 0, "pet": null, "skills": skills,
 		"combo": {}, "dossier": {}, "ach": {}, "boxes": [], "next_box_at": 0.0, "excite": 0.0,
 		"cd_melee": 0.0, "cd_throw": 0.0, "dead_until": -1.0,
+		"signature": {}, "mana": float(BASE_STAT * 3), "cd_signature": 0.0, "buffs": [],
 	}
 	var p: Dictionary = players[pid]
 	_recalc(p)
@@ -194,7 +195,81 @@ func remove_player(pid: int) -> void:
 	_log("%s has left the dungeon." % left_name)
 
 func _mod(p: Dictionary, key: String, default: float) -> float:
-	return float(p.mods.get(key, default))
+	var v := float(p.mods.get(key, default))
+	for b in p.buffs:      # temporary effects from signature abilities; all are multipliers
+		if now < b.until and b.mods.has(key):
+			v *= float(b.mods[key])
+	return v
+
+func max_mana(p: Dictionary) -> float:
+	return float(p.stats.int) * 3.0
+
+## Use the signature ability that came with the player's class.
+func use_signature(pid: int, target: Vector2) -> bool:
+	var p: Dictionary = players.get(pid, {})
+	if p.is_empty() or not _can_act(p) or p.signature.is_empty():
+		return false
+	var a: Dictionary = p.signature
+	if a.passive or now < p.cd_signature or p.mana < a.mana:
+		return false
+	var f := _floor_of(p)
+	if a.kind == "burst" and _in_safe(p):
+		return false
+	if a.cost == "item":
+		if p.inv.is_empty():
+			return false
+		var keys: Array = p.inv.keys()
+		keys.sort()
+		var spent: String = keys[0]
+		p.inv[spent] = int(p.inv[spent]) - 1
+		if p.inv[spent] <= 0:
+			p.inv.erase(spent)
+	if a.hp_frac > 0.0:
+		p.hp = max(1.0, p.hp - p.max_hp * a.hp_frac)
+	p.mana -= a.mana
+	p.cd_signature = now + a.cooldown
+	var scale: float = 1.0 + 0.06 * (p.stats.int - BASE_STAT)
+	if a.audience:
+		scale *= 1.0 + min(float(viewers(p)), 300.0) / 600.0
+	var at: Vector2 = p.pos + (target - p.pos).limit_length(a.range)
+	match a.kind:
+		"burst":
+			var effects := []
+			for e in a.effects:
+				effects.append(Invention._scaled(e, scale * _mod(p, "damage_mult", 1.0) * _aura(p)) if e.kind == "damage" or e.kind == "dot" else e)
+			var flight := THROW_FLIGHT if a.delivery == "thrown" else 0.05
+			f.pending.append({"at": now + flight, "pos": at, "owner": pid, "sig": "", "items": [], "ctx": {},
+				"is_ability": false, "payload": {"effects": effects, "radius": a.radius, "bane": {}}})
+			if a.delivery == "thrown":
+				_floor_ev(p.floor, {"type": "throw", "from": p.pos, "to": at, "flight": flight, "delay": 0.0, "color": "ff4fd8"})
+		"heal":
+			for o in _signature_targets(p, a.radius, true):
+				o.hp = min(o.max_hp, o.hp + a.power * scale)
+				self_changed.emit(o.id)
+			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": a.radius, "effects": ["heal"]})
+		"buff":
+			for o in _signature_targets(p, a.get("radius", 4.0), a.allies):
+				o.buffs.append({"mods": a.mods, "until": now + a.duration})
+				self_changed.emit(o.id)
+			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": 0.8, "effects": ["buff"]})
+		"forget":
+			for m in f.mobs.values():
+				if m.pos.distance_to(p.pos) <= a.radius:
+					m.target = 0
+					m["forget_until"] = now + a.duration
+					m["forget_who"] = pid
+			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": a.radius, "effects": ["forget"]})
+	p.excite += 4.0
+	_note(p, "signature_uses")
+	self_changed.emit(pid)
+	return true
+
+func _signature_targets(p: Dictionary, radius: float, allies: bool) -> Array:
+	var out := [p]
+	if allies:
+		for ally in _allies_near(p, radius):
+			out.append(players[ally])
+	return out
 
 func _recalc(p: Dictionary) -> void:
 	var old_max: float = p.max_hp
@@ -282,7 +357,7 @@ func melee(pid: int) -> void:
 	p.facing = (best.pos - p.pos).normalized()
 	p.skills.brawling += 1
 	var dmg: float = MELEE_DAMAGE * (1.0 + 0.08 * (p.stats.str - BASE_STAT)) \
-		* (1.0 + 0.05 * _skill_level(p, "brawling")) * _mod(p, "melee_mult", 1.0) * _aura(p)
+		* (1.0 + 0.05 * _skill_level(p, "brawling")) * _mod(p, "melee_mult", 1.0) * _mod(p, "damage_mult", 1.0) * _aura(p)
 	if rng.randf() < _mod(p, "stun_chance", 0.0):
 		best.stun_until = max(best.stun_until, now + 1.0)
 	if rng.randf() < _mod(p, "heal_on_melee", 0.0):
@@ -337,7 +412,7 @@ func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> 
 		payload = Invention.payload_for(ability, ctx, db)
 		p.ability_ready[sig] = now + payload.cooldown
 	var mult: float = (1.0 + 0.06 * (p.stats.dex - BASE_STAT)) * (1.0 + 0.05 * _skill_level(p, "throwing")) \
-		* _mod(p, "throw_mult", 1.0) * _aura(p)
+		* _mod(p, "throw_mult", 1.0) * _mod(p, "damage_mult", 1.0) * _aura(p)
 	for i in payload.effects.size():
 		payload.effects[i] = Invention._scaled(payload.effects[i], mult)
 	var offset: Vector2 = (target - p.pos).limit_length(payload.range + _mod(p, "throw_range", 0.0))
@@ -498,7 +573,14 @@ func _xp_needed(level: int) -> int:
 func _damage_player(p: Dictionary, amount: float, by: Dictionary = {}) -> void:
 	if not _can_act(p) or _in_safe(p):
 		return
-	p.hp -= amount
+	p.hp -= amount * _mod(p, "damage_taken_mult", 1.0)
+	if p.hp <= 0.0 and p.signature.get("kind", "") == "last_stand" and now >= p.cd_signature:
+		p.hp = 1.0
+		p.cd_signature = now + float(p.signature.cooldown)
+		p.excite += 15.0
+		_note(p, "close_calls")
+		event.emit([p.id], {"type": "last_stand", "ability": p.signature.name})
+		self_changed.emit(p.id)
 	_note(p, "hits_taken")
 	var thorns := _mod(p, "thorns", 0.0)
 	if thorns > 0.0 and not by.is_empty():
@@ -609,6 +691,9 @@ func choose(pid: int, race_id: String, class_id: String) -> bool:
 		for s in source.get("stats", {}):
 			p.stats[s] = max(1, int(p.stats[s]) + int(source.stats[s]))
 	p.mods = ClassOffers.merge_mods([race.get("mods", {}), klass.get("mods", {})])
+	p.signature = klass.get("ability", {})
+	p.cd_signature = 0.0
+	p.mana = max_mana(p)
 	p.state = "play"
 	p.offers = {}
 	_recalc(p)
@@ -780,6 +865,9 @@ func _tick_players(dt: float) -> void:
 				_say("respawn", {"name": p.name}, [p.id])
 				self_changed.emit(p.id)
 			continue
+		p.mana = min(max_mana(p), p.mana + max_mana(p) / 40.0 * dt)
+		if not p.buffs.is_empty():
+			p.buffs = p.buffs.filter(func(b): return now < b.until)
 		if p.input.length() > 0.05:
 			p.facing = p.input.normalized()
 			var speed: float = BASE_SPEED * _mod(p, "speed_mult", 1.0) * (1.0 + 0.02 * (p.stats.dex - BASE_STAT))
@@ -857,6 +945,8 @@ func _tick_mobs(f: Dictionary, dt: float) -> void:
 		var best_d := 999.0
 		for p in players.values():
 			if p.floor != f.index or not _can_act(p) or tile_at(f, p.pos) == "S":
+				continue
+			if now < float(m.get("forget_until", 0.0)) and m.get("forget_who", 0) == p.id:
 				continue
 			var d: float = p.pos.distance_to(m.pos)
 			var reach := AGGRO_RANGE * _mod(p, "aggro_mult", 1.0)
@@ -944,7 +1034,8 @@ func self_state(pid: int) -> Dictionary:
 		skills[s] = _skill_level(p, s)
 	var state := {
 		"id": pid, "level": p.level, "xp": p.xp, "xp_needed": _xp_needed(p.level),
-		"stats": p.stats, "points": p.points, "mana": p.stats.int * 3,
+		"stats": p.stats, "points": p.points, "mana": int(p.mana), "mana_max": int(max_mana(p)),
+		"signature": p.signature, "signature_cd": max(0.0, p.cd_signature - now),
 		"race": p.race, "klass": p.klass, "perk": p.perk, "drawback": p.drawback,
 		"past": ClassOffers.past_life(p.past, db).name,
 		"crafting": _mod(p, "crafting", 0.0) > 0.0, "can_spend": p.klass != "" and _in_safe(p),

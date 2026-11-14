@@ -97,6 +97,9 @@ func _handle(sender: int, method: String, arg: Variant) -> void:
 			if typeof(arg) == TYPE_DICTIONARY and typeof(arg.get("target")) == TYPE_VECTOR2 \
 					and typeof(arg.get("items")) == TYPE_ARRAY and typeof(arg.get("ability")) == TYPE_INT:
 				world.throw_items(sender, arg.items, arg.target, arg.ability)
+		"signature":
+			if typeof(arg) == TYPE_VECTOR2:
+				world.use_signature(sender, arg)
 		"invite":
 			world.party_invite(sender)
 		"accept":

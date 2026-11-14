@@ -170,6 +170,15 @@ def classes():
     corows = [(c["noun"], ", ".join(c["tags"]), effects(c["mods"]), c["quip"]) for c in parts["cores"]]
     trows = [(t["adj"], ", ".join(t["tags"]), effects(t["mods"])) for t in parts["twists"]]
     n_past = len(data("past_lives")["past_lives"])
+    ap = data("ability_parts")
+    frows = [(k, v["does"].replace("{power}", str(v.get("power", ""))).replace("{duration}", "%g" % v.get("duration", 0)),
+              "%ds" % v["cooldown"], v["mana"], "; ".join(", ".join(n) for n in v["nouns"].values())) for k, v in ap["functions"].items()]
+    drows = [(k, v["says"], ("%g tiles" % v["range"]) if v["range"] else "around you", "x%g" % v["radius_mult"], "x%g" % v["power_mult"]) for k, v in ap["deliveries"].items()]
+    axrows = []
+    for axis, key in (("Function", "tag_function"), ("Delivery", "tag_delivery"), ("Cost", "tag_cost")):
+        groups = {}
+        for t, v in ap[key].items(): groups.setdefault(v, []).append(t)
+        for v, ts in groups.items(): axrows.append((axis, v, ", ".join(ts)))
     return "# Classes and races\n\n" + HOW + """
 On arriving at level 3 each player is offered: the classics, up to %d hand-written classes they qualified for,
 up to %d generated classes, and one joke class if they earned one.
@@ -215,6 +224,28 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 ### Describing words
 
 """ + table(["Word", "Tags", "Effects"], trows) + """
+
+### Signature abilities
+
+Every generated class comes with one ability, built along the axes of the research reference: what it does
+(function), how it arrives (delivery), its element or manner (flavour) and what it costs. The class's own tags
+choose a value on each axis, weighed by the player's profile, and a player's six offers are pushed toward
+different functions. The name is a flavour word plus a function word, for example "Scorching Fumigation" or
+"Itemised Flop". In play it is used with Q, spends mana (Intelligence x 3, refilling over 40 seconds) and has a
+cooldown. Intelligence adds 6% power per point above 4. Hand-written classes do not have abilities yet.
+
+""" + table(["Function", "What it does", "Cooldown", "Mana", "Words used in names"], frows) + """
+
+""" + table(["Delivery", "How it arrives", "Reach", "Area", "Power"], drows) + """
+
+""" + table(["Cost", "What you pay", "Power"], [(k, v["says"].replace("{mana}", "its"), "%+d%%" % round((v.get("power_mult", 1) - 1) * 100)) for k, v in ap["costs"].items()]) + """
+
+Which tags pull toward which value:
+
+""" + table(["Axis", "Value", "Tags"], axrows) + """
+
+Flavours that add an effect to attacks: """ + ", ".join("%s (%s)" % (k, v["status"]["says"].split(" for ")[0]) for k, v in ap["flavours"].items() if "status" in v) + """.
+Every other tag has two flavour words of its own and no extra effect; they are listed in `data/ability_parts.json`.
 
 ### Effects that exist today
 

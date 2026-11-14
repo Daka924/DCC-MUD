@@ -32,6 +32,10 @@ The right-hand column in each table is yours. Write "yes", "no", or how you want
 
 ## 2. The ability taxonomy as the generator's next layer
 
+**Built on 14 November** in a first form: function, delivery, flavour and cost. See "Signature abilities" in
+`03-classes-and-races.md`. Target types beyond enemies and party members, timing rules other than cooldowns, and
+the mind and body axes beyond "forget" are not built yet.
+
 The reference describes any ability along several independent axes. That is exactly the shape a rules-based
 generator needs: pick one value per axis, guided by the player's tags, and the result is a specific ability
 rather than "bomb, tier 3".

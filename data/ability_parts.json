@@ -1,0 +1,712 @@
+{
+ "_doc": "Building blocks for signature abilities, following the axes of the research reference: function (what it does), delivery (how it arrives), flavour (element, material or manner), and cost. 'tag_function', 'tag_delivery' and 'tag_cost' say which player tags pull an ability toward which value. The generator picks one value per axis from a class's tags and the player's tag profile, then writes the name and description. Intelligence adds 6% power per point above 4.",
+ "functions": {
+  "damage": {
+   "kind": "burst",
+   "power": 10,
+   "radius": 1.4,
+   "cooldown": 8,
+   "mana": 4,
+   "does": "deals {power} damage",
+   "nouns": {
+    "thrown": [
+     "Volley",
+     "Barrage",
+     "Delivery"
+    ],
+    "cloud": [
+     "Fumigation",
+     "Smog",
+     "Haze"
+    ],
+    "speech": [
+     "Tirade",
+     "Roast",
+     "Heckle"
+    ],
+    "body": [
+     "Body Slam",
+     "Shoulder Check",
+     "Flop"
+    ]
+   }
+  },
+  "control": {
+   "kind": "burst",
+   "power": 2,
+   "radius": 1.6,
+   "status": {
+    "kind": "root",
+    "duration": 3.0,
+    "says": "holds targets in place for {duration} seconds"
+   },
+   "cooldown": 10,
+   "mana": 4,
+   "does": "deals {power} damage",
+   "nouns": {
+    "thrown": [
+     "Lockdown",
+     "Cordon",
+     "Paperweight"
+    ],
+    "cloud": [
+     "Fog Bank",
+     "Queue",
+     "Bottleneck"
+    ],
+    "speech": [
+     "Lecture",
+     "Stern Word",
+     "Announcement"
+    ],
+    "body": [
+     "Tackle",
+     "Bear Hug",
+     "Sit-In"
+    ]
+   }
+  },
+  "healing": {
+   "kind": "heal",
+   "power": 14,
+   "radius": 3.0,
+   "cooldown": 14,
+   "mana": 5,
+   "does": "restores {power} health to you and nearby party members",
+   "nouns": {
+    "self": [
+     "Patch-Up",
+     "Second Opinion",
+     "Home Remedy"
+    ],
+    "speech": [
+     "Pep Talk",
+     "Bedside Manner",
+     "Lullaby"
+    ]
+   }
+  },
+  "protection": {
+   "kind": "buff",
+   "mods": {
+    "damage_taken_mult": 0.5
+   },
+   "duration": 5.0,
+   "cooldown": 16,
+   "mana": 4,
+   "does": "halves the damage you take for {duration} seconds",
+   "nouns": {
+    "self": [
+     "Brace",
+     "Flinch",
+     "Hard Hat"
+    ]
+   }
+  },
+  "movement": {
+   "kind": "buff",
+   "mods": {
+    "speed_mult": 1.6
+   },
+   "duration": 4.0,
+   "cooldown": 12,
+   "mana": 3,
+   "does": "+60% movement speed for {duration} seconds",
+   "nouns": {
+    "self": [
+     "Getaway",
+     "Shortcut",
+     "Fire Drill"
+    ]
+   }
+  },
+  "support": {
+   "kind": "buff",
+   "allies": true,
+   "radius": 4.0,
+   "mods": {
+    "damage_mult": 1.3
+   },
+   "duration": 6.0,
+   "cooldown": 16,
+   "mana": 5,
+   "does": "you and nearby party members deal +30% damage for {duration} seconds",
+   "nouns": {
+    "self": [
+     "Huddle",
+     "Team Meeting",
+     "Rally"
+    ],
+    "speech": [
+     "Motivational Speech",
+     "Chant",
+     "Singalong"
+    ]
+   }
+  },
+  "mind": {
+   "kind": "forget",
+   "radius": 4.0,
+   "duration": 4.0,
+   "cooldown": 14,
+   "mana": 4,
+   "does": "nearby monsters forget about you for {duration} seconds",
+   "nouns": {
+    "self": [
+     "Blank Stare",
+     "Change of Subject",
+     "Vanishing Act"
+    ],
+    "speech": [
+     "Excuse",
+     "Alibi",
+     "Polite Cough"
+    ]
+   }
+  },
+  "survive": {
+   "kind": "last_stand",
+   "cooldown": 60,
+   "mana": 0,
+   "passive": true,
+   "does": "the first hit that would kill you leaves you on 1 health instead",
+   "nouns": {
+    "self": [
+     "Extra Time",
+     "Second Wind",
+     "Encore"
+    ]
+   }
+  }
+ },
+ "deliveries": {
+  "thrown": {
+   "range": 6.0,
+   "radius_mult": 1.0,
+   "power_mult": 1.0,
+   "says": "Thrown up to 6 tiles"
+  },
+  "cloud": {
+   "range": 4.0,
+   "radius_mult": 1.6,
+   "power_mult": 0.7,
+   "says": "A cloud placed up to 4 tiles away"
+  },
+  "speech": {
+   "range": 0.0,
+   "radius_mult": 1.8,
+   "power_mult": 0.8,
+   "audience": true,
+   "says": "Spoken aloud around you, stronger the more viewers you have"
+  },
+  "body": {
+   "range": 0.0,
+   "radius_mult": 0.8,
+   "power_mult": 1.5,
+   "says": "Done with your own body, right where you stand"
+  },
+  "self": {
+   "range": 0.0,
+   "radius_mult": 1.0,
+   "power_mult": 1.0,
+   "says": "Used on yourself"
+  }
+ },
+ "flavours": {
+  "fire": {
+   "adj": [
+    "Scorching",
+    "Smouldering"
+   ],
+   "status": {
+    "id": "burn",
+    "kind": "dot",
+    "power": 3,
+    "duration": 4.0,
+    "says": "sets targets burning for {duration} seconds"
+   }
+  },
+  "heat": {
+   "adj": [
+    "Oven-Hot",
+    "Deep-Fried"
+   ],
+   "status": {
+    "id": "burn",
+    "kind": "dot",
+    "power": 3,
+    "duration": 4.0,
+    "says": "sets targets burning for {duration} seconds"
+   }
+  },
+  "cold": {
+   "adj": [
+    "Frosted",
+    "Chilled"
+   ],
+   "status": {
+    "id": "chill",
+    "kind": "slow",
+    "power": 0.5,
+    "duration": 3.0,
+    "says": "chills targets to half speed for {duration} seconds"
+   }
+  },
+  "poison": {
+   "adj": [
+    "Rancid",
+    "Toxic"
+   ],
+   "status": {
+    "id": "poison",
+    "kind": "dot",
+    "power": 2,
+    "duration": 6.0,
+    "says": "poisons targets for {duration} seconds"
+   }
+  },
+  "chemicals": {
+   "adj": [
+    "Caustic",
+    "Industrial-Strength"
+   ],
+   "status": {
+    "id": "poison",
+    "kind": "dot",
+    "power": 2,
+    "duration": 6.0,
+    "says": "poisons targets for {duration} seconds"
+   }
+  },
+  "sticky": {
+   "adj": [
+    "Gummy",
+    "Tacky"
+   ],
+   "status": {
+    "id": "gum",
+    "kind": "slow",
+    "power": 0.5,
+    "duration": 4.0,
+    "says": "gums targets up to half speed for {duration} seconds"
+   }
+  },
+  "slime": {
+   "adj": [
+    "Oozing",
+    "Slick"
+   ],
+   "status": {
+    "id": "gum",
+    "kind": "slow",
+    "power": 0.5,
+    "duration": 4.0,
+    "says": "slimes targets to half speed for {duration} seconds"
+   }
+  },
+  "light": {
+   "adj": [
+    "Blinding",
+    "Glaring"
+   ],
+   "status": {
+    "id": "dazzle",
+    "kind": "stun",
+    "power": 0,
+    "duration": 1.0,
+    "says": "dazzles targets for {duration} second"
+   }
+  },
+  "loud": {
+   "adj": [
+    "Deafening",
+    "Off-Key"
+   ],
+   "status": {
+    "id": "dazzle",
+    "kind": "stun",
+    "power": 0,
+    "duration": 0.8,
+    "says": "deafens targets for {duration} seconds"
+   }
+  },
+  "rope": {
+   "adj": [
+    "Knotted",
+    "Tangled"
+   ],
+   "status": {
+    "id": "snare",
+    "kind": "root",
+    "power": 0,
+    "duration": 2.0,
+    "says": "tangles targets for {duration} seconds"
+   }
+  },
+  "heavy": {
+   "adj": [
+    "Leaden",
+    "Hefty"
+   ],
+   "status": {
+    "id": "bash",
+    "kind": "stun",
+    "power": 0,
+    "duration": 0.6,
+    "says": "flattens targets for {duration} seconds"
+   }
+  },
+  "sharp": {
+   "adj": [
+    "Barbed",
+    "Jagged"
+   ],
+   "power_mult": 1.3
+  },
+  "water": {
+   "adj": [
+    "Soggy",
+    "Sloshing"
+   ],
+   "radius_mult": 1.4
+  },
+  "food": {
+   "adj": [
+    "Half-Baked",
+    "Reheated"
+   ]
+  },
+  "night": {
+   "adj": [
+    "Graveyard-Shift",
+    "After-Hours"
+   ]
+  },
+  "money": {
+   "adj": [
+    "Itemised",
+    "Tax-Deductible"
+   ]
+  },
+  "office": {
+   "adj": [
+    "Laminated",
+    "Passive-Aggressive"
+   ]
+  },
+  "rules": {
+   "adj": [
+    "By-the-Book",
+    "Regulation"
+   ]
+  },
+  "medical": {
+   "adj": [
+    "Clinical",
+    "Over-the-Counter"
+   ]
+  },
+  "performer": {
+   "adj": [
+    "Rehearsed",
+    "Improvised"
+   ]
+  },
+  "tricks": {
+   "adj": [
+    "Sleight-of-Hand",
+    "Misdirected"
+   ]
+  },
+  "security": {
+   "adj": [
+    "Authorised",
+    "High-Visibility"
+   ]
+  },
+  "patience": {
+   "adj": [
+    "Long-Suffering",
+    "Unhurried"
+   ]
+  },
+  "animals": {
+   "adj": [
+    "House-Trained",
+    "Feral"
+   ]
+  },
+  "outdoors": {
+   "adj": [
+    "Free-Range",
+    "Weatherproof"
+   ]
+  },
+  "speed": {
+   "adj": [
+    "Rushed",
+    "Express"
+   ]
+  },
+  "quiet": {
+   "adj": [
+    "Hushed",
+    "Tiptoed"
+   ]
+  },
+  "pain": {
+   "adj": [
+    "Tender",
+    "Unanaesthetised"
+   ]
+  },
+  "guts": {
+   "adj": [
+    "Iron-Stomached",
+    "Gutsy"
+   ]
+  },
+  "showoff": {
+   "adj": [
+    "Flashy",
+    "Unnecessary"
+   ]
+  },
+  "machines": {
+   "adj": [
+    "Clanking",
+    "Motorised"
+   ]
+  },
+  "tools": {
+   "adj": [
+    "Jury-Rigged",
+    "Adjustable"
+   ]
+  },
+  "lifting": {
+   "adj": [
+    "Dead-Lift",
+    "Two-Handed"
+   ]
+  },
+  "warehouse": {
+   "adj": [
+    "Palletised",
+    "Shrink-Wrapped"
+   ]
+  },
+  "retail": {
+   "adj": [
+    "Discount",
+    "Clearance"
+   ]
+  },
+  "sports": {
+   "adj": [
+    "Offside",
+    "Unsporting"
+   ]
+  },
+  "trades": {
+   "adj": [
+    "Overtime",
+    "Call-Out"
+   ]
+  },
+  "brawl": {
+   "adj": [
+    "Bare-Knuckle",
+    "Car-Park"
+   ]
+  },
+  "throw": {
+   "adj": [
+    "Overarm",
+    "Wild"
+   ]
+  },
+  "doomed": {
+   "adj": [
+    "Posthumous",
+    "Terminal"
+   ]
+  },
+  "punished": {
+   "adj": [
+    "Black-and-Blue",
+    "Well-Tenderised"
+   ]
+  },
+  "lucky": {
+   "adj": [
+    "Fluke",
+    "Accidental"
+   ]
+  },
+  "cautious": {
+   "adj": [
+    "Risk-Assessed",
+    "Tentative"
+   ]
+  },
+  "greedy": {
+   "adj": [
+    "Light-Fingered",
+    "Pocketed"
+   ]
+  },
+  "social": {
+   "adj": [
+    "Group",
+    "Mandatory"
+   ]
+  },
+  "bold": {
+   "adj": [
+    "Ill-Advised",
+    "Uninsured"
+   ]
+  },
+  "pacifist": {
+   "adj": [
+    "Apologetic",
+    "Conscientious"
+   ]
+  },
+  "loner": {
+   "adj": [
+    "Unaccompanied",
+    "Solo"
+   ]
+  },
+  "vermin": {
+   "adj": [
+    "Flea-Bitten",
+    "Gnawed"
+   ]
+  },
+  "tinkerer": {
+   "adj": [
+    "Garage-Built",
+    "Prototype"
+   ]
+  },
+  "care": {
+   "adj": [
+    "Bedside",
+    "Gentle"
+   ]
+  },
+  "hands": {
+   "adj": [
+    "Deft",
+    "Hand-Made"
+   ]
+  }
+ },
+ "costs": {
+  "mana": {
+   "says": "Costs {mana} mana"
+  },
+  "health": {
+   "says": "Costs a tenth of your health",
+   "power_mult": 1.25,
+   "hp_frac": 0.1
+  },
+  "item": {
+   "says": "Uses up one item from your pack",
+   "power_mult": 1.35
+  }
+ },
+ "tag_function": {
+  "fire": "damage",
+  "heat": "damage",
+  "throw": "damage",
+  "sharp": "damage",
+  "heavy": "damage",
+  "brawl": "damage",
+  "bold": "damage",
+  "poison": "damage",
+  "chemicals": "damage",
+  "machines": "damage",
+  "sticky": "control",
+  "rope": "control",
+  "cold": "control",
+  "rules": "control",
+  "slime": "control",
+  "water": "control",
+  "lifting": "control",
+  "security": "protection",
+  "patience": "protection",
+  "punished": "protection",
+  "warehouse": "protection",
+  "trades": "protection",
+  "doomed": "survive",
+  "lucky": "survive",
+  "guts": "survive",
+  "night": "survive",
+  "medical": "healing",
+  "care": "healing",
+  "food": "healing",
+  "speed": "movement",
+  "sports": "movement",
+  "outdoors": "movement",
+  "cautious": "movement",
+  "quiet": "mind",
+  "tricks": "mind",
+  "pacifist": "mind",
+  "loner": "mind",
+  "office": "mind",
+  "money": "mind",
+  "loud": "support",
+  "performer": "support",
+  "social": "support",
+  "showoff": "support",
+  "animals": "support",
+  "retail": "support"
+ },
+ "tag_delivery": {
+  "throw": "thrown",
+  "heavy": "thrown",
+  "sharp": "thrown",
+  "lifting": "thrown",
+  "warehouse": "thrown",
+  "rope": "thrown",
+  "sticky": "thrown",
+  "fire": "cloud",
+  "poison": "cloud",
+  "chemicals": "cloud",
+  "cold": "cloud",
+  "slime": "cloud",
+  "water": "cloud",
+  "heat": "cloud",
+  "food": "cloud",
+  "loud": "speech",
+  "performer": "speech",
+  "showoff": "speech",
+  "social": "speech",
+  "rules": "speech",
+  "office": "speech",
+  "retail": "speech",
+  "care": "speech",
+  "brawl": "body",
+  "sports": "body",
+  "guts": "body",
+  "punished": "body",
+  "bold": "body",
+  "security": "body",
+  "pain": "body"
+ },
+ "tag_cost": {
+  "pain": "health",
+  "guts": "health",
+  "doomed": "health",
+  "punished": "health",
+  "bold": "health",
+  "greedy": "item",
+  "retail": "item",
+  "throw": "item",
+  "warehouse": "item"
+ }
+}
