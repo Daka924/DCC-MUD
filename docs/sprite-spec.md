@@ -34,12 +34,17 @@ yellow) reserved for the UI, loot boxes and sponsor drops.
 
 ## File naming
 
-`art/<kind>/<id>.png` plus `<id>.json` from Aseprite, where `<id>` matches the id
-in the data files, for example `art/mobs/sump_rat.png`, `art/items/oil_flask.png`.
-Aseprite tags name the animations: `idle_s`, `walk_sw`, and so on.
+Still things: `art/<kind>/<id>.png`, where `<id>` matches the id in the data files, for example
+`art/mobs/sump_rat.png`, `art/items/oil_flask.png`.
+
+Animated things: a folder `art/<kind>/<id>/` holding one strip of square frames per action and direction,
+named `<action>_<dir>.png`, for example `art/npcs/vex/walk_sw.png`. Actions: `idle`, `walk`, `attack`, `dead`.
+Directions are where the figure faces on screen: `s` (toward the camera), `sw`, `w`, `nw`, `n`, `ne`, `e`, `se`.
+The game plays strips at 8 frames a second, fills missing directions from the nearest one (mirroring left and
+right) and falls back to `idle` for a missing action (`client/sprites.gd`).
 
 ## Current pipeline
 
-`make_sprites.bat` converts `art_inbox/<kind>/<id>.*` into `art/<kind>/<id>.png` (one still frame per thing)
-using `tools/sprite_pipeline.lua`. Animation tags and facing directions above are the target, not yet read by
-the game.
+`make_sprites.bat` converts `art_inbox/<kind>/<id>.*` into `art/<kind>/<id>.png`, and a folder
+`art_inbox/<kind>/<id>/` of strips or numbered frames into `art/<kind>/<id>/` strips, using
+`tools/sprite_pipeline.lua`. See `design/07-art.md`.

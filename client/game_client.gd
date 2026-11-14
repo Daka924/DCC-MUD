@@ -48,6 +48,7 @@ var _choice_timer: Label
 var _choice_shown := false
 var _sprites := Sprites.new()
 var _sig_seen := 0.0
+var _pose := {}      # per drawn thing: last position, facing, when it last moved or attacked
 const TILE_ART := {".": "floor", ",": "doorway", "~": "water", "S": "safe", ">": "stairs"}
 
 func _ready() -> void:
@@ -330,6 +331,7 @@ func on_msg(kind: String, data: Dictionary) -> void:
 			timer_total = data.timer_total
 			level_name = data.name
 			shown.clear()
+			_pose.clear()
 			fx.clear()
 			_say("Level %d: %s." % [data.index + 1, data.name], "ffd75c")
 		"self":
@@ -385,6 +387,14 @@ func _on_event(ev: Dictionary) -> void:
 			fx.append({"type": "boom", "pos": ev.pos, "radius": ev.radius, "t0": _clock, "life": 0.45, "color": c})
 		"swing":
 			fx.append({"type": "swing", "id": ev.id, "t0": _clock, "life": 0.18})
+			if _pose.has("p%d" % ev.id):
+				_pose["p%d" % ev.id].attacked = _clock
+		"bite":
+			if _pose.has("m%d" % ev.id):
+				_pose["m%d" % ev.id].attacked = _clock
+		"npc_swing":
+			if _pose.has("n%d" % ev.id):
+				_pose["n%d" % ev.id].attacked = _clock
 		"mob_dead":
 			fx.append({"type": "boom", "pos": ev.pos, "radius": 0.5, "t0": _clock, "life": 0.3, "color": Color("c0392b")})
 
@@ -545,6 +555,46 @@ func _draw() -> void:
 	for f in fx:
 		_draw_fx(f)
 
+## Work out which animation and facing a thing should show from how it moves.
+func _pose_of(key: String, pos: Vector2, facing := Vector2.ZERO) -> Array:
+	var st: Dictionary = _pose.get(key, {})
+	if st.is_empty():
+		st = {"pos": pos, "dir": "s", "moved": -9.0, "attacked": -9.0}
+		_pose[key] = st
+	var step: Vector2 = pos - st.pos
+	if step.length() > 0.003:
+		st.dir = Sprites.dir_name(iso(step))
+		st.moved = _clock
+	elif facing != Vector2.ZERO and _clock - st.moved > 0.25:
+		st.dir = Sprites.dir_name(iso(facing))
+	st.pos = pos
+	var anim := "idle"
+	if _clock - st.attacked < 0.35:
+		anim = "attack"
+	elif _clock - st.moved < 0.15:
+		anim = "walk"
+	return [anim, st.dir]
+
+## Draw the animated sprite for a thing if it has one. Returns its height, or 0.
+func _animated(kind: String, ids: Array, key: String, pos: Vector2, s: Vector2, tint: Color, facing := Vector2.ZERO, dead := false) -> float:
+	var pose := _pose_of(key, pos, facing)
+	for id in ids:
+		var fr := _sprites.frame(kind, str(id), "dead" if dead else pose[0], pose[1], _clock)
+		if fr.is_empty() and dead:
+			fr = _sprites.frame(kind, str(id), "idle", pose[1], 0.0)
+		if fr.is_empty():
+			continue
+		var size: Vector2 = fr.region.size
+		var at := (s - Vector2(size.x / 2.0, size.y - 4.0)).round()
+		if fr.flip:
+			draw_set_transform(Vector2(at.x + size.x, at.y), 0.0, Vector2(-1, 1))
+			draw_texture_rect_region(fr.tex, Rect2(Vector2.ZERO, size), fr.region, tint)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		else:
+			draw_texture_rect_region(fr.tex, Rect2(at, size), fr.region, tint)
+		return size.y
+	return 0.0
+
 ## Draw a sprite standing on the ground at s (feet at the bottom centre).
 func _stand(tex: Texture2D, s: Vector2, tint: Color) -> void:
 	draw_texture(tex, (s - Vector2(tex.get_width() / 2.0, tex.get_height() - 4.0)).round(), tint)
@@ -574,8 +624,13 @@ func _draw_player(p: Array, pos: Vector2, my_party: Array) -> void:
 	if dead:
 		body = Color("555555")
 	_ellipse(s, 10, 5, Color(0, 0, 0, 0.45))
-	var ptex := _sprites.first("players", ["default"])
-	if ptex != null:
+	var ph := _animated("players", ["default"], "p%d" % p[0], pos, s, Color(0.4, 0.4, 0.4) if dead else Color.WHITE, p[7], dead)
+	var ptex := _sprites.first("players", ["default"]) if ph == 0.0 else null
+	if ph > 0.0:
+		_ellipse(s, 11, 5.5, body, false, 1.5)
+		if not dead:
+			_bar(s + Vector2(0, -ph - 4.0), p[3] / p[4], Color("5cf27a"))
+	elif ptex != null:
 		# One look for everyone for now; a ring on the ground shows who is who.
 		_ellipse(s, 11, 5.5, body, false, 1.5)
 		_stand(ptex, s, Color(0.4, 0.4, 0.4) if dead else Color.WHITE)
@@ -589,14 +644,18 @@ func _draw_player(p: Array, pos: Vector2, my_party: Array) -> void:
 		var face: Vector2 = iso(p[7]).normalized() * 5.0
 		draw_circle(s + Vector2(0, -27) + face, 2, Color.BLACK)
 		_bar(s + Vector2(0, -40), p[3] / p[4], Color("5cf27a"))
-	draw_string(_font, s + Vector2(-70, -44), p[1] if p[8] == "" else "%s, %s" % [p[1], p[8]], HORIZONTAL_ALIGNMENT_CENTER, 140, 10, Color.WHITE)
+	var art_h: float = ph if ph > 0.0 else (float(ptex.get_height()) if ptex != null else 0.0)
+	draw_string(_font, s + Vector2(-70, -maxf(44.0, art_h + 12.0)), p[1] if p[8] == "" else "%s, %s" % [p[1], p[8]], HORIZONTAL_ALIGNMENT_CENTER, 140, 10, Color.WHITE)
 
 func _draw_npc(n: Array, pos: Vector2) -> void:
 	var s := iso(pos)
 	var body := Color(n[3])
 	_ellipse(s, 10, 5, Color(0, 0, 0, 0.45))
-	var ntex := _sprites.first("npcs", [str(n[1]).to_lower(), "default"])
-	if ntex != null:
+	var nh := _animated("npcs", [str(n[1]).to_lower(), "default"], "n%d" % n[0], pos, s, Color.WHITE)
+	var ntex := _sprites.first("npcs", [str(n[1]).to_lower(), "default"]) if nh == 0.0 else null
+	if nh > 0.0:
+		pass
+	elif ntex != null:
 		_stand(ntex, s, Color.WHITE)
 	else:
 		draw_rect(Rect2(s + Vector2(-6, -22), Vector2(12, 20)), body)
@@ -614,8 +673,12 @@ func _draw_mob(m: Array, pos: Vector2) -> void:
 	elif m[4]:
 		col = col.lerp(Color("7fd6e8"), 0.5)
 	_ellipse(s, 11 * size, 5.5 * size, Color(0, 0, 0, 0.45))
-	var mtex := _sprites.get_tex("mobs", m[1])
-	if mtex != null:
+	var mtint := Color.WHITE.lerp(col, 0.5) if (m[4] or m[5]) else Color.WHITE
+	var mh := _animated("mobs", [m[1]], "m%d" % m[0], pos, s, mtint)
+	var mtex := _sprites.get_tex("mobs", m[1]) if mh == 0.0 else null
+	if mh > 0.0:
+		pass
+	elif mtex != null:
 		_stand(mtex, s, Color.WHITE.lerp(col, 0.5) if (m[4] or m[5]) else Color.WHITE)
 	else:
 		_ellipse(s + Vector2(0, -8 * size), 11 * size, 9 * size, col)

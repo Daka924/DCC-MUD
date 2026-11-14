@@ -23,7 +23,7 @@ local KINDS = {
 }
 -- Tiles with their own size (a wall is a 64 x 32 footprint that rises 26 px).
 local TILE_SIZES = { wall = { w = 64, h = 58 } }
-local WORK_MAX = 384          -- large paintings are reduced to this before processing
+local WORK_MAX = 512          -- large paintings are reduced to this before processing
 local BG_TOLERANCE = 28       -- how close to the corner colour counts as background
 local IMAGE_EXT = { png = true, jpg = true, jpeg = true, bmp = true, gif = true, webp = true, tga = true }
 local ASE_EXT = { aseprite = true, ase = true }
@@ -172,7 +172,30 @@ local function sample(px, w, h, fx0, fy0, fx1, fy1)
     end
   end
   if a <= 0 then return { 0, 0, 0, 0 } end
-  return { r / a, g / a, b / a, a / n }
+  local mean = { r / a, g / a, b / a, a / n }
+  if n < 4 or mean[4] < 128 then return mean end
+  -- AI "pixel art" has soft edges between its fake pixels. Averaging a block
+  -- smears them, so let the block's most common colour win instead.
+  local buckets, best, best_w = {}, nil, 0
+  for y = ya, yb do
+    for x = xa, xb do
+      local p = px[y + 1][x + 1]
+      if p[4] > 128 then
+        local key = (p[1] // 24) * 4096 + (p[2] // 24) * 64 + (p[3] // 24)
+        local bk = buckets[key]
+        if not bk then
+          bk = { 0, 0, 0, 0 }
+          buckets[key] = bk
+        end
+        bk[1], bk[2], bk[3], bk[4] = bk[1] + p[1], bk[2] + p[2], bk[3] + p[3], bk[4] + 1
+        if bk[4] > best_w then best, best_w = bk, bk[4] end
+      end
+    end
+  end
+  if best and best_w * 3 >= n then      -- a clear winner; otherwise keep the average
+    return { best[1] / best_w, best[2] / best_w, best[3] / best_w, mean[4] }
+  end
+  return mean
 end
 
 local function load_palette()
@@ -204,7 +227,7 @@ local function snap(p, palette)
 end
 
 -- Build the output pixels for one image. Returns a table of rows of {r,g,b,a}.
-local function build(px, w, h, tw, th, as_floor_tile)
+local function build(px, w, h, tw, th, as_floor_tile, fixed)
   local out = {}
   if as_floor_tile then
     -- A flat square texture is laid down as an isometric diamond.
@@ -229,7 +252,12 @@ local function build(px, w, h, tw, th, as_floor_tile)
     end
     return out
   end
-  local x0, y0, x1, y1 = bounds(px, w, h)
+  local x0, y0, x1, y1
+  if fixed then
+    x0, y0, x1, y1 = fixed[1], fixed[2], fixed[3], fixed[4]
+  else
+    x0, y0, x1, y1 = bounds(px, w, h)
+  end
   if not x0 then return nil end
   local bw, bh = x1 - x0 + 1, y1 - y0 + 1
   local scale = math.min(tw / bw, th / bh, 1)
@@ -251,17 +279,24 @@ local function build(px, w, h, tw, th, as_floor_tile)
   return out
 end
 
-local function save(out, tw, th, palette, png_path, ase_path)
-  local spr = Sprite(tw, th, ColorMode.RGB)
-  local img = Image(tw, th, ColorMode.RGB)
-  for y = 0, th - 1 do
-    for x = 0, tw - 1 do
-      local p = out[y + 1][x + 1]
-      if p[4] >= 128 then
-        local c = palette and snap(p, palette) or p
-        img:drawPixel(x, y, pc.rgba(math.floor(c[1] + 0.5), math.floor(c[2] + 0.5), math.floor(c[3] + 0.5), 255))
-      else
-        img:drawPixel(x, y, pc.rgba(0, 0, 0, 0))
+-- frames: a list of pixel tables, laid side by side into one strip.
+local function save(frames, tw, th, palette, png_path, ase_path)
+  if frames[1] and frames[1][1] and frames[1][1][1] and type(frames[1][1][1]) == "number" then
+    frames = { frames }      -- a single picture
+  end
+  local spr = Sprite(tw * #frames, th, ColorMode.RGB)
+  local img = Image(tw * #frames, th, ColorMode.RGB)
+  for i, out in ipairs(frames) do
+    for y = 0, th - 1 do
+      for x = 0, tw - 1 do
+        local p = out[y + 1][x + 1]
+        local dx = x + (i - 1) * tw
+        if p[4] >= 128 then
+          local c = palette and snap(p, palette) or p
+          img:drawPixel(dx, y, pc.rgba(math.floor(c[1] + 0.5), math.floor(c[2] + 0.5), math.floor(c[3] + 0.5), 255))
+        else
+          img:drawPixel(dx, y, pc.rgba(0, 0, 0, 0))
+        end
       end
     end
   end
@@ -270,6 +305,76 @@ local function save(out, tw, th, palette, png_path, ase_path)
   spr:saveCopyAs(png_path)
   spr:saveCopyAs(ase_path)
   spr:close()
+end
+
+-- A folder inside a kind folder is one animated thing: art_inbox/npcs/vex/.
+-- Its files are either finished strips (walk_sw.png, frames side by side) or
+-- numbered frames (walk_sw_01.png, walk_sw_02.png ...). Every frame of the
+-- thing is cut and scaled the same way so it does not jitter.
+local function run_animated(kind, spec, id, dir, palette)
+  local groups, order = {}, {}
+  local files = fs.listFiles(dir)
+  table.sort(files)
+  for _, name in ipairs(files) do
+    local ext = string.lower(fs.fileExtension(name))
+    if IMAGE_EXT[ext] then
+      local title = string.lower(fs.fileTitle(name))
+      local base = title:match("^(.-)_%d+$") or title
+      base = base:gsub("[^%w_]+", "_")
+      if not groups[base] then
+        groups[base] = {}
+        order[#order + 1] = base
+      end
+      table.insert(groups[base], fs.joinPath(dir, name))
+    end
+  end
+  local out_dir = fs.joinPath(root, "art", spec.out, id)
+  fs.makeAllDirectories(out_dir)
+  local tw, th = spec.w, spec.h
+  -- Read everything first so all frames share one crop box and one scale.
+  local loaded, union = {}, nil
+  for _, base in ipairs(order) do
+    loaded[base] = {}
+    for _, path in ipairs(groups[base]) do
+      local spr = app.open(path)
+      if not spr then error("Aseprite could not open " .. path) end
+      local sw, sh = spr.width, spr.height
+      local px, w, h = read_pixels(spr)
+      spr:close()
+      local n = 1
+      if #groups[base] == 1 and sw > sh and sw % sh == 0 then n = sw // sh end   -- already a strip
+      for f = 1, n do
+        local fw = w // n
+        local frame = {}
+        for y = 1, h do
+          local row = {}
+          for x = 1, fw do row[x] = px[y][(f - 1) * fw + x] end
+          frame[y] = row
+        end
+        remove_background(frame, fw, h)
+        local x0, y0, x1, y1 = bounds(frame, fw, h)
+        if x0 then
+          union = union and { math.min(union[1], x0), math.min(union[2], y0), math.max(union[3], x1), math.max(union[4], y1) }
+            or { x0, y0, x1, y1 }
+        end
+        table.insert(loaded[base], { px = frame, w = fw, h = h })
+      end
+    end
+  end
+  if not union then error("every frame is empty") end
+  local made = 0
+  for _, base in ipairs(order) do
+    local frames = {}
+    for _, fr in ipairs(loaded[base]) do
+      frames[#frames + 1] = build(fr.px, fr.w, fr.h, tw, th, false, union)
+    end
+    save(frames, tw, th, palette, fs.joinPath(out_dir, base .. ".png"),
+      fs.joinPath(root, "art_src", spec.out, id .. "_" .. base .. ".aseprite"))
+    say("  made      " .. kind .. "/" .. id .. "/" .. base .. "  ->  art/" .. spec.out .. "/" .. id .. "/" .. base
+      .. ".png (" .. #frames .. " frame" .. (#frames == 1 and "" or "s") .. ", " .. tw .. " x " .. th .. " each)")
+    made = made + 1
+  end
+  return made
 end
 
 local function run()
@@ -304,7 +409,15 @@ local function run()
           if m then m:close() end
         end
         local png = fs.joinPath(out_dir, id .. ".png")
-        if IMAGE_EXT[ext] or ASE_EXT[ext] then
+        if fs.isDirectory(src) then
+          local ok, res = pcall(run_animated, kind, spec, id, src, palette)
+          if ok then
+            made = made + res
+          else
+            failed = failed + 1
+            say("  FAILED    " .. kind .. "/" .. name .. "/: " .. tostring(res))
+          end
+        elseif IMAGE_EXT[ext] or ASE_EXT[ext] then
           local ok, err = pcall(function()
             local spr = app.open(src)
             if not spr then error("Aseprite could not open it") end

@@ -116,7 +116,26 @@ each other, it uses only palette colours, and Vex reads clearly standing on the 
 - Sprite sizes are now 64 x 64 for characters and small monsters, 128 x 128 for large monsters, 24 x 24 for items.
 - `art_inbox/palette_from_style_target.png` holds 48 colours taken from the style target. Rename it to
   `palette.png` to make the conversion lock every sprite to it.
-- Still to build: reading animation strips and facing directions, and snapping fake pixel grids during conversion.
+- The conversion now picks the most common colour in each block when shrinking a picture, which keeps AI
+  pictures crisp instead of blurry. It does not yet detect a fake pixel grid that is off-square.
+
+### Dropping in animation
+
+An animated character is a folder named for the character, inside the kind folder:
+
+```
+art_inbox/npcs/vex/walk_sw.png      one picture holding all frames side by side, or
+art_inbox/npcs/vex/walk_sw_01.png   one picture per frame, numbered
+art_inbox/npcs/vex/walk_sw_02.png
+```
+
+- The name is the action, then the direction the character faces on screen: `s` is toward the camera, then
+  `sw`, `w`, `nw`, `n`, `ne`, `e`, `se`.
+- Actions the game plays: `idle`, `walk`, `attack`, `dead`. It plays 8 frames a second.
+- All frames of a character are cropped and shrunk together, so the character does not jump between frames.
+- You can start with one direction. The game fills a missing direction from the nearest one it has and mirrors
+  left and right, and uses `idle` when an action is missing. A folder with only `idle_sw.png` already works.
+- A single picture (`art_inbox/npcs/vex.png`) still works for anything that does not move.
 
 ## Decisions for you
 
