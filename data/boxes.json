@@ -1,0 +1,5 @@
+{
+  "_doc": "Loot box tiers. rolls = items granted, table = item id -> weight.",
+  "tin":    {"name": "Tin Box",    "rolls": 2, "table": {"oil_flask": 3, "rag": 3, "flint": 3, "nails": 2, "bone": 2}},
+  "copper": {"name": "Copper Box", "rolls": 4, "table": {"oil_flask": 3, "rag": 3, "flint": 2, "nails": 3, "glue_pot": 3, "frost_moss": 2, "glowcap": 2, "rope": 2, "scrap": 2}}
+}

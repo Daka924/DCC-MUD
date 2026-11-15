@@ -1,0 +1,32 @@
+{
+ "_doc": "NPC helpers. One waits at each starting location (in order) and will follow a solo player until they team up with a real one.",
+ "companions": [
+  {
+   "id": "dolores",
+   "name": "Dolores",
+   "blurb": "A former contestant who now mops the Break Room and resents it.",
+   "damage": 3,
+   "color": "c9a0dc",
+   "join": "Fine. But I walk behind you, and if you die I keep your shoes.",
+   "leave": "You have real friends now. Try not to get them killed. I'll be mopping."
+  },
+  {
+   "id": "gus",
+   "name": "Gus",
+   "blurb": "Lost Property clerk. Has been looking for his own stapler since last season.",
+   "damage": 3,
+   "color": "9fd0a0",
+   "join": "I'll come. Somebody has to carry the paperwork.",
+   "leave": "Two's company, three's an insurance problem. Good luck out there."
+  },
+  {
+   "id": "vex",
+   "name": "Vex",
+   "blurb": "Boiler technician. Will not say what the boiler is for.",
+   "damage": 4,
+   "color": "e0a070",
+   "join": "I hit things with a wrench. That's the whole offer.",
+   "leave": "You found your people. I'm going back to the boiler. Don't ask about the boiler."
+  }
+ ]
+}

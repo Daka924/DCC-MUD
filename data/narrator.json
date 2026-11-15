@@ -1,0 +1,67 @@
+{
+ "welcome": [
+  "Welcome, {name}. Thousands are watching. Try to die somewhere well lit."
+ ],
+ "death": [
+  "{name} has been turned into content.",
+  "{name} is dead. Viewers rated it a six."
+ ],
+ "respawn": [
+  "Tutorial mercy applied to {name}. This will not last."
+ ],
+ "discovery": [
+  "NEW DISCOVERY: {name} has invented the {ability}. {quip}"
+ ],
+ "levelup": [
+  "{name} reached level {level}. The bar was on the floor, but still."
+ ],
+ "party": [
+  "{a} and {b} have joined forces. Betrayal odds are now posted in the lobby."
+ ],
+ "collapse": [
+  "Time is up. The level has been recycled. Everyone pretend that did not hurt."
+ ],
+ "ability_up": [
+  "{name}'s {ability} is now level {level}. Practice makes carnage."
+ ],
+ "quips": {
+  "dot": [
+   "It keeps hurting long after the fun part is over. Sponsors love that.",
+   "Lingering harm, very on brand."
+  ],
+  "damage": [
+   "Crude, loud and effective. Much like its inventor.",
+   "Legal has asked that we call it a 'device'."
+  ],
+  "slow": [
+   "Nothing says teamwork like making the other team walk funny.",
+   "It makes things slow. You will relate."
+  ],
+  "root": [
+   "It holds things still so you can make worse decisions at them.",
+   "Hands-free violence."
+  ],
+  "stun": [
+   "A brief nap for whoever is on the receiving end.",
+   "Side effects include seeing stars and losing fights."
+  ]
+ },
+ "descend": [
+  "{name} has descended to {floor}. The audience upstairs has already forgotten them."
+ ],
+ "choose_start": [
+  "Congratulations on not dying, {name}. We have been keeping a file on you. Time to find out what you are."
+ ],
+ "chosen": [
+  "{name} is now a {race} {klass}. {quip}"
+ ],
+ "recruit": [
+  "{npc}: \"{line}\""
+ ],
+ "npc_leave": [
+  "{npc}: \"{line}\""
+ ],
+ "box_wait": [
+  "Achievement earned. Prizes are handed out in safe rooms, like civilised people."
+ ]
+}

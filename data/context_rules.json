@@ -1,0 +1,16 @@
+{
+  "_doc": "How the circumstances of a discovery shape the ability. Room tags come from the tile the player stood on.",
+  "room": {
+    "wet":    {"trait": "channel",  "radius_mult": 1.6, "text": "Runs along water: +60% radius in flooded areas", "word": ["Gutter", "Sump", "Drain"]},
+    "narrow": {"trait": "funnel",   "power_mult": 1.3,  "text": "Funnelled: +30% power in tight passages",        "word": ["Corridor", "Chokepoint", "Doorway"]},
+    "safe":   {"trait": "homebrew", "cooldown_mult": 0.7, "text": "Home-brewed: recharges 30% faster",           "word": ["Lounge", "Canteen", "Backroom"]},
+    "open":   {"trait": "longarm",  "range_add": 2.0,   "text": "Open-floor habit: +2 throwing range",            "word": ["Hall", "Gallery", "Concourse"]}
+  },
+  "family": {"power_mult": 1.3, "words": {"vermin": ["Ratter", "Pest"], "ooze": ["Leecher", "Slime"], "construct": ["Wrecker", "Rivet"]}},
+  "desperate": {"hp_below": 0.35, "power_mult": 1.4, "text": "Born of panic: +40% power while you are below 35% health"},
+  "showboat":  {"per_ally": 0.1, "max_allies": 3, "text": "Crowd-pleaser: +10% power per party member nearby"},
+  "buzzer":    {"time_below": 0.2, "cooldown_mult": 0.6, "text": "Buzzer-beater: recharges 40% faster in the last fifth of the level timer"},
+  "discovery": {"uses_needed": 3, "multi_kill": 3},
+  "budget": {"base": 8, "per_player_level": 2, "per_ability_level": 1},
+  "ability": {"uses_per_level": 5, "max_level": 15, "power_per_level": 0.08, "cooldown": 3.0}
+}
