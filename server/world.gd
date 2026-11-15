@@ -159,7 +159,7 @@ func add_player(pid: int, info: Dictionary) -> void:
 	var past := ClassOffers.past_life(str(info.get("past", "")), db)
 	var starts: Array = floors[0].starts
 	var start: int = clamp(int(info.get("start", 0)), 0, starts.size() - 1)
-	var skills := {"brawling": 0, "throwing": 0, "tinkering": 0}
+	var skills := {"brawling": 0, "knack": 0, "tinkering": 0}
 	for s in past.skills:
 		skills[s] = int(pow(float(past.skills[s]), 2.0) * 5.0)
 	var stats := {}
@@ -175,9 +175,13 @@ func add_player(pid: int, info: Dictionary) -> void:
 		"party": 0, "companion": 0, "pet": null, "skills": skills,
 		"combo": {}, "dossier": {}, "ach": {}, "boxes": [], "next_box_at": 0.0, "excite": 0.0,
 		"cd_melee": 0.0, "cd_throw": 0.0, "dead_until": -1.0,
-		"signature": {}, "mana": float(BASE_STAT * 3), "cd_signature": 0.0, "buffs": [],
+		"kit": [], "cd_kit": [0.0, 0.0, 0.0], "mana": float(BASE_STAT * 3), "buffs": [],
 	}
 	var p: Dictionary = players[pid]
+	# Everyone starts with a rough kit of three from their past life: one attack,
+	# one defence, one support. A class replaces it at the level 3 choice.
+	var prof := ClassOffers.profile({}, past, db, start)
+	p.kit = AbilityGen.kit(past.tags, prof.weights, db, str(past.id), {}, 99, float(db.ability_parts.starter_power))
 	_recalc(p)
 	p.hp = p.max_hp
 	_say("welcome", {"name": clean}, [pid])
@@ -196,7 +200,7 @@ func remove_player(pid: int) -> void:
 
 func _mod(p: Dictionary, key: String, default: float) -> float:
 	var v := float(p.mods.get(key, default))
-	for b in p.buffs:      # temporary effects from signature abilities; all are multipliers
+	for b in p.buffs:      # temporary effects from abilities; all are multipliers
 		if now < b.until and b.mods.has(key):
 			v *= float(b.mods[key])
 	return v
@@ -204,13 +208,17 @@ func _mod(p: Dictionary, key: String, default: float) -> float:
 func max_mana(p: Dictionary) -> float:
 	return float(p.stats.int) * 3.0
 
-## Use the signature ability that came with the player's class.
-func use_signature(pid: int, target: Vector2) -> bool:
+## How hard a player's abilities hit: intelligence, the knack skill and class perks.
+func ability_power(p: Dictionary) -> float:
+	return (1.0 + 0.06 * (p.stats.int - BASE_STAT)) * (1.0 + 0.05 * _skill_level(p, "knack")) * _mod(p, "ability_mult", 1.0)
+
+## Use one of the three abilities in the player's kit. slot: 0 offence, 1 defence, 2 support.
+func use_ability(pid: int, slot: int, target: Vector2) -> bool:
 	var p: Dictionary = players.get(pid, {})
-	if p.is_empty() or not _can_act(p) or p.signature.is_empty():
+	if p.is_empty() or not _can_act(p) or slot < 0 or slot >= p.kit.size():
 		return false
-	var a: Dictionary = p.signature
-	if a.passive or now < p.cd_signature or p.mana < a.mana:
+	var a: Dictionary = p.kit[slot]
+	if a.passive or now < p.cd_kit[slot] or p.mana < a.mana:
 		return false
 	var f := _floor_of(p)
 	if a.kind == "burst" and _in_safe(p):
@@ -227,11 +235,12 @@ func use_signature(pid: int, target: Vector2) -> bool:
 	if a.hp_frac > 0.0:
 		p.hp = max(1.0, p.hp - p.max_hp * a.hp_frac)
 	p.mana -= a.mana
-	p.cd_signature = now + a.cooldown
-	var scale: float = 1.0 + 0.06 * (p.stats.int - BASE_STAT)
+	# Dexterity shortens cooldowns: 3% per point above 4.
+	p.cd_kit[slot] = now + a.cooldown * clampf(1.0 - 0.03 * (p.stats.dex - BASE_STAT), 0.5, 1.5)
+	var scale: float = ability_power(p)
 	if a.audience:
 		scale *= 1.0 + min(float(viewers(p)), 300.0) / 600.0
-	var at: Vector2 = p.pos + (target - p.pos).limit_length(a.range)
+	var at: Vector2 = p.pos + (target - p.pos).limit_length(a.range + (_mod(p, "ability_range", 0.0) if a.range > 0.0 else 0.0))
 	match a.kind:
 		"burst":
 			var effects := []
@@ -240,15 +249,15 @@ func use_signature(pid: int, target: Vector2) -> bool:
 			var flight := THROW_FLIGHT if a.delivery == "thrown" else 0.05
 			f.pending.append({"at": now + flight, "pos": at, "owner": pid, "sig": "", "items": [], "ctx": {},
 				"is_ability": false, "payload": {"effects": effects, "radius": a.radius, "bane": {}}})
-			if a.delivery == "thrown":
+			if a.range > 0.0:
 				_floor_ev(p.floor, {"type": "throw", "from": p.pos, "to": at, "flight": flight, "delay": 0.0, "color": "ff4fd8"})
 		"heal":
-			for o in _signature_targets(p, a.radius, true):
+			for o in _ability_targets(p, a.radius, true):
 				o.hp = min(o.max_hp, o.hp + a.power * scale)
 				self_changed.emit(o.id)
 			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": a.radius, "effects": ["heal"]})
 		"buff":
-			for o in _signature_targets(p, a.get("radius", 4.0), a.allies):
+			for o in _ability_targets(p, a.get("radius", 4.0), a.allies):
 				o.buffs.append({"mods": a.mods, "until": now + a.duration})
 				self_changed.emit(o.id)
 			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": 0.8, "effects": ["buff"]})
@@ -260,11 +269,13 @@ func use_signature(pid: int, target: Vector2) -> bool:
 					m["forget_who"] = pid
 			_floor_ev(p.floor, {"type": "boom", "pos": p.pos, "radius": a.radius, "effects": ["forget"]})
 	p.excite += 4.0
-	_note(p, "signature_uses")
+	p.skills.knack += 1
+	_note(p, "ability_uses")
+	_note(p, "used_" + str(a.role))
 	self_changed.emit(pid)
 	return true
 
-func _signature_targets(p: Dictionary, radius: float, allies: bool) -> Array:
+func _ability_targets(p: Dictionary, radius: float, allies: bool) -> Array:
 	var out := [p]
 	if allies:
 		for ally in _allies_near(p, radius):
@@ -411,16 +422,15 @@ func throw_items(pid: int, items: Array, target: Vector2, ability_idx := -1) -> 
 	else:
 		payload = Invention.payload_for(ability, ctx, db)
 		p.ability_ready[sig] = now + payload.cooldown
-	var mult: float = (1.0 + 0.06 * (p.stats.dex - BASE_STAT)) * (1.0 + 0.05 * _skill_level(p, "throwing")) \
-		* _mod(p, "throw_mult", 1.0) * _mod(p, "damage_mult", 1.0) * _aura(p)
+	var mult: float = ability_power(p) * _mod(p, "damage_mult", 1.0) * _aura(p)
 	for i in payload.effects.size():
 		payload.effects[i] = Invention._scaled(payload.effects[i], mult)
-	var offset: Vector2 = (target - p.pos).limit_length(payload.range + _mod(p, "throw_range", 0.0))
+	var offset: Vector2 = (target - p.pos).limit_length(payload.range + _mod(p, "ability_range", 0.0))
 	var hit_pos: Vector2 = p.pos + offset
 	if offset.length() > 0.01:
 		p.facing = offset.normalized()
 	p.cd_throw = now + THROW_CD
-	p.skills.throwing += 1
+	p.skills.knack += 1
 	if items.size() > 1:
 		p.skills.tinkering += 1
 	_floor_of(p).pending.append({
@@ -574,13 +584,16 @@ func _damage_player(p: Dictionary, amount: float, by: Dictionary = {}) -> void:
 	if not _can_act(p) or _in_safe(p):
 		return
 	p.hp -= amount * _mod(p, "damage_taken_mult", 1.0)
-	if p.hp <= 0.0 and p.signature.get("kind", "") == "last_stand" and now >= p.cd_signature:
-		p.hp = 1.0
-		p.cd_signature = now + float(p.signature.cooldown)
-		p.excite += 15.0
-		_note(p, "close_calls")
-		event.emit([p.id], {"type": "last_stand", "ability": p.signature.name})
-		self_changed.emit(p.id)
+	if p.hp <= 0.0:
+		for i in p.kit.size():
+			if p.kit[i].kind == "last_stand" and now >= p.cd_kit[i]:
+				p.hp = 1.0
+				p.cd_kit[i] = now + float(p.kit[i].cooldown)
+				p.excite += 15.0
+				_note(p, "close_calls")
+				event.emit([p.id], {"type": "last_stand", "ability": p.kit[i].name})
+				self_changed.emit(p.id)
+				break
 	_note(p, "hits_taken")
 	var thorns := _mod(p, "thorns", 0.0)
 	if thorns > 0.0 and not by.is_empty():
@@ -691,8 +704,9 @@ func choose(pid: int, race_id: String, class_id: String) -> bool:
 		for s in source.get("stats", {}):
 			p.stats[s] = max(1, int(p.stats[s]) + int(source.stats[s]))
 	p.mods = ClassOffers.merge_mods([race.get("mods", {}), klass.get("mods", {})])
-	p.signature = klass.get("ability", {})
-	p.cd_signature = 0.0
+	if not klass.get("kit", []).is_empty():
+		p.kit = klass.kit
+	p.cd_kit = [0.0, 0.0, 0.0]
 	p.mana = max_mana(p)
 	p.state = "play"
 	p.offers = {}
@@ -1035,7 +1049,7 @@ func self_state(pid: int) -> Dictionary:
 	var state := {
 		"id": pid, "level": p.level, "xp": p.xp, "xp_needed": _xp_needed(p.level),
 		"stats": p.stats, "points": p.points, "mana": int(p.mana), "mana_max": int(max_mana(p)),
-		"signature": p.signature, "signature_cd": max(0.0, p.cd_signature - now),
+		"kit": p.kit, "kit_cd": p.cd_kit.map(func(t): return max(0.0, t - now)),
 		"race": p.race, "klass": p.klass, "perk": p.perk, "drawback": p.drawback,
 		"past": ClassOffers.past_life(p.past, db).name,
 		"crafting": _mod(p, "crafting", 0.0) > 0.0, "can_spend": p.klass != "" and _in_safe(p),

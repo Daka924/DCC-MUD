@@ -1,8 +1,10 @@
 class_name AbilityGen
 extends RefCounted
-## Builds one signature ability for a generated class by choosing a value on
-## each axis (function, delivery, flavour, cost) from the class's tags weighed
-## by the player's tag profile. Pure and deterministic: the same history always
+## Builds abilities by choosing a value on each axis (function, delivery,
+## flavour, cost) from a set of tags weighed by the player's tag profile. Every
+## character carries a kit of three: one offensive, one defensive, one
+## supportive. New characters get a weaker kit from their past life; a class
+## replaces it with its own. Pure and deterministic: the same history always
 ## yields the same ability.
 
 static func _pick(tags: Array, table: Dictionary, weights: Dictionary, seed_text: String, avoid := {}) -> String:
@@ -32,8 +34,24 @@ static func _num(v: float) -> String:
 
 ## tags: the class's own tags (job plus describing word). weights: the
 ## player's profile. avoid: functions already used by this player's other offers.
-static func build(tags: Array, weights: Dictionary, db: Dictionary, seed_text: String, avoid := {}, core_count := 99) -> Dictionary:
+const ROLES := ["offence", "defence", "support"]
+
+## One ability per role, in ROLES order. avoid: functions already used by this
+## player's other offers. power_scale weakens the kit of a classless character.
+static func kit(tags: Array, weights: Dictionary, db: Dictionary, seed_text: String, avoid := {}, core_count := 99, power_scale := 1.0) -> Array:
+	var out := []
+	for role in ROLES:
+		out.append(build(tags, weights, db, seed_text + role, avoid, core_count, role, power_scale))
+	return out
+
+static func build(tags: Array, weights: Dictionary, db: Dictionary, seed_text: String, avoid := {}, core_count := 99, role := "", power_scale := 1.0) -> Dictionary:
 	var parts: Dictionary = db.ability_parts
+	var fn_table: Dictionary = parts.tag_function
+	if role != "":
+		fn_table = {}
+		for t in parts.tag_function:
+			if parts.functions[parts.tag_function[t]].role == role:
+				fn_table[t] = parts.tag_function[t]
 	# The class's own tags lead; the rest of the player's profile is a quieter
 	# second voice, so six offers do not all do the same thing.
 	var lean: Dictionary = weights.duplicate()
@@ -42,9 +60,9 @@ static func build(tags: Array, weights: Dictionary, db: Dictionary, seed_text: S
 		if not tags.has(t):
 			lean[t] = float(weights[t]) * 0.25
 			wide.append(t)
-	var fn_id := _pick(wide, parts.tag_function, lean, seed_text, avoid)
+	var fn_id := _pick(wide, fn_table, lean, seed_text, avoid)
 	if fn_id == "":
-		fn_id = "damage"
+		fn_id = str(parts.roles[role].default) if role != "" else "damage"
 	var fn: Dictionary = parts.functions[fn_id]
 	# Delivery: only the ones this function has words for.
 	var allowed: Dictionary = fn.nouns
@@ -84,7 +102,7 @@ static func build(tags: Array, weights: Dictionary, db: Dictionary, seed_text: S
 			cost_id = c
 	var cost: Dictionary = parts.costs[cost_id]
 
-	var power: float = float(fn.get("power", 0.0)) * float(dl.power_mult) * float(cost.get("power_mult", 1.0))
+	var power: float = float(fn.get("power", 0.0)) * float(dl.power_mult) * float(cost.get("power_mult", 1.0)) * power_scale
 	var radius: float = float(fn.get("radius", 0.0)) * float(dl.radius_mult)
 	var effects := []
 	var lines := []
@@ -113,7 +131,7 @@ static func build(tags: Array, weights: Dictionary, db: Dictionary, seed_text: S
 		text += " %s. %d second cooldown." % [str(cost.says).format({"mana": int(fn.mana)}), int(fn.cooldown)]
 	return {
 		"name": "%s %s" % [_choose(flavour.adj, seed_text + "adj"), _choose(fn.nouns[delivery], seed_text + "noun")],
-		"text": text, "function": fn_id, "delivery": delivery, "flavour": flavour_tag, "cost": cost_id,
+		"text": text, "role": str(fn.role), "function": fn_id, "delivery": delivery, "flavour": flavour_tag, "cost": cost_id,
 		"kind": fn.kind, "passive": fn.get("passive", false),
 		"power": round(power), "radius": snapped(radius, 0.1), "range": float(dl.range),
 		"audience": dl.get("audience", false), "effects": effects,

@@ -93,7 +93,7 @@ static func _score(tags: Array, weights: Dictionary) -> float:
 static func describe(mods: Dictionary) -> Dictionary:
 	var good := []
 	var bad := []
-	var pct := {"melee_mult": "melee damage", "throw_mult": "thrown damage", "hp_mult": "health",
+	var pct := {"melee_mult": "melee damage", "ability_mult": "ability power", "hp_mult": "health",
 		"speed_mult": "movement speed", "xp_mult": "experience", "viewers_mult": "viewers",
 		"companion_mult": "companion damage"}
 	for key in mods:
@@ -125,8 +125,8 @@ static func describe(mods: Dictionary) -> Dictionary:
 				good.append("attackers take %s damage" % str(snapped(v, 0.1)))
 			"box_extra_roll":
 				good.append("+%d item%s in every loot box" % [int(v), "" if int(v) == 1 else "s"])
-			"throw_range":
-				good.append("+%s throwing range" % str(snapped(v, 0.1)))
+			"ability_range":
+				good.append("+%s ability range" % str(snapped(v, 0.1)))
 			"crafting":
 				good.append("can combine items into inventions")
 	return {"good": good, "bad": bad}
@@ -193,8 +193,9 @@ static func generated(dossier: Dictionary, past: Dictionary, db: Dictionary, sta
 				weights[t] = float(weights[t]) * 0.4
 		var mods := merge_mods([past.mods, core.mods, twist.mods])
 		var text := describe(mods)
-		var ability := AbilityGen.build(core.tags + twist.tags, prof.weights, db, seed_text + core.id, used_functions, core.tags.size())
-		used_functions[ability.function] = true
+		var kit := AbilityGen.kit(core.tags + twist.tags, prof.weights, db, seed_text + core.id, used_functions, core.tags.size())
+		for a in kit:
+			used_functions[a.function] = true
 		var reasons := []
 		for t in core.tags + twist.tags:
 			if prof.why.has(t) and not reasons.has(prof.why[t]):
@@ -205,18 +206,27 @@ static func generated(dossier: Dictionary, past: Dictionary, db: Dictionary, sta
 			"family": "generated", "stats": {}, "mods": mods,
 			"perk": _sentence(text.good, "Nothing in particular"),
 			"drawback": _sentence(text.bad, "None"),
-			"quip": core.quip, "ability": ability,
+			"quip": core.quip, "kit": kit,
 			"why": "Offered because " + ", and ".join(reasons.slice(0, 3)) + ".",
 		})
 	return out
 
 static func classes(dossier: Dictionary, past: Dictionary, db: Dictionary, start := 0) -> Array:
+	var prof := profile(dossier, past, db, start)
 	var classics := []
 	var earned := []
 	var jokes := []
 	for c in db.classes.classes:
 		if not _qualifies(c, dossier, past):
 			continue
+		# Hand-written classes get their kit from their own tags and the player's profile.
+		c = c.duplicate()
+		var lean := {}
+		for t in prof.weights:
+			lean[t] = float(prof.weights[t]) * 0.3
+		for t in c.get("tags", []):
+			lean[t] = float(lean.get(t, 0.0)) + 4.0
+		c["kit"] = AbilityGen.kit(c.get("tags", []), lean, db, past.id + c.id)
 		match c.family:
 			"classic": classics.append(c)
 			"joke": jokes.append(c)

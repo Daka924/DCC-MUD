@@ -6,8 +6,10 @@
 
 ## Items
 
-All items are throwable junk. There is no equipment, food, potion or gold yet. Tags decide what an item does when
-thrown, and what the class generator learns about a player who throws it.
+Items are a sideline, not the centre of the game: characters fight with their abilities (see `01-core-rules.md`).
+Today every item is a piece of junk that can be thrown as a fallback attack, and a few abilities use one up as
+their cost. There is no equipment, food, potion or gold yet. Tags decide what an item does when thrown, and what
+the class generator learns about a player who throws it.
 
 | Id | Name | Tags |
 | --- | --- | --- |

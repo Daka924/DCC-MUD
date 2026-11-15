@@ -21,7 +21,7 @@ STAT = {"str": "Str", "dex": "Dex", "con": "Con", "int": "Int", "cha": "Cha"}
 def stats(d):
     return ", ".join("%+d %s" % (v, STAT[k]) for k, v in d.items()) or "none"
 
-PCT = {"melee_mult": "melee damage", "throw_mult": "thrown damage", "hp_mult": "health", "speed_mult": "movement speed",
+PCT = {"melee_mult": "melee damage", "ability_mult": "ability power", "hp_mult": "health", "speed_mult": "movement speed",
        "xp_mult": "experience", "viewers_mult": "viewers", "companion_mult": "companion damage"}
 def effects(m):
     out = []
@@ -34,7 +34,7 @@ def effects(m):
         elif k == "regen": out.append("regenerates %g health per second" % v)
         elif k == "thorns": out.append("attackers take %g damage" % v)
         elif k == "box_extra_roll": out.append("+%d loot box item%s" % (v, "" if v == 1 else "s"))
-        elif k == "throw_range": out.append("+%g throwing range" % v)
+        elif k == "ability_range": out.append("+%g ability range" % v)
         elif k == "crafting": out.append("can combine items into inventions")
     return "; ".join(out) or "none"
 
@@ -85,9 +85,29 @@ def rules():
 Most of these numbers live in the game's code, not in a data file, so a change here means a small code change.
 That is fine and expected. Write the rule the way you want it to play.
 
+## Abilities are the centre of play
+
+Every character fights with a kit of three abilities, one of each kind:
+
+| Key | Kind | What it is for | What it can be today |
+| --- | --- | --- | --- |
+| Q | Offensive | Hurting or hindering monsters | Area damage; damage that also holds, burns, poisons, chills or dazzles |
+| E | Defensive | Keeping yourself alive | Halving damage taken; a burst of speed; making monsters forget you; surviving a killing blow |
+| R | Supportive | Helping you and your party | Healing; a damage boost for everyone nearby |
+
+- You have a kit from the first minute. Your past life gives you a rough one (60% strength). The class you take on
+  level 3 replaces it with a full-strength kit of its own.
+- Abilities spend mana (Intelligence x 3, refilling over 40 seconds) and each has its own cooldown. Some cost
+  health or an item from your pack instead and hit harder for it.
+- Which kind you lean on is recorded in the dossier and shapes the classes you are offered.
+- Hitting with your fists (Space) and throwing a piece of junk from your pack are still there as fallbacks. They
+  are not what a character is built around. Only one class, the Dumpster Alchemist, is about items.
+
+The full list of what abilities can do, and how each one is put together, is in `03-classes-and-races.md`.
+
 ## Flow of a run
 
-1. Create a character: name, past life, starting location.
+1. Create a character: name, past life, starting location. The past life sets your starting kit of three abilities.
 2. Arrive alone in a safe room on level 1. A companion waits there and can be recruited.
 3. Levels 1 and 2: no class. A hidden dossier counts what you do. Stat points are saved up and cannot be spent.
 4. On arriving at level 3 the show presents a personal list of races and classes, with 120 seconds to choose.
@@ -101,9 +121,9 @@ Every character starts with 4 in each stat and gains 3 points per level.
 | Stat | What it does now | How you want it |
 | --- | --- | --- |
 | Strength | +8% melee damage per point above 4 |  |
-| Dexterity | +6% thrown damage and +2% movement speed per point above 4 |  |
+| Dexterity | Abilities recharge 3% faster and you move 2% faster per point above 4 |  |
 | Constitution | +5 health per point |  |
-| Intelligence | Sets mana (3 per point). Nothing uses mana yet |  |
+| Intelligence | +6% ability power per point above 4, and sets mana (3 per point) |  |
 | Charisma | +10% viewers per point above 4 |  |
 
 ## Numbers
@@ -113,7 +133,8 @@ Every character starts with 4 in each stat and gains 3 points per level.
 | Health | 20 + 5 per Constitution + 4 per level above 1, then class and race multipliers |  |
 | Experience to next level | 20 x level to the power 1.5 (20, 57, 104, 160 ...) |  |
 | Melee | 4 damage, reach 1.3 tiles, one swing every 0.45 seconds |  |
-| Throwing | Range 7 tiles, one throw every 0.5 seconds |  |
+| Abilities | Three per character, each with its own cooldown (8 to 16 seconds; 60 for the killing-blow save) and a mana cost of 3 to 5 |  |
+| Throwing junk | Range 7 tiles, one throw every 0.5 seconds. Uses ability power |  |
 | Movement | 4 tiles per second |  |
 | Monsters notice you from | 5 tiles |  |
 | Monster toughness | +60% health per level down |  |
@@ -123,12 +144,12 @@ Every character starts with 4 in each stat and gains 3 points per level.
 | Safe rooms | No fighting, heal 3 health per second, loot boxes open here, stat points are spent here |  |
 | Party | Shared experience within 10 tiles |  |
 | Viewers | Rise with kills, deaths, discoveries, teaming up and descending; fade over time. They do nothing yet |  |
-| Skills | Brawling, throwing, tinkering, set by past life. Throwing adds 5% thrown damage per level. Skills do not train yet |  |
+| Skills | Brawling, knack, tinkering, set by past life. Knack adds 5% ability power per level and grows as you use abilities |  |
 | Past life perk | Not active on levels 1 and 2. It becomes part of any generated class |  |
 
 ## Not in the game yet
 
-Spells and mana use, equipment, shops and gold, sponsors and the leaderboard, bosses, pets, personal spaces,
+More kinds of ability (summons, traps, auras, transformations), learning extra abilities beyond the three, equipment, shops and gold, sponsors and the leaderboard, bosses, pets, personal spaces,
 player-versus-player, specialisations, saving progress.
 
 ## Your rules
@@ -171,9 +192,10 @@ def classes():
     trows = [(t["adj"], ", ".join(t["tags"]), effects(t["mods"])) for t in parts["twists"]]
     n_past = len(data("past_lives")["past_lives"])
     ap = data("ability_parts")
-    frows = [(k, v["does"].replace("{power}", str(v.get("power", ""))).replace("{duration}", "%g" % v.get("duration", 0)),
+    frows = [(k, ap["roles"][v["role"]]["name"], v["does"].replace("{power}", str(v.get("power", ""))).replace("{duration}", "%g" % v.get("duration", 0)),
               "%ds" % v["cooldown"], v["mana"], "; ".join(", ".join(n) for n in v["nouns"].values())) for k, v in ap["functions"].items()]
     drows = [(k, v["says"], ("%g tiles" % v["range"]) if v["range"] else "around you", "x%g" % v["radius_mult"], "x%g" % v["power_mult"]) for k, v in ap["deliveries"].items()]
+    rolerows = [(v["name"], v["key"], ", ".join(f for f, fv in ap["functions"].items() if fv["role"] == k), v["default"]) for k, v in ap["roles"].items()]
     axrows = []
     for axis, key in (("Function", "tag_function"), ("Delivery", "tag_delivery"), ("Cost", "tag_cost")):
         groups = {}
@@ -213,7 +235,7 @@ Name patterns: %s
        ", ".join("`%s`" % p for p in sorted(set(parts["patterns"])))) + \
         table(["Dossier counters", "Adds weight", "Tag", "Reason shown to the player"], srows) + """
 
-Counters the dossier keeps: kills, kills_melee, kills_above, throws, pickups, deaths, hits_taken, close_calls,
+Counters the dossier keeps: kills, kills_melee, kills_above, used_offence, used_defence, used_support, throws, pickups, deaths, hits_taken, close_calls,
 safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `killed_<monster family>`,
 `died_to_<monster family>` and `kills_in_<room type>`.
 
@@ -225,16 +247,20 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 
 """ + table(["Word", "Tags", "Effects"], trows) + """
 
-### Signature abilities
+### Ability kits
 
-Every generated class comes with one ability, built along the axes of the research reference: what it does
-(function), how it arrives (delivery), its element or manner (flavour) and what it costs. The class's own tags
-choose a value on each axis, weighed by the player's profile, and a player's six offers are pushed toward
-different functions. The name is a flavour word plus a function word, for example "Scorching Fumigation" or
-"Itemised Flop". In play it is used with Q, spends mana (Intelligence x 3, refilling over 40 seconds) and has a
-cooldown. Intelligence adds 6% power per point above 4. Hand-written classes do not have abilities yet.
+Every class, generated or hand-written, comes with a kit of three abilities: one offensive (Q), one defensive (E)
+and one supportive (R). A new character's past life gives a weaker starting kit in the same way.
 
-""" + table(["Function", "What it does", "Cooldown", "Mana", "Words used in names"], frows) + """
+Each ability is built along four axes: what it does (function), how it arrives (delivery), its element or manner
+(flavour) and what it costs. The class's own tags choose a value on each axis, weighed by the player's profile,
+and a player's offers are pushed toward different functions. The name is a flavour word plus a function word, for
+example "Scorching Fumigation" or "Itemised Flop". Throwing is one delivery among six, used by classes that are
+actually about throwing.
+
+""" + table(["Kind", "Key", "Functions it can be", "If no tag points anywhere"], rolerows) + """
+
+""" + table(["Function", "Kind", "What it does", "Cooldown", "Mana", "Words used in names"], frows) + """
 
 """ + table(["Delivery", "How it arrives", "Reach", "Area", "Power"], drows) + """
 
@@ -249,10 +275,10 @@ Every other tag has two flavour words of its own and no extra effect; they are l
 
 ### Effects that exist today
 
-A job or describing word can use any of these without new code: melee damage, thrown damage, throwing range,
+A job or describing word can use any of these without new code: melee damage, ability power, ability range,
 health, movement speed, experience, viewers, how far away monsters notice you, a damage boost for nearby allies,
 chance to stun on a melee hit, chance to heal on a melee hit, regeneration, damage reflected to attackers,
-extra loot box items, companion damage. Anything else (a summon, a transformation, a spell, a signature move)
+extra loot box items, companion damage. A new kind of ability (a summon, a trap, an aura, a transformation)
 is new work. Write the idea anyway; that is how the list of effects should grow.
 
 ## Hand-written classes
@@ -322,8 +348,10 @@ def things():
     return "# Monsters, items and companions\n\n" + HOW + """
 ## Items
 
-All items are throwable junk. There is no equipment, food, potion or gold yet. Tags decide what an item does when
-thrown, and what the class generator learns about a player who throws it.
+Items are a sideline, not the centre of the game: characters fight with their abilities (see `01-core-rules.md`).
+Today every item is a piece of junk that can be thrown as a fallback attack, and a few abilities use one up as
+their cost. There is no equipment, food, potion or gold yet. Tags decide what an item does when thrown, and what
+the class generator learns about a player who throws it.
 
 """ + table(["Id", "Name", "Tags"], irows) + """
 

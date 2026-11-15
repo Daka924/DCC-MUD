@@ -58,8 +58,11 @@ Name patterns: `{adj} {noun}`, `{adj} {past} {noun}`, `{past} {noun}`
 | killed_construct | every 1, up to 4 | machines | you broke a machine |
 | kills | fewer than 4 | pacifist | you barely killed anything |
 | recruits + parties | fewer than 1 | loner | you never teamed up with anyone |
+| used_offence | every 5, up to 3 | bold | you reached for your attack first |
+| used_defence | every 4, up to 3 | cautious | you leaned on your defences |
+| used_support | every 4, up to 3 | care | you kept your side standing |
 
-Counters the dossier keeps: kills, kills_melee, kills_above, throws, pickups, deaths, hits_taken, close_calls,
+Counters the dossier keeps: kills, kills_melee, kills_above, used_offence, used_defence, used_support, throws, pickups, deaths, hits_taken, close_calls,
 safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `killed_<monster family>`,
 `died_to_<monster family>` and `kills_in_<room type>`.
 
@@ -67,11 +70,11 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 
 | Job | Tags | Effects | Narrator's line |
 | --- | --- | --- | --- |
-| Arsonist | fire, heat | +25% thrown damage | We are not saying you started the fire. We have footage of you starting the fire. |
+| Arsonist | fire, heat | +25% ability power | We are not saying you started the fire. We have footage of you starting the fire. |
 | Pit Boss | money, greedy, rules | +1 loot box item; +10% experience | The house always wins. You are not the house, but you dress like it. |
 | Bouncer | security, brawl, night | +20% health; 10% chance to stun on melee hits | Your name is not on the list. Nobody's name is on the list. |
 | Bonesetter | medical, brawl, pain | 25% chance to heal on melee hits; 10% chance to stun on melee hits | It only hurts until the screaming stops. |
-| Plague Vendor | poison, food, chemicals | +20% thrown damage; regenerates 0.3 health per second | Free samples. No refunds. No survivors. |
+| Plague Vendor | poison, food, chemicals | +20% ability power; regenerates 0.3 health per second | Free samples. No refunds. No survivors. |
 | Hype Man | loud, performer, social | +80% viewers; you and nearby allies deal +15% damage | You cannot fight, but you can make it sound like someone else can. |
 | Hermit | loner, quiet, cautious | monsters notice you from 50% less far; regenerates 0.5 health per second | You came to a televised death game to be left alone. Bold. |
 | Pack Rat | greedy, vermin, retail | +2 loot box items | You might need that later. You will not need that later. |
@@ -81,12 +84,12 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Understudy | doomed, performer, punished | +30% health; +30% viewers | You know every death scene by heart, having rehearsed them all. |
 | Crash Test Dummy | punished, doomed, machines | attackers take 3 damage; +20% health | Your job is to be hit so that we may learn from it. We have learned nothing. |
 | Sprinter | speed, sports, lucky | +25% movement speed | Courage is a choice. So is leaving quickly. |
-| Shot-Putter | heavy, lifting, throw, sports | +30% thrown damage; +1 throwing range | Technique is everything. Aim is more of a suggestion. |
-| Knife Juggler | sharp, tricks, hands, throw | +35% thrown damage | Most of them were caught. By something. |
+| Shot-Putter | heavy, lifting, throw, sports | +30% ability power; +1 ability range | Technique is everything. Aim is more of a suggestion. |
+| Knife Juggler | sharp, tricks, hands, throw | +35% ability power | Most of them were caught. By something. |
 | Lamplighter | light, night, quiet | monsters notice you from 40% less far; +10% experience | You bring light to dark places, then stand well away from it. |
-| Ice Cream Man | cold, food, loud | +15% thrown damage; +40% viewers | The jingle is the last thing they hear. |
-| Glue Sniffer | sticky, chemicals, guts | +15% health; +15% thrown damage | You are stuck with this. And to this. |
-| Knot Enthusiast | rope, patience, hands | +2 throwing range; 10% chance to stun on melee hits | There is a knot for every occasion, and you will describe each one. |
+| Ice Cream Man | cold, food, loud | +15% ability power; +40% viewers | The jingle is the last thing they hear. |
+| Glue Sniffer | sticky, chemicals, guts | +15% health; +15% ability power | You are stuck with this. And to this. |
+| Knot Enthusiast | rope, patience, hands | +2 ability range; 10% chance to stun on melee hits | There is a knot for every occasion, and you will describe each one. |
 | Loss Adjuster | office, money, rules, cautious | +25% experience | You have assessed the damage. The damage is you. |
 | Human Shield | punished, care, security, social | +35% health; you and nearby allies deal +10% damage | Somebody has to stand at the front. Everybody else voted. |
 | Coward | pacifist, lucky, cautious, speed | +20% movement speed; monsters notice you from 50% less far | Alive, which is more than the brave ones can say. |
@@ -94,12 +97,12 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Daredevil | bold, lucky, showoff | +20% melee damage; +50% viewers | No helmet, no plan, excellent ratings. |
 | Giant-Killer | bold, brawl, heavy | +30% melee damage | The bigger they are, the longer the paperwork. |
 | Line Cook | food, heat, speed, hands | +15% melee damage; +10% movement speed | Fourteen orders behind and armed. Stay out of the kitchen. |
-| Grease Monkey | machines, tools, tinkerer | +15% thrown damage; +1 throwing range; attackers take 1 damage | If it moves, you can break it. If it does not, you already did. |
+| Grease Monkey | machines, tools, tinkerer | +15% ability power; +1 ability range; attackers take 1 damage | If it moves, you can break it. If it does not, you already did. |
 | Scrap Baron | machines, greedy, warehouse, lifting | +1 loot box item; +15% health | One crawler's trash is still trash, but now it is yours. |
 | Sewer Lifeguard | water, care, outdoors | regenerates 1 health per second; 15% chance to heal on melee hits | No running. No diving. No hope. |
 | Leech Farmer | slime, medical, patience | 30% chance to heal on melee hits; regenerates 0.4 health per second | They are not parasites. They are colleagues. |
 | Pallbearer | doomed, night, lifting, quiet | +25% health; +10% melee damage | You have carried heavier. Usually yourself. |
-| Heckler | loud, showoff, throw | +60% viewers; +15% thrown damage | Everyone is a critic. You are the one with projectiles. |
+| Heckler | loud, showoff, throw | +60% viewers; +15% ability power | Everyone is a critic. You are the one with projectiles. |
 | Cage Fighter | brawl, sports, guts, pain | +25% melee damage; +10% health | There is no cage. You asked for one anyway. |
 | Street Dentist | pain, tools, medical, sharp | 25% chance to stun on melee hits; +10% melee damage | This will not hurt a bit. It will hurt all of it. |
 | Card Sharp | tricks, money, lucky | +1 loot box item; monsters notice you from 30% less far | Pick a card. Any card. Now run. |
@@ -108,7 +111,7 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Taste Tester | guts, food, poison | +30% health; regenerates 0.3 health per second | If you are still standing, it is probably fine. |
 | Stuntman | showoff, punished, speed | attackers take 2 damage; +15% movement speed; +30% viewers | Do not try this at home. Try it here, where we can film it. |
 | Bin Diver | greedy, sticky, guts | +1 loot box item; regenerates 0.4 health per second | Dinner and a show, from the same bin. |
-| Fire Marshal | fire, rules, security | +20% health; +15% thrown damage | You know every fire code. You are in breach of all of them. |
+| Fire Marshal | fire, rules, security | +20% health; +15% ability power | You know every fire code. You are in breach of all of them. |
 | Mail Carrier | cold, outdoors, speed | +15% movement speed; +10% health | Neither snow nor rain nor an audience of millions. |
 | Spotlight Operator | light, performer, tools | +50% viewers; 15% chance to stun on melee hits | You make other people look good. Briefly. Then blind. |
 | Mascot Wrangler | animals, performer, care | +40% companion damage; +30% viewers | The thing in the costume is not your friend, but it is on your payroll. |
@@ -120,15 +123,15 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 
 | Word | Tags | Effects |
 | --- | --- | --- |
-| Feral | brawl, animals | +15% melee damage; -25% thrown damage |
-| Littering | throw | +15% thrown damage; -25% melee damage |
+| Feral | brawl, animals | +15% melee damage; -25% ability power |
+| Littering | throw | +15% ability power; -25% melee damage |
 | Twice-Dead | doomed | +15% health; -10% experience |
 | Jittery | lucky, speed | +10% movement speed; -15% health |
 | Chatty | loud | +50% viewers; monsters notice you from 40% further |
 | Loitering | cautious | regenerates 0.5 health per second; -10% movement speed |
 | Hoarding | greedy | +1 loot box item; -10% movement speed |
 | Clingy | social | +30% companion damage; -10% health |
-| Singed | fire, heat | +15% thrown damage; -10% health |
+| Singed | fire, heat | +15% ability power; -10% health |
 | Damp | water, slime | regenerates 0.4 health per second; -8% movement speed |
 | Frostbitten | cold | +10% health; -10% movement speed |
 | Sticky-Fingered | sticky, tricks | +1 loot box item; -15% melee damage |
@@ -145,7 +148,7 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Rust-Proof | machines, tools, tinkerer | +12% health; -7% movement speed |
 | Heavy-Handed | heavy, lifting | 12% chance to stun on melee hits; -10% movement speed |
 | Prickly | sharp | attackers take 1.5 damage; -20% viewers |
-| Tangled | rope | +1.5 throwing range; -8% movement speed |
+| Tangled | rope | +1.5 ability range; -8% movement speed |
 | Glowing | light | +30% viewers; monsters notice you from 40% further |
 | Well-Fed | food, guts | +20% health; -10% movement speed |
 | Patient | patience, quiet | regenerates 0.6 health per second; -10% melee damage |
@@ -154,25 +157,33 @@ safe_seconds, chats, parties, recruits, descents, plus `threw_<item tag>`, `kill
 | Thrifty | money | +1 loot box item; -10% health |
 | Bandaged | care, security | 15% chance to heal on melee hits; -10% melee damage |
 
-### Signature abilities
+### Ability kits
 
-Every generated class comes with one ability, built along the axes of the research reference: what it does
-(function), how it arrives (delivery), its element or manner (flavour) and what it costs. The class's own tags
-choose a value on each axis, weighed by the player's profile, and a player's six offers are pushed toward
-different functions. The name is a flavour word plus a function word, for example "Scorching Fumigation" or
-"Itemised Flop". In play it is used with Q, spends mana (Intelligence x 3, refilling over 40 seconds) and has a
-cooldown. Intelligence adds 6% power per point above 4. Hand-written classes do not have abilities yet.
+Every class, generated or hand-written, comes with a kit of three abilities: one offensive (Q), one defensive (E)
+and one supportive (R). A new character's past life gives a weaker starting kit in the same way.
 
-| Function | What it does | Cooldown | Mana | Words used in names |
-| --- | --- | --- | --- | --- |
-| damage | deals 10 damage | 8s | 4 | Volley, Barrage, Delivery; Fumigation, Smog, Haze; Tirade, Roast, Heckle; Body Slam, Shoulder Check, Flop |
-| control | deals 2 damage | 10s | 4 | Lockdown, Cordon, Paperweight; Fog Bank, Queue, Bottleneck; Lecture, Stern Word, Announcement; Tackle, Bear Hug, Sit-In |
-| healing | restores 14 health to you and nearby party members | 14s | 5 | Patch-Up, Second Opinion, Home Remedy; Pep Talk, Bedside Manner, Lullaby |
-| protection | halves the damage you take for 5 seconds | 16s | 4 | Brace, Flinch, Hard Hat |
-| movement | +60% movement speed for 4 seconds | 12s | 3 | Getaway, Shortcut, Fire Drill |
-| support | you and nearby party members deal +30% damage for 6 seconds | 16s | 5 | Huddle, Team Meeting, Rally; Motivational Speech, Chant, Singalong |
-| mind | nearby monsters forget about you for 4 seconds | 14s | 4 | Blank Stare, Change of Subject, Vanishing Act; Excuse, Alibi, Polite Cough |
-| survive | the first hit that would kill you leaves you on 1 health instead | 60s | 0 | Extra Time, Second Wind, Encore |
+Each ability is built along four axes: what it does (function), how it arrives (delivery), its element or manner
+(flavour) and what it costs. The class's own tags choose a value on each axis, weighed by the player's profile,
+and a player's offers are pushed toward different functions. The name is a flavour word plus a function word, for
+example "Scorching Fumigation" or "Itemised Flop". Throwing is one delivery among six, used by classes that are
+actually about throwing.
+
+| Kind | Key | Functions it can be | If no tag points anywhere |
+| --- | --- | --- | --- |
+| Offence | Q | damage, control | damage |
+| Defence | E | protection, movement, mind, survive | protection |
+| Support | R | healing, support | healing |
+
+| Function | Kind | What it does | Cooldown | Mana | Words used in names |
+| --- | --- | --- | --- | --- | --- |
+| damage | Offence | deals 10 damage | 8s | 4 | Bolt, Blast, Outburst; Volley, Barrage, Delivery; Fumigation, Smog, Haze; Tirade, Roast, Heckle; Body Slam, Shoulder Check, Flop |
+| control | Offence | deals 2 damage | 10s | 4 | Hex, Snare, Hold; Lockdown, Cordon, Paperweight; Fog Bank, Queue, Bottleneck; Lecture, Stern Word, Announcement; Tackle, Bear Hug, Sit-In |
+| healing | Support | restores 14 health to you and nearby party members | 14s | 5 | Patch-Up, Second Opinion, Home Remedy; Pep Talk, Bedside Manner, Lullaby |
+| protection | Defence | halves the damage you take for 5 seconds | 16s | 4 | Brace, Flinch, Hard Hat |
+| movement | Defence | +60% movement speed for 4 seconds | 12s | 3 | Getaway, Shortcut, Fire Drill |
+| support | Support | you and nearby party members deal +30% damage for 6 seconds | 16s | 5 | Huddle, Team Meeting, Rally; Motivational Speech, Chant, Singalong |
+| mind | Defence | nearby monsters forget about you for 4 seconds | 14s | 4 | Blank Stare, Change of Subject, Vanishing Act; Excuse, Alibi, Polite Cough |
+| survive | Defence | the first hit that would kill you leaves you on 1 health instead | 60s | 0 | Extra Time, Second Wind, Encore |
 
 | Delivery | How it arrives | Reach | Area | Power |
 | --- | --- | --- | --- | --- |
@@ -181,6 +192,7 @@ cooldown. Intelligence adds 6% power per point above 4. Hand-written classes do 
 | speech | Spoken aloud around you, stronger the more viewers you have | around you | x1.8 | x0.8 |
 | body | Done with your own body, right where you stand | around you | x0.8 | x1.5 |
 | self | Used on yourself | around you | x1 | x1 |
+| cast | Cast at a spot up to 6 tiles away | 6 tiles | x1 | x1 |
 
 | Cost | What you pay | Power |
 | --- | --- | --- |
@@ -200,41 +212,42 @@ Which tags pull toward which value:
 | Function | movement | speed, sports, outdoors, cautious |
 | Function | mind | quiet, tricks, pacifist, loner, office, money |
 | Function | support | loud, performer, social, showoff, animals, retail |
-| Delivery | thrown | throw, heavy, sharp, lifting, warehouse, rope, sticky |
+| Delivery | thrown | throw, heavy, lifting |
+| Delivery | cast | sharp, warehouse, rope, sticky, machines, light, tricks, night, medical, money, quiet, trades, tools, hands |
 | Delivery | cloud | fire, poison, chemicals, cold, slime, water, heat, food |
 | Delivery | speech | loud, performer, showoff, social, rules, office, retail, care |
 | Delivery | body | brawl, sports, guts, punished, bold, security, pain |
 | Cost | health | pain, guts, doomed, punished, bold |
-| Cost | item | greedy, retail, throw, warehouse |
+| Cost | item | greedy |
 
 Flavours that add an effect to attacks: fire (sets targets burning), heat (sets targets burning), cold (chills targets to half speed), poison (poisons targets), chemicals (poisons targets), sticky (gums targets up to half speed), slime (slimes targets to half speed), light (dazzles targets), loud (deafens targets), rope (tangles targets), heavy (flattens targets).
 Every other tag has two flavour words of its own and no extra effect; they are listed in `data/ability_parts.json`.
 
 ### Effects that exist today
 
-A job or describing word can use any of these without new code: melee damage, thrown damage, throwing range,
+A job or describing word can use any of these without new code: melee damage, ability power, ability range,
 health, movement speed, experience, viewers, how far away monsters notice you, a damage boost for nearby allies,
 chance to stun on a melee hit, chance to heal on a melee hit, regeneration, damage reflected to attackers,
-extra loot box items, companion damage. Anything else (a summon, a transformation, a spell, a signature move)
+extra loot box items, companion damage. A new kind of ability (a summon, a trap, an aura, a transformation)
 is new work. Write the idea anyway; that is how the list of effects should grow.
 
 ## Hand-written classes
 
 | Id | Name | Kind | Offered when | Stats | Perk | Drawback | Narrator's line |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| bruiser | Bruiser | classic | always | +2 Str, +1 Con | +25% melee damage | -20% thrown damage | You hit things. It is not a personality, but it is a plan. |
-| slinger | Slinger | classic | always | +2 Dex | +30% thrown damage and +1 range | -10% health | Everything is a projectile if you believe in yourself. |
+| bruiser | Bruiser | classic | always | +2 Str, +1 Con | +25% melee damage | -20% ability power | You hit things. It is not a personality, but it is a plan. |
+| slinger | Slinger | classic | always | +2 Dex | +30% ability power and +1 range | -10% health | Everything is a projectile if you believe in yourself. |
 | hedge_medic | Hedge Medic | classic | always | +1 Int, +1 Con | Melee hits may heal; slow regeneration | -15% melee damage | Unqualified, uninsured, and the best they have got. |
 | sneak | Sneak | classic | always | +2 Dex | Monsters notice you from half as far | -20% health | Brave of you to choose a class about not being seen on a television show. |
 | coupon_paladin | Coupon Paladin | past | past life group: retail; pickups at least 6 | +1 Str, +1 Cha | One extra item in every loot box; +15% melee damage | -10% experience (you keep stopping to check prices) | A holy warrior of the clearance aisle. |
 | karaoke_warlord | Karaoke Warlord | past | past life group: performer | +3 Cha | Double viewers; you and nearby allies deal +15% damage | Monsters hear you from 60% further away | Nobody asked for an encore. You are doing one anyway. |
-| forklift_savant | Night-Shift Forklift Savant | past | past life group: warehouse | +2 Str | +40% thrown damage and +2 range | -15% movement speed | Certified to lift. Not certified to throw. And yet. |
+| forklift_savant | Night-Shift Forklift Savant | past | past life group: warehouse | +2 Str | +40% ability power and +2 range | -15% movement speed | Certified to lift. Not certified to throw. And yet. |
 | night_baker | Dough Sergeant | past | past life group: food | +2 Con | Strong regeneration; +10% health | -10% movement speed | You have been awake since 3 a.m. for nine years. Nothing here scares you. |
 | whistle_tyrant | Whistle Tyrant | past | past life group: sports | +1 Dex, +1 Cha | +20% speed; melee hits may stun | -10% health | You once red-carded a nine-year-old. The dungeon respects that. |
 | chiropractor | Unlicensed Chiropractor | behaviour | kills_melee at least 6 | +1 Str, +1 Int | Melee hits often stun and sometimes heal | -15% health | You have adjusted a lot of spines today. None of them consented. |
 | bystander | Professional Bystander | behaviour | kills at most 3 | +1 Cha | Monsters barely notice you; +20% experience | -40% health | Two levels survived and almost nothing killed. Impressive, in a way we cannot air. |
 | dumpster_alchemist | Dumpster Alchemist | behaviour | throws at least 6 | +2 Int | Can combine up to three items into one throw and invent named concoctions from what works | -30% melee damage | You kept throwing garbage at problems until one of them exploded. We made it official. |
-| hall_monitor | Volunteer Hall Monitor | behaviour | parties at least 1 | +1 Con, +1 Cha | You and nearby allies deal +20% damage; slow regeneration | -20% thrown damage | Nobody elected you. You brought your own sash. |
+| hall_monitor | Volunteer Hall Monitor | behaviour | parties at least 1 | +1 Con, +1 Cha | You and nearby allies deal +20% damage; slow regeneration | -20% ability power | Nobody elected you. You brought your own sash. |
 | disgraced_mascot | Disgraced Mascot | joke | deaths at least 2 | +2 Con, +2 Cha | +40% health and +50% viewers | Every monster wants you first; -20% melee damage | You have died so often the audience made you a costume. |
 | human_pinata | Human Pinata | joke | hits_taken at least 15 | +1 Con | Things that bite you get hurt; two extra items in every loot box | -30% health and monsters love you | Hit you enough and prizes fall out. We checked. |
 

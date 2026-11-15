@@ -27,8 +27,11 @@ narrator and a simulated audience watch. The world, names and narrator are origi
   spending stat points in safe rooms.
 - **Game show layer**: viewer count, achievements with mocking text, tiered loot
   boxes that only open in safe rooms, narrator lines.
-- **Basics**: five stats, melee, thrown items with tag-based effects, monsters
-  with levels, skills that grow with use, safe rooms, death and respawn.
+- **Abilities first**: every character has a kit of three abilities, one offensive (Q),
+  one defensive (E) and one supportive (R). A past life gives a rough starting kit and the
+  class chosen on level 3 replaces it.
+- **Basics**: five stats, mana and cooldowns, melee, junk that can be thrown as a
+  fallback, monsters with levels, skills that grow with use, safe rooms, death and respawn.
 - **Crafting as a class perk**: the Dumpster Alchemist class can combine up to
   three items and invent named concoctions whose traits come from how they were
   discovered (`engine/invention.gd`).
@@ -57,6 +60,7 @@ godot --headless --path . -- --server
 | --- | --- |
 | WASD or arrows | Move |
 | Space, or click with nothing selected | Melee attack |
+| Q / E / R | Offensive / defensive / supportive ability, aimed at the mouse position |
 | Click an item in the pack, then click the floor | Throw it (crafting classes can select up to 3) |
 | 1-5 | Use an invention at the mouse position |
 | P / Y / L | Invite nearest player or recruit a nearby NPC / accept invite / leave party |
@@ -64,7 +68,7 @@ godot --headless --path . -- --server
 
 Try this: recruit the NPC in your starting room with P, fight your way to the
 green stairs tile on each level, and see which classes you are offered on level 3.
-Play differently (punch everything, throw everything, hide, die a lot) and the
+Play differently (attack first, play defensively, keep your party standing, hide, die a lot) and the
 list changes.
 
 ## Layout

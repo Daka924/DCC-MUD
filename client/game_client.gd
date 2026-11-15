@@ -108,7 +108,7 @@ func _build_hud() -> void:
 	var help := _label(layer, Control.PRESET_BOTTOM_RIGHT, 10)
 	help.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	help.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	help.text = "WASD move   Space attack\nClick an item, then click the floor to throw\nQ signature ability   1-5 inventions\nP invite player or recruit NPC\nY accept   L leave party   Enter chat\nGreen tiles are stairs down"
+	help.text = "WASD move   Space attack\nQ attack ability   E defence   R support (aim with the mouse)\nClick an item, then click the floor to throw it   1-5 inventions\nP invite player or recruit NPC\nY accept   L leave party   Enter chat\nGreen tiles are stairs down"
 
 	var chat_box := VBoxContainer.new()
 	layer.add_child(chat_box)
@@ -208,8 +208,15 @@ func _refresh_choice_detail() -> void:
 	var c: Dictionary = me.offers.classes[_choice_classes.get_selected_items()[0]]
 	_choice_detail.text = "[b]%s[/b]\n%s\n\n[b]%s[/b]\n[color=#ff4fd8]%s[/color]\n\nStats: %s\n[color=#5cf2a6]Perk: %s[/color]\n[color=#f25c5c]Drawback: %s[/color]\n%s[color=#9aa0b0]%s[/color]\n\nYou have %d banked stat points to spend in a safe room afterwards." % [
 		r.name, r.text, c.name, c.quip, _stat_line(c.get("stats", {})), c.perk, c.drawback,
-		("[color=#ffe066]Ability: %s. %s[/color]\n" % [c.ability.name, c.ability.text]) if c.has("ability") else "",
+		_kit_text(c.get("kit", [])),
 		c.get("why", ""), me.get("points", 0)]
+
+## The three abilities of a kit, one line each, for the choice screen.
+func _kit_text(kit: Array) -> String:
+	var out := ""
+	for i in kit.size():
+		out += "[color=#ffe066][%s] %s: %s. %s[/color]\n" % ["QER"[i], str(kit[i].role).capitalize(), kit[i].name, kit[i].text]
+	return out
 
 func _confirm_choice() -> void:
 	if not me.has("offers"):
@@ -245,11 +252,11 @@ func _refresh_hud() -> void:
 	var point_note := ""
 	if points > 0:
 		point_note = "   %d points %s" % [points, "to spend" if me.get("can_spend", false) else ("banked (spend in a safe room)" if me.get("klass", "") != "" else "banked until you pick a class")]
-	_stats.text = "HP %d/%d   MP %d/%d   Level %d   XP %d/%d\nSTR %d  DEX %d  CON %d  INT %d  CHA %d%s\n%s   Past life: %s\nBrawling %d  Throwing %d  Tinkering %d\nAchievements %d%s%s" % [
+	_stats.text = "HP %d/%d   MP %d/%d   Level %d   XP %d/%d\nSTR %d  DEX %d  CON %d  INT %d  CHA %d%s\n%s   Past life: %s\nBrawling %d  Knack %d  Tinkering %d\nAchievements %d%s%s" % [
 		ceil(hp), max_hp, me.get("mana", 0), me.get("mana_max", 0), me.get("level", 1), me.get("xp", 0), me.get("xp_needed", 0),
 		st.get("str", 0), st.get("dex", 0), st.get("con", 0), st.get("int", 0), st.get("cha", 0), point_note,
 		who, me.get("past", ""),
-		skills.get("brawling", 0), skills.get("throwing", 0), skills.get("tinkering", 0),
+		skills.get("brawling", 0), skills.get("knack", 0), skills.get("tinkering", 0),
 		me.get("achievements", 0),
 		"   %d prize boxes waiting (open in a safe room)" % me.boxes_waiting if me.get("boxes_waiting", 0) > 0 else "",
 		"   Companion: %s" % me.companion if me.get("companion", "") != "" else ""]
@@ -268,15 +275,16 @@ func _refresh_hud() -> void:
 	var t := int(snap.timer)
 	_top.text = "%s COLLAPSES IN %02d:%02d\nViewers: %d" % [level_name.to_upper(), t / 60, t % 60, me.get("viewers", 0)]
 	var bar := []
-	var sig: Dictionary = me.get("signature", {})
-	if not sig.is_empty():
-		var left := float(me.get("signature_cd", 0.0)) - (_clock - _sig_seen)
-		var state := "passive" if sig.passive else ("ready" if left <= 0.0 else "%ds" % int(ceil(left)))
-		bar.append("[Q] %s (%s)" % [sig.name, state])
+	var kit: Array = me.get("kit", [])
+	var kit_cd: Array = me.get("kit_cd", [])
+	for i in kit.size():
+		var left := float(kit_cd[i]) - (_clock - _sig_seen)
+		var state := "passive" if kit[i].passive else ("ready" if left <= 0.0 else "%ds" % int(ceil(left)))
+		bar.append("[%s] %s (%s)" % ["QER"[i], kit[i].name, state])
 	var abilities: Array = me.get("abilities", [])
 	for i in abilities.size():
 		bar.append("[%d] %s Lv%d" % [i + 1, abilities[i].name, abilities[i].level])
-	_hotbar.text = "   ".join(bar)
+	_hotbar.text = "\n".join(bar)
 	if invite_from != "":
 		_hotbar.text += "\n%s invites you to a party. Press Y to accept." % invite_from
 
@@ -466,7 +474,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_SPACE:
 				Net.send("melee")
 			KEY_Q:
-				Net.send("signature", uniso(get_local_mouse_position()))
+				Net.send("ability", {"slot": 0, "at": uniso(get_local_mouse_position())})
+			KEY_E:
+				Net.send("ability", {"slot": 1, "at": uniso(get_local_mouse_position())})
+			KEY_R:
+				Net.send("ability", {"slot": 2, "at": uniso(get_local_mouse_position())})
 			KEY_P:
 				Net.send("invite")
 			KEY_Y:

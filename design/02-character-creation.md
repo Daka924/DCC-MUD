@@ -16,17 +16,17 @@ generated class names such as "Checkout Pit Boss".
 | Id | Name | Tags | As a describing word | As a noun | Starting skills | Perk |
 | --- | --- | --- | --- | --- | --- | --- |
 | baker | Night-Shift Baker | food, heat, night | Bakery | Baker | brawling 1 | Slowly regenerates health anywhere |
-| cashier | Supermarket Cashier | retail, patience, money | Checkout | Cashier | throwing 1 | Every loot box holds one extra item |
-| forklift | Warehouse Forklift Driver | warehouse, machines, lifting | Forklift | Forklift Driver | throwing 2 | +25% thrown damage |
+| cashier | Supermarket Cashier | retail, patience, money | Checkout | Cashier | knack 1 | Every loot box holds one extra item |
+| forklift | Warehouse Forklift Driver | warehouse, machines, lifting | Forklift | Forklift Driver | knack 2 | +25% ability power |
 | referee | Youth Soccer Referee | sports, rules, loud | Sideline | Referee | brawling 1 | +15% movement speed |
-| magician | Failed Stage Magician | performer, tricks, hands | Stage | Magician | throwing 1 | Monsters notice you from 30% less far |
+| magician | Failed Stage Magician | performer, tricks, hands | Stage | Magician | knack 1 | Monsters notice you from 30% less far |
 | karaoke | Karaoke Host | performer, loud, night | Karaoke | Karaoke Host | none | +60% viewers |
 | plumber | Emergency Plumber | trades, water, tools | Pipe | Plumber | brawling 2 | +20% melee damage |
 | nurse | Triage Nurse | medical, night, care | Triage | Nurse | none | Melee hits have a 20% chance to patch up you or an ally |
 | accountant | Tax Accountant | office, money, rules | Tax | Accountant | none | +15% experience |
 | guard | Mall Security Guard | security, patience, rules | Mall | Security Guard | brawling 1 | +20% health |
 | dogwalker | Dog Walker | animals, outdoors, care | Dog-Park | Dog Walker | none | Companions deal +50% damage |
-| tinkerer | Garage Tinkerer | tinkerer, tools, machines | Garage | Tinkerer | tinkering 2, throwing 1 | +1.5 throwing range |
+| tinkerer | Garage Tinkerer | tinkerer, tools, machines | Garage | Tinkerer | tinkering 2, knack 1 | +1.5 ability range |
 | eater | Competitive Eater | food, guts, showoff | Buffet | Eater | none | +25% health |
 | courier | Bike Courier | sports, speed, outdoors | Bike-Lane | Courier | none | +20% movement speed |
 | dentist | Strip-Mall Dentist | medical, tools, pain | Dental | Dentist | brawling 1 | Melee hits have a 10% chance to stun |
@@ -34,7 +34,7 @@ generated class names such as "Checkout Pit Boss".
 | lifeguard | Public Pool Lifeguard | sports, water, care | Poolside | Lifeguard | none | Slowly regenerates health anywhere |
 | bouncer | Nightclub Bouncer | security, loud, night | Velvet-Rope | Bouncer | brawling 2 | +15% melee damage |
 | florist | Supermarket Florist | retail, hands, care | Floral | Florist | none | +10% experience |
-| exterminator | Pest Exterminator | trades, animals, chemicals | Pest-Control | Exterminator | throwing 1 | +15% thrown damage |
+| exterminator | Pest Exterminator | trades, animals, chemicals | Pest-Control | Exterminator | knack 1 | +15% ability power |
 | teacher | Substitute Teacher | office, rules, patience, loud | Substitute | Teacher | none | You and nearby allies deal +10% damage |
 | mime | Street Mime | performer, quiet, hands, tricks | Silent | Mime | none | Monsters notice you from 40% less far |
 | barista | Drive-Through Barista | food, speed, patience | Espresso | Barista | none | +12% movement speed |

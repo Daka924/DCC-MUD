@@ -17,7 +17,7 @@ func _init() -> void:
 	test_resolve(db)
 	test_invent(db)
 	test_offers(db)
-	test_signatures(db)
+	test_kits(db)
 	test_world_basics(db)
 	test_companion_and_party(db)
 	test_boxes_and_safety(db)
@@ -97,8 +97,8 @@ func _step(w: World, seconds: float) -> void:
 func _names(list: Array) -> Array:
 	return list.map(func(c): return c.id)
 
-func test_signatures(db: Dictionary) -> void:
-	print("signature abilities")
+func test_kits(db: Dictionary) -> void:
+	print("ability kits")
 	var seen := {}
 	var functions := {}
 	var deliveries := {}
@@ -106,31 +106,35 @@ func test_signatures(db: Dictionary) -> void:
 	for past in db.past_lives.past_lives:
 		for d in [{}, {"kills": 12, "kills_melee": 9, "hits_taken": 30}, {"throws": 20, "threw_toxic": 6, "threw_flammable": 8, "deaths": 3},
 				{"chats": 9, "parties": 2, "pickups": 20, "safe_seconds": 200}]:
-			var gen := ClassOffers.generated(d, past, db)
+			var all: Array = ClassOffers.classes(d, past, db)
 			var fns := {}
-			for c in gen:
-				var a: Dictionary = c.ability
-				seen[a.name] = true
-				functions[a.function] = true
-				deliveries[a.delivery] = true
-				costs[a.cost] = true
-				fns[a.function] = true
-				if a.name == "" or a.text == "" or a.cooldown <= 0.0:
-					check(false, "ability on %s is complete" % c.name)
-				if a.kind == "burst" and a.effects.is_empty():
-					check(false, "burst ability on %s has effects" % c.name)
-			if gen.size() >= 5 and fns.size() < 3:
+			for c in all:
+				var kit: Array = c.get("kit", [])
+				if kit.size() != 3 or kit[0].role != "offence" or kit[1].role != "defence" or kit[2].role != "support":
+					check(false, "%s has one offensive, one defensive and one supportive ability" % c.name)
+					continue
+				for a in kit:
+					seen[a.name] = true
+					functions[a.function] = true
+					deliveries[a.delivery] = true
+					costs[a.cost] = true
+					fns[a.function] = true
+					if a.name == "" or a.text == "" or a.cooldown <= 0.0:
+						check(false, "ability on %s is complete" % c.name)
+					if a.kind == "burst" and a.effects.is_empty():
+						check(false, "burst ability on %s has effects" % c.name)
+			if fns.size() < 5:
 				check(false, "offers for %s vary in function" % past.id)
 	print("    distinct ability names: %d, functions: %s, deliveries: %s, costs: %s" % [seen.size(), functions.keys(), deliveries.keys(), costs.keys()])
 	check(functions.size() == db.ability_parts.functions.size(), "every function is reachable")
-	check(deliveries.size() >= 4, "several deliveries are reachable")
+	check(deliveries.size() >= 5, "several deliveries are reachable")
 	check(costs.size() == 3, "all three cost types are reachable")
 	check(seen.size() > 150, "abilities come in a wide range")
 	var pyro := ClassOffers.generated({"kills": 9, "throws": 14, "threw_flammable": 8, "threw_spark": 6}, ClassOffers.past_life("baker", db), db)
 	for c in pyro:
-		print("    %s: %s. %s" % [c.name, c.ability.name, c.ability.text])
-	var burner: Array = pyro.filter(func(c): return c.ability.kind == "burst" and c.ability.effects.any(func(e): return e.kind == "dot"))
-	check(not burner.is_empty(), "a fire-thrower is offered a burning attack")
+		print("    %s: %s" % [c.name, " / ".join(c.kit.map(func(a): return a.name))])
+	var burner: Array = pyro.filter(func(c): return c.kit[0].kind == "burst" and c.kit[0].effects.any(func(e): return e.kind == "dot"))
+	check(not burner.is_empty(), "a player who played with fire is offered a burning attack")
 	if burner.is_empty():
 		burner = pyro
 	check(str(ClassOffers.generated({"kills": 9}, ClassOffers.past_life("nurse", db), db)) == str(ClassOffers.generated({"kills": 9}, ClassOffers.past_life("nurse", db), db)), "abilities are deterministic")
@@ -139,7 +143,10 @@ func test_signatures(db: Dictionary) -> void:
 	var w := World.new(db, 7)
 	w.add_player(1, {"name": "Tess", "past": "baker", "start": 0})
 	var p: Dictionary = w.players[1]
-	check(not w.use_signature(1, p.pos), "no ability before a class is chosen")
+	check(p.kit.size() == 3 and p.kit[0].role == "offence" and p.kit[2].role == "support", "a new character starts with a kit of three from their past life")
+	var full: Dictionary = AbilityGen.build(ClassOffers.past_life("baker", db).tags, {}, db, "bakeroffence", {}, 99, "offence")
+	check(p.kit[0].power < full.power, "the starting kit is weaker than a class kit (%s against %s)" % [p.kit[0].power, full.power])
+	check(not w.use_ability(1, 3, p.pos) and not w.use_ability(1, -1, p.pos), "there are only three slots")
 	var f: Dictionary = w.floors[0]
 	w.tick(0.05)
 	p.pos = Vector2(9.5, 9.5)
@@ -150,19 +157,30 @@ func test_signatures(db: Dictionary) -> void:
 	mob.pos = p.pos + Vector2(2, 0)
 	mob.hp = 500.0
 	mob.max_hp = 500.0
-	p.signature = burner[0].ability
+	p.kit = burner[0].kit.duplicate(true)
+	for a in p.kit:
+		a.cost = "mana"
+		a.hp_frac = 0.0
+		a.mana = maxf(a.mana, 3.0) if not a.passive else 0.0
 	p.mana = 12.0
 	var hp_before: float = mob.hp
-	check(w.use_signature(1, mob.pos), "a burst ability can be used")
-	check(not w.use_signature(1, mob.pos), "it then goes on cooldown")
+	check(w.use_ability(1, 0, mob.pos), "the offensive ability can be used")
+	check(not w.use_ability(1, 0, mob.pos), "it then goes on cooldown")
+	check(p.kit[1].passive or w.use_ability(1, 1, p.pos), "the defensive ability has its own cooldown")
 	for i in 40:
 		w.tick(0.05)
 		mob.pos = p.pos + Vector2(2, 0)
-	check(mob.hp < hp_before, "the burst damaged the monster (%.1f lost)" % (hp_before - mob.hp))
+	check(mob.hp < hp_before, "the attack damaged the monster (%.1f lost)" % (hp_before - mob.hp))
 	check(p.mana < 12.0, "it spent mana")
-	p.signature = AbilityGen.build(["doomed"], {"doomed": 4.0}, db, "t")
-	check(p.signature.kind == "last_stand", "dying a lot leads to a survive-a-lethal-hit ability")
-	p.cd_signature = 0.0
+	check(p.dossier.get("used_offence", 0) == 1, "the dossier records which kind of ability was used")
+	p.buffs.clear()
+	p.stats.int += 5
+	var strong: float = w.ability_power(p)
+	p.stats.int -= 5
+	check(strong > w.ability_power(p), "intelligence raises ability power")
+	p.kit[1] = AbilityGen.build(["doomed"], {"doomed": 4.0}, db, "t", {}, 99, "defence")
+	check(p.kit[1].kind == "last_stand", "dying a lot leads to a survive-a-lethal-hit ability")
+	p.cd_kit = [0.0, 0.0, 0.0]
 	p.hp = 3.0
 	w._damage_player(p, 50.0)
 	check(is_equal_approx(p.hp, 1.0) and w._alive(p), "the lethal hit is survived once")
@@ -170,19 +188,19 @@ func test_signatures(db: Dictionary) -> void:
 	check(not w._alive(p), "and not twice")
 	p.dead_until = -1.0
 	p.hp = p.max_hp
-	p.signature = AbilityGen.build(["security"], {"security": 4.0}, db, "t")
-	p.cd_signature = 0.0
+	p.kit[1] = AbilityGen.build(["security"], {"security": 4.0}, db, "t", {}, 99, "defence")
+	p.cd_kit = [0.0, 0.0, 0.0]
 	p.mana = 12.0
-	check(p.signature.kind == "buff" and w.use_signature(1, p.pos), "a protection ability can be used")
+	check(p.kit[1].kind == "buff" and w.use_ability(1, 1, p.pos), "a protection ability can be used")
 	var before: float = p.hp
 	w._damage_player(p, 10.0)
 	check(is_equal_approx(before - p.hp, 5.0), "it halves damage taken")
-	p.signature = AbilityGen.build(["quiet"], {"quiet": 4.0}, db, "t")
-	p.cd_signature = 0.0
+	p.kit[1] = AbilityGen.build(["quiet"], {"quiet": 4.0}, db, "t", {}, 99, "defence")
+	p.cd_kit = [0.0, 0.0, 0.0]
 	p.mana = 12.0
 	mob.pos = p.pos + Vector2(1.5, 0)
 	mob.target = 1
-	check(p.signature.kind == "forget" and w.use_signature(1, p.pos), "a mind ability can be used")
+	check(p.kit[1].kind == "forget" and w.use_ability(1, 1, p.pos), "a mind ability can be used")
 	var mob_at: Vector2 = mob.pos
 	p.hp = p.max_hp
 	for i in 20:

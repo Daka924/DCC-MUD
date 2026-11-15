@@ -1,6 +1,6 @@
 extends Node
 ## A scripted player used for automated multiplayer tests. It walks out of the
-## safe room, parties up with anyone it meets, throws oil and rags at the
+## safe room, parties up with anyone it meets, uses its abilities and throws oil at the
 ## nearest monster and prints what it saw before quitting.
 
 var player_name := "Bot"
@@ -91,6 +91,9 @@ func _process(delta: float) -> void:
 		if passive:
 			return
 		# Monsters charge, so aim between us and them.
+		Net.send("ability", {"slot": 0, "at": pos.lerp(nearest, 0.5)})
+		Net.send("ability", {"slot": 1, "at": pos})
+		Net.send("ability", {"slot": 2, "at": pos})
 		Net.send("throw", {"items": ["oil_flask"], "target": pos.lerp(nearest, 0.5), "ability": -1})
 	else:
 		Net.send("input", (Vector2(9.5, 5.5) - pos).normalized())

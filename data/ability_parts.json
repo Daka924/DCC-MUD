@@ -1,5 +1,5 @@
 {
- "_doc": "Building blocks for signature abilities, following the axes of the research reference: function (what it does), delivery (how it arrives), flavour (element, material or manner), and cost. 'tag_function', 'tag_delivery' and 'tag_cost' say which player tags pull an ability toward which value. The generator picks one value per axis from a class's tags and the player's tag profile, then writes the name and description. Intelligence adds 6% power per point above 4.",
+ "_doc": "Building blocks for abilities. Every character carries a kit of three: one offensive, one defensive and one supportive ability. Each is built on four axes: function (what it does; each function belongs to a role), delivery (how it arrives), flavour (element, material or manner), and cost. 'tag_function', 'tag_delivery' and 'tag_cost' say which player tags pull an ability toward which value. 'roles' lists the three roles, their keys and the function used when no tag points anywhere. Intelligence adds 6% power per point above 4.",
  "functions": {
   "damage": {
    "kind": "burst",
@@ -9,6 +9,11 @@
    "mana": 4,
    "does": "deals {power} damage",
    "nouns": {
+    "cast": [
+     "Bolt",
+     "Blast",
+     "Outburst"
+    ],
     "thrown": [
      "Volley",
      "Barrage",
@@ -29,7 +34,8 @@
      "Shoulder Check",
      "Flop"
     ]
-   }
+   },
+   "role": "offence"
   },
   "control": {
    "kind": "burst",
@@ -44,6 +50,11 @@
    "mana": 4,
    "does": "deals {power} damage",
    "nouns": {
+    "cast": [
+     "Hex",
+     "Snare",
+     "Hold"
+    ],
     "thrown": [
      "Lockdown",
      "Cordon",
@@ -64,7 +75,8 @@
      "Bear Hug",
      "Sit-In"
     ]
-   }
+   },
+   "role": "offence"
   },
   "healing": {
    "kind": "heal",
@@ -84,7 +96,8 @@
      "Bedside Manner",
      "Lullaby"
     ]
-   }
+   },
+   "role": "support"
   },
   "protection": {
    "kind": "buff",
@@ -101,7 +114,8 @@
      "Flinch",
      "Hard Hat"
     ]
-   }
+   },
+   "role": "defence"
   },
   "movement": {
    "kind": "buff",
@@ -118,7 +132,8 @@
      "Shortcut",
      "Fire Drill"
     ]
-   }
+   },
+   "role": "defence"
   },
   "support": {
    "kind": "buff",
@@ -142,7 +157,8 @@
      "Chant",
      "Singalong"
     ]
-   }
+   },
+   "role": "support"
   },
   "mind": {
    "kind": "forget",
@@ -162,7 +178,8 @@
      "Alibi",
      "Polite Cough"
     ]
-   }
+   },
+   "role": "defence"
   },
   "survive": {
    "kind": "last_stand",
@@ -176,7 +193,8 @@
      "Second Wind",
      "Encore"
     ]
-   }
+   },
+   "role": "defence"
   }
  },
  "deliveries": {
@@ -210,6 +228,12 @@
    "radius_mult": 1.0,
    "power_mult": 1.0,
    "says": "Used on yourself"
+  },
+  "cast": {
+   "range": 6.0,
+   "radius_mult": 1.0,
+   "power_mult": 1.0,
+   "says": "Cast at a spot up to 6 tiles away"
   }
  },
  "flavours": {
@@ -669,11 +693,11 @@
  "tag_delivery": {
   "throw": "thrown",
   "heavy": "thrown",
-  "sharp": "thrown",
+  "sharp": "cast",
   "lifting": "thrown",
-  "warehouse": "thrown",
-  "rope": "thrown",
-  "sticky": "thrown",
+  "warehouse": "cast",
+  "rope": "cast",
+  "sticky": "cast",
   "fire": "cloud",
   "poison": "cloud",
   "chemicals": "cloud",
@@ -696,7 +720,17 @@
   "punished": "body",
   "bold": "body",
   "security": "body",
-  "pain": "body"
+  "pain": "body",
+  "machines": "cast",
+  "light": "cast",
+  "tricks": "cast",
+  "night": "cast",
+  "medical": "cast",
+  "money": "cast",
+  "quiet": "cast",
+  "trades": "cast",
+  "tools": "cast",
+  "hands": "cast"
  },
  "tag_cost": {
   "pain": "health",
@@ -704,9 +738,27 @@
   "doomed": "health",
   "punished": "health",
   "bold": "health",
-  "greedy": "item",
-  "retail": "item",
-  "throw": "item",
-  "warehouse": "item"
- }
+  "greedy": "item"
+ },
+ "roles": {
+  "offence": {
+   "name": "Offence",
+   "key": "Q",
+   "default": "damage",
+   "says": "hurts or hinders monsters"
+  },
+  "defence": {
+   "name": "Defence",
+   "key": "E",
+   "default": "protection",
+   "says": "keeps you alive"
+  },
+  "support": {
+   "name": "Support",
+   "key": "R",
+   "default": "healing",
+   "says": "helps you and your party"
+  }
+ },
+ "starter_power": 0.6
 }

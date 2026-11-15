@@ -20,7 +20,7 @@ The right-hand column in each table is yours. Write "yes", "no", or how you want
 | Growth after the choice | A specialisation later (level 6), subclasses, and classes that upgrade into a renamed stronger form (CR01, CR04, class records marked with an arrow) | Nothing after level 3 | Add an `upgrades_to` step to class parts, so generated classes can grow a second name later |  |
 | A class that changes every level | One class type draws a new temporary role each level, with a random share of that role's abilities. Trained skill experience survives; the temporary stat boosts do not (CR03, AX001) | Not present | A natural fit for the generator: one class whose job is re-rolled from the player's tags on each new level |  |
 | Skills | Skills level by use, each level has a stated effect, training past 15 is hard and needs an unlock to reach 20 (CR07, AD01) | Three skills that never train | Make skills train by use and give each level a stated effect |  |
-| Spells | Each has a mana cost, a duration that grows per level, a cooldown and a stated target type. Owning the book is not the same as knowing the spell (AD02, AD04) | Mana is shown, nothing uses it | Add spells as data rows with those five fields |  |
+| Spells | Each has a mana cost, a duration that grows per level, a cooldown and a stated target type. Owning the book is not the same as knowing the spell (AD02, AD04) | Built in a first form on 15 November: every character has three abilities (offensive, defensive, supportive) with mana costs and cooldowns. Durations do not grow with level and there are no spell books | Next: abilities that level up, and learning extra ones |  |
 | Staying alive | Seven different ideas that should not be merged: avoid, reduce, resist, be immune, survive one lethal hit, heal afterwards, and be locked out of healing (AD07, AD02, AD03, CR10) | Only health and regeneration | Add reduce, survive-a-lethal-hit and healing lockout first; they create the best stories |  |
 | Equipment | Gear can carry its own spell with its own level and cooldown, separate from what the wearer has learned (AD03, AD10) | No equipment | When equipment arrives, give it its own ability layer |  |
 | Safe rooms | Boxes open only in safe areas; safe rooms show through the map fog; no time limit inside while the level timer still runs (SY01) | Matches, except there is no map fog | Keep. Add the fog when the map grows |  |
@@ -32,8 +32,9 @@ The right-hand column in each table is yours. Write "yes", "no", or how you want
 
 ## 2. The ability taxonomy as the generator's next layer
 
-**Built on 14 November** in a first form: function, delivery, flavour and cost. See "Signature abilities" in
-`03-classes-and-races.md`. Target types beyond enemies and party members, timing rules other than cooldowns, and
+**Built on 14 November** in a first form: function, delivery, flavour and cost. Since 15 November every
+character carries three such abilities, one offensive, one defensive and one supportive, and the game is framed
+around them instead of around thrown items. See "Ability kits" in `03-classes-and-races.md`. Target types beyond enemies and party members, timing rules other than cooldowns, and
 the mind and body axes beyond "forget" are not built yet.
 
 The reference describes any ability along several independent axes. That is exactly the shape a rules-based
@@ -77,7 +78,7 @@ The names and one-line descriptions come from word lists per axis value, the sam
 
 ## 4. Proposed order of work
 
-1. Class packages: skills, one signature ability, a real penalty, viewer and achievement requirements, random default.
+1. Class packages: skills, a kit of three abilities (built), a real penalty, viewer and achievement requirements, random default.
 2. The ability generator on the axes above, so every generated class gets its own ability.
 3. Skills that train by use, with stated effects per level.
 4. Reduce, survive-a-lethal-hit and healing lockout.
