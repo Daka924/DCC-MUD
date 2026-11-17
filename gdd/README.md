@@ -18,9 +18,9 @@ becomes **Decided**.
 | [01-vision.md](01-vision.md) | Pitch, pillars, what kind of game this is | Rounds 1 and 2 written |
 | [02-crawler-and-death.md](02-crawler-and-death.md) | The character you play, what lasts, how death works | Rounds 1 and 2 written |
 | [03-floors.md](03-floors.md) | How floors work, and floors 1 to 3 | Rounds 1 and 2 written |
-| [04-classes-and-races.md](04-classes-and-races.md) | When you get a class and race, ground rules for classes | Round 2 written; races next |
+| [04-classes-and-races.md](04-classes-and-races.md) | When you get a class and race, ground rules for classes | Round 3 written, with a draft race list |
 | [04a-class-list.md](04a-class-list.md) | 28 draft classes | Proposed, waiting on Daka |
-| 05-abilities-and-combat.md | Offensive, defensive and supportive abilities | Later |
+| [05-abilities-and-combat.md](05-abilities-and-combat.md) | Abilities, the hotbar, stats | Round 3 written |
 | [06-progression.md](06-progression.md) | Growth on floors 1 and 2, levels, stats, skills, loot | Round 2 written |
 | 07-the-show.md | Narrator, audience, achievements, loot boxes | Later |
 | 08-gods-and-factions.md | Gods, sponsors, factions | Later |
