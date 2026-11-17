@@ -29,7 +29,8 @@ The three things the game asks of a player:
 | Combat | Built around spells and abilities: offensive, defensive and supportive. Throwable items may exist but are not the core |
 | Centrepiece | A huge range of weird classes, offered after surviving the first two floors, shaped by the player's background and choices |
 | IP | Original work. Keep the genre, mechanics and tone; use Daka's own world, names and characters |
-| Setting | Real places in and around New Jersey, twisted into dungeon floors (see `03-floors.md`) |
+| Setting | Real places in and around New Jersey, using their real names, twisted into dungeon floors (see `03-floors.md`) |
+| Audience | A small community of 2 to 20 players. The repository is private |
 
 ## Open
 
