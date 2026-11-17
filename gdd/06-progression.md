@@ -24,10 +24,29 @@ What grows on floors 1 and 2:
 Player agency decides what they will have available later: everything above feeds the class and race offers on
 floor 3.
 
+## Gear and loot — Decided
+
+- Loot is **Diablo-style**: better gear has more stats and better abilities.
+- **Every piece of gear carries its own base ability.**
+- **Special gear has multiple abilities**, which unlock.
+
+## Crafting — Decided
+
+Anyone can craft at the right workstation if their skill is high enough. Recipes are found, or learned from
+factions.
+
+## Proposed
+
+| Rule | Proposal |
+| --- | --- |
+| Rarity | Colour tiers from common to unique; each tier up adds stats and, from the middle tiers, extra abilities |
+| Unlocking a special item's extra abilities | By using the item: its abilities open at set amounts of use, so a favourite weapon grows with you |
+| Gear abilities and the hotbar | A gear ability goes on the hotbar like any other, and leaves when the item is unequipped |
+| Slots | Weapon, off-hand, head, body, hands, feet, two rings, neck |
+
 ## Open
 
 - Which stats exist and what each does.
 - The broad set of skills and abilities offered at level-up: how many choices, and where they come from.
-- How crafting works (who can craft, what it needs).
+- The workstation and recipe lists.
 - How pets are found and adopted.
-- Loot and gear: rarity, slots, how gear grants abilities.

@@ -23,6 +23,6 @@ becomes **Decided**.
 | [05-abilities-and-combat.md](05-abilities-and-combat.md) | Abilities, the hotbar, stats | Round 3 written |
 | [06-progression.md](06-progression.md) | Growth on floors 1 and 2, levels, stats, skills, loot | Round 2 written |
 | [07-the-show.md](07-the-show.md) | The System AI, viewers, achievements, loot boxes | Round 4 written |
-| 08-gods-and-factions.md | Gods, sponsors, factions | Later |
-| 09-multiplayer.md | Shared dungeon, parties, companions, pets | Later |
+| [08-factions.md](08-factions.md) | Faction reputation; gods still open | Round 5 written |
+| [09-multiplayer.md](09-multiplayer.md) | Parties, markers, PvP, pets, companions | Round 5 written |
 | 10-tech-and-art.md | Godot, server, art pipeline | Later |
