@@ -1,5 +1,7 @@
 # Class list — Proposed
 
+**Target (Decided): close to 150 classes.** This file holds the first 28.
+
 Every class here is a first draft written to the ground rules in `04-classes-and-races.md`. Strike any you dislike,
 rename freely, and add your own. Each class lists three **signature abilities** it starts with. They are not the
 limit: a crawler keeps everything learned on floors 1 and 2 and can keep unlocking more (see

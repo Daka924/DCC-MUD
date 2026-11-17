@@ -1,5 +1,7 @@
 # Floors
 
+**The game has 18 floors. (Decided.)** Floors 1 to 3 are designed here; the rest come later.
+
 ## How every floor works — Decided
 
 - **Dungeon-wide quests.** Each floor has a few key quests. They are shared by the whole dungeon: any player can
@@ -74,10 +76,9 @@ and the southern shore.
 
 - Tough terrain to navigate. Factions nest in alcoves through the wastes, and have spilled into the shore waters.
 - **Factions:** cults devoted to the Jersey Devil; merpeople; reanimated corpses; animals pumped full of chemicals.
-- **Super monsters** roam three areas: the Pine Barrens, near the big pharmaceutical plants, and in the ocean off
-  the shore.
-- **Stairwell access:** defeat one of the super monsters.
-- **Collapse trigger:** once a giant has been defeated.
+- **3 giant monsters** roam the floor, one per area: the Pine Barrens, near the big pharmaceutical plants, and in
+  the ocean off the shore.
+- **Killing one of them** opens access to the stairwell **and starts the level collapse.**
 
 ## Floor 3 — Decided
 
@@ -96,6 +97,4 @@ friction between them. A mix of high fantasy and Tri-State tropes.
 
 ## Open
 
-- Floor 2: is "a giant" the same thing as the super monsters, or a separate creature?
 - Floor 3: what happens to a player who pledged to no kingdom?
-- How many floors the game has in total.

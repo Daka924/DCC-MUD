@@ -19,7 +19,32 @@
 | How they treat you | Hated: attack on sight. Disliked: no trade, no quests. Liked and above: quests, trade, recipes, safe passage |
 | Playing both sides | Allowed until a contested attraction's final quest, which forces a choice or a betrayal |
 
+## Gods — Decided
+
+- There is a **list of gods**.
+- **Worship can be part of a class**, and comes with positives and negatives. The player's **Dungeon Guide**
+  advises them of both.
+- A player can take up worship **when the opportunity is presented**, or **if they know the ritual** to worship
+  that god.
+- Every god comes with three things: **granted powers**, **restrictions**, and **how they are worshipped**.
+- **Smite.** A god smites a worshipper who:
+  - disobeys,
+  - fails or is unable to complete the god's quest,
+  - leaves the faith, or
+  - breaks the god's traditions.
+
+### Gods — Proposed
+
+| Rule | Proposal |
+| --- | --- |
+| One god at a time | A crawler worships one god; converting counts as leaving the faith and earns the smite |
+| Smite | Scales with how deep you were in: from a heavy curse for a new follower up to a lethal strike for a champion. It can be survived, and surviving it is an achievement |
+| God quests | Each god gives a quest per floor, with a deadline |
+| Standing | Devotion rises with worship and quests, and unlocks stronger granted powers |
+| Class tie | Some classes require a god or are only offered to worshippers; some forbid worship entirely |
+| Gods and factions | Some factions follow a god (the Jersey Devil cults on floor 2), and their reputation and the god's devotion affect each other |
+
 ## Open
 
-- Gods: whether they exist in this game, and how worship works.
-- Sponsors as factions.
+- The god list itself: names, powers, restrictions, rituals.
+- Which floor gods first appear on.
