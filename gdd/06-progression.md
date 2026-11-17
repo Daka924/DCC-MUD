@@ -1,5 +1,10 @@
 # Progression
 
+## Character creation — Decided
+
+A new crawler chooses a **name**, a **look** and a **past job**, and enters the dungeon with **the few things
+they had on them**.
+
 ## Floors 1 and 2: choose your own destiny — Decided
 
 Before they have a class, crawlers still have abilities and gear. What they have depends on:

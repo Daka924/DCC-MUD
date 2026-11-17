@@ -30,8 +30,42 @@
 shops. Its people have been swapped into RPG-style races.
 
 - The major attractions are **contested zones** where mini NPC factions battle for control.
+- **The 4 major attractions:** the theme park, the water park, the indoor ski slope, and the ice rink.
+- The mall's inhabitants are fantasy races based on the ideas within the mall. **Lego people are one of them.**
 - **Collapse trigger:** once the quests of all **4 major attractions** are finished.
 - **Exit:** a stairwell somewhere on the floor.
+
+### Floor 1 races and factions — Proposed (brainstorm)
+
+Races that grew out of what the mall sells. Any of these can also become a race offer at floor 3 for players who
+earn their reputation.
+
+| Race | Born from | What they are like | Strength | Weakness |
+| --- | --- | --- | --- | --- |
+| Brickfolk | The Lego centre | Blocky people who rebuild themselves and their walls on the spot; obsessed with instructions | Reassemble after being broken; build cover instantly | Hard hits knock pieces off; lost pieces are lost stats |
+| Mascots | The theme park | Huge-headed costumed performers who never break character. Nobody knows what is inside | Enormous health; fear aura from the frozen smile | Cannot see well; cannot speak |
+| Slide Nymphs | The water park | Chlorine-scented water spirits, fast and slippery | Quick, hard to grab, strong in water | Dry out away from water |
+| Yeti | The ski slope | Lift operators gone feral in permanent winter | Cold immunity; great strength | Overheat anywhere warm |
+| Rink Elves | The ice rink | Blade-footed, graceful, vicious about ice time | Speed and bleed attacks on ice | Clumsy off the ice |
+| Mannequins | The fashion wing | Faceless, posed, swap parts and outfits with each other | Take over a new body when theirs breaks | No face: cannot use voice abilities |
+| Plushkin | The toy and claw-machine arcades | Stuffed animals of every size, sweet until cornered | Blunt hits barely hurt | Fire and tearing |
+| Sugarfolk | The candy store | Sticky candy golems, hyper and short-tempered | Heal from sugar; glue enemies in place | Melt in heat and water |
+| Greaselings | The food court | Fryer goblins who run the black market | Cheap crafting, slippery escapes | Flammable |
+| Kiosk Imps | The hallway kiosks | Relentless small salesmen who will not let you pass | Slow and debuff with offers | Fragile alone |
+| Tankborn | The aquarium | Shark and jellyfish people who want out of the glass | Bite and sting | Need water nearby |
+| Security Orcs | Mall security | Segway-riding enforcers of rules nobody remembers | Armour, stuns | Slow to change orders; easily misdirected |
+
+Who is fighting over what:
+
+| Attraction | Faction A | Faction B | The quest that settles it |
+| --- | --- | --- | --- |
+| Theme park | The Mascot Court | Brickfolk Builders' Guild, who want to rebuild the rides "properly" | Pick a side or play both; restart or wreck the big coaster |
+| Water park | Slide Nymphs | The Tankborn, flooding in from the aquarium | Control the wave machine |
+| Ski slope | The Yeti | Greaselings, who want the cold storage for their fryer empire | Seize or sabotage the snow machine |
+| Ice rink | Rink Elves | Security Orcs, who have declared skating a violation | Win the rink in a match the System AI referees, badly |
+
+The neutral ground between them (fashion wing, toy arcades, candy store, hallways) belongs to the Mannequins,
+Plushkin, Sugarfolk and Kiosk Imps, who sell, scheme and give side quests.
 
 ## Floor 2 — Decided
 
@@ -62,7 +96,6 @@ friction between them. A mix of high fantasy and Tri-State tropes.
 
 ## Open
 
-- Floor 1: the 4 major attractions and the factions holding each.
 - Floor 2: is "a giant" the same thing as the super monsters, or a separate creature?
 - Floor 3: what happens to a player who pledged to no kingdom?
 - How many floors the game has in total.

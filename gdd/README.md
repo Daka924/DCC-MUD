@@ -22,7 +22,7 @@ becomes **Decided**.
 | [04a-class-list.md](04a-class-list.md) | 28 draft classes | Proposed, waiting on Daka |
 | [05-abilities-and-combat.md](05-abilities-and-combat.md) | Abilities, the hotbar, stats | Round 3 written |
 | [06-progression.md](06-progression.md) | Growth on floors 1 and 2, levels, stats, skills, loot | Round 2 written |
-| 07-the-show.md | Narrator, audience, achievements, loot boxes | Later |
+| [07-the-show.md](07-the-show.md) | The System AI, viewers, achievements, loot boxes | Round 4 written |
 | 08-gods-and-factions.md | Gods, sponsors, factions | Later |
 | 09-multiplayer.md | Shared dungeon, parties, companions, pets | Later |
 | 10-tech-and-art.md | Godot, server, art pipeline | Later |

@@ -15,6 +15,17 @@
 - Combat is framed around spells and abilities of three kinds (offensive, defensive, supportive), not around
   throwable items.
 
+## Skills — Decided
+
+- Skills are separate from abilities. A skill (for example explosives handling, or swimming) makes related
+  abilities and actions stronger.
+- Skills **level up by being used**.
+- Skills can also be levelled with **skill points** and with **potions**.
+
+## Ability levelling — Decided
+
+Abilities level by being used, up to level 15, or 20 for a Primal.
+
 ## Stats — Decided
 
 Strength, Dexterity, Constitution, Intelligence, Charisma. Stat points are assigned at each level-up.
@@ -26,7 +37,8 @@ Strength, Dexterity, Constitution, Intelligence, Charisma. Stat points are assig
 | Starting hotbar | 8 slots: left click, right click, and six keys |
 | Expanding it | +1 slot at set character levels, and from rare items or class perks; ceiling of 12 |
 | Casting from the menu | Works, but takes longer to cast than a hotbar slot, so the hotbar still matters in a fight |
-| How abilities level | By use: each ability gains its own experience when it is used on something that matters, up to level 15 (20 for a Primal) |
+| Skill points | 1 per character level, spendable on any skill you have already used at least once |
+| Skill cap | 15, or 20 for a Primal, the same as abilities |
 | What a level gives | A stated improvement at every level (more damage, longer duration, shorter cooldown), with a bigger change at levels 5, 10 and 15 |
 | How abilities are unlocked | Level-up choices, books and scrolls, trainers in faction towns, gear that carries an ability, quest rewards, achievements, race and class |
 | Level-up choice | Each level: choose from a hand of abilities and skills drawn from the general pool and weighted by what you have been doing, plus stat points |
@@ -37,6 +49,5 @@ Strength, Dexterity, Constitution, Intelligence, Charisma. Stat points are assig
 - What each stat does, in numbers.
 - How many stat points per level, and how many choices are in the level-up hand.
 - The base ability list, and the first set of unlockable ones.
-- Skills versus abilities: is a skill (for example "explosives handling") a separate thing that levels by use and
-  makes abilities stronger, as in the source material?
+- The skill list.
 - Basic attacks: does every weapon have a free basic attack?
