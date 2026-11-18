@@ -27,39 +27,11 @@ The source material (record ids FL01, FL04, CR04, CL022, CL037, CL038):
 **Proposed:** tier 1 at floor 3, an upgrade to tier 2 offered on floor 4 or 5 when you meet that class's
 condition, and tier 3 (the specialisation) on arriving at floor 6.
 
-## Ground rules for creating a class — Proposed
+## Building a class
 
-Drawn from the through-lines of the source material, written for our game.
-
-1. **A real-world job with a fantasy flair.** Every class starts from a real job (or a real social role) and
-   collides it with a fantasy idea. There are three ways to do it:
-   - *The job, taken literally as a battle role.* A riot cop who starts the chaos so they can impose order.
-   - *A school of magic, made out of the job's stuff.* Regular magic, but made of something mundane.
-   - *The job's tool, used as your body.* A vehicle driver who becomes the vehicle.
-2. **The joke has teeth.** Every ability traces back to something the real job actually does. If you cannot say
-   which part of the job an ability comes from, it does not belong to that class.
-3. **Satire is welcome.** A class can say something cynical about the real job. That is where much of the humour
-   comes from.
-4. **No joke classes. (Decided)** Every class is a real part of the game and offers legitimate strengths and
-   weaknesses, even when they are filtered through some absurdity. If a class would not be worth picking, it is
-   not finished.
-5. **A full package.** Every class gives: stat leanings, 2 to 4 skills it boosts or grows faster, a few
-   signature abilities (added to whatever the crawler already knows), **one drawback with real teeth**, and sometimes access to a place, workshop or faction nobody else
-   can use.
-6. **Earned, not random.** Each class has an *offered when* condition tied to how the player played: a skill
-   level, items or abilities used a lot, a faction's reputation, an achievement, or the size of their audience.
-   The offer screen says why it was offered.
-7. **Some power needs an audience or a performance.** A few classes only work while they keep performing, or grow
-   with viewers.
-8. **Some power is held through others.** Pets, summons, followers and party members.
-9. **The name is the narrator's opinion.** It can be insulting, and the description can be snarky, but the effects
-   are always stated plainly.
-10. **Every class has somewhere to grow.** Each one names its tier 2 form, a renamed stronger version that adds to
-    the same idea.
-11. **Plain options exist too.** A few classics (a regular fighter, a regular wizard) are in the pool. They are
-    full classes: dependable at everything their role needs, with no surprise trick.
-12. **Original names only.** The source material is for patterns. No class name, ability name or wording is taken
-    from it.
+How a class is put together, and the filters every class must pass, are in
+[04b-class-framework.md](04b-class-framework.md). The ground rules there replace the first draft of rules that
+was here.
 
 ## The offer list of 10 — Proposed
 

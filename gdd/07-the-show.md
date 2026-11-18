@@ -20,12 +20,17 @@
 
 ## The Dungeon Guide — Decided
 
-Each player has a **Dungeon Guide** who advises them. The Guide must warn the player of a god's positives and
-negatives before they commit to worship (see `08-factions.md`).
+- **Every player gets their own Dungeon Guide**, who advises them. A Guide typically works for a whole group of
+  interconnected players.
+- The Guide **cannot fight**, unless a player's ability ropes it in and turns it from a special NPC into a
+  fighting one.
+- The Guide must warn the player of a god's positives and negatives before they commit to worship (see
+  `08-factions.md`).
 
 ## Viewers — Decided
 
 - Viewers are gained **like a currency**.
+- Any class earns viewers by doing big, splashy, cool or outrageous things. No class is built around the audience.
 - They influence **loot boxes** and **sponsorships**.
 
 ## Achievements and loot boxes — Decided
@@ -52,5 +57,5 @@ negatives before they commit to worship (see `08-factions.md`).
 
 - The list of fetishes and what actions feed each (deferred, see above).
 - How the alien audience helps or hurts: votes, gifts, bounties?
-- The Dungeon Guide: who or what it is, whether each player gets their own, and what else it explains.
+- The Dungeon Guide: who or what it is, and what else it explains.
 - Whether players can see their viewer count and the AI's favour.

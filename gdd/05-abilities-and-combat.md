@@ -15,6 +15,12 @@
 - Combat is framed around spells and abilities of three kinds (offensive, defensive, supportive), not around
   throwable items.
 
+## How free-form play is — Decided
+
+Players act through abilities, items and a set of world interactions (talk, use, combine, eat, wear). A rules
+engine reacts to combinations nobody scripted. There is no typed free text, and no ability relies on voice chat
+or a text box.
+
 ## Skills — Decided
 
 - Skills are separate from abilities. A skill (for example explosives handling, or swimming) makes related
