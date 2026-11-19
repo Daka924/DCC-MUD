@@ -39,7 +39,8 @@ The archetype decides how the class plays. The theme only decides how it looks a
 | Guardian | Holds the line, soaks damage, protects allies | Melee | Very high | Constitution |
 | Caster | Big ranged spell damage, often in areas | Long | Low | Intelligence |
 | Marksman | Steady ranged weapon damage, positioning | Long | Low to medium | Dexterity |
-| Summoner | Fights through minions | Medium | Low | Intelligence, Charisma |
+| Summoner | Fights through short-lived minions | Medium | Low | Intelligence, Charisma |
+| Handler | Fights alongside permanent pets that level up, carry gear and can die | Medium | Medium | Charisma, Dexterity |
 | Controller | Slows, stuns, roots, curses and zones | Medium | Medium | Intelligence |
 | Healer | Keeps allies alive | Medium | Medium | Charisma, Intelligence |
 | Enchanter | Makes allies stronger with buffs and auras | Medium | Medium | Charisma |
@@ -59,14 +60,18 @@ Ask: what does this job actually do all day? Every ability must trace back to on
 
 ## Step 3: pick the hook
 
-One rule that makes the class play differently from others with the same archetype.
+One rule that makes the class play differently from others with the same archetype. Each class names its hook
+from this menu, then says exactly how it works for that class (for example "Hook: Stacks. Every sting adds
+venom; at 10 the target bursts").
 
 | Hook | How it works |
 | --- | --- |
 | Stacks | Hits add stacks to a target; at a number, something big happens |
 | Meter | A bar that fills by doing something and is spent on a big move |
 | Placed objects | Things you put on the ground: walls, traps, totems, booths |
-| Minions | Creatures that fight for you |
+| Minions | Short-lived creatures that fight for you |
+| Pack | Permanent pets. The class adds pet slots beyond the default one, and its abilities give pets orders |
+| Tame | Turn a weakened monster into a pet |
 | Stance | Two modes you switch between, each changing your abilities |
 | Charge-up | Hold to power up; release for more effect |
 | Combo | Abilities get stronger used in a set order |

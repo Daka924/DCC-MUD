@@ -1,6 +1,6 @@
 # Class list — Proposed
 
-**Target (Decided): close to 150 classes.** This is the second draft of the first 30, rebuilt with the
+**Target (Decided): close to 150 classes.** This is the second draft of the first 33, rebuilt with the
 framework in `04b-class-framework.md`. Numbers in *offered when* are placeholders until the skill list exists.
 
 Changes from the first draft: the ice cream truck class is cut (vehicle); every class now has an archetype that
@@ -164,6 +164,39 @@ lean, not a whole floor; drawbacks all bite while you are alive; taglines rewrit
 - Offered when: gave 20 items to allies or companions.
 - Tier 2: **Yule Tyrant**. The marked monster's allies turn on it.
 
+## Handler
+
+Pets follow the rules in `09-multiplayer.md`: everyone can adopt one pet they find. Handler classes add more pet
+slots and give pets orders. Pets level up, can die, and count toward the party of 6.
+
+**Dog Walker Packmaster** — *Walks into the fight with six leashes in one hand.*
+- Hook: Pack. +2 pet slots (3 total). Every pet fights harder while another pet is within 3 tiles of it.
+- Core **Sic 'Em**: every pet rushes the target you click. Answer **Heel**: pets snap back to you and take half the
+  damage aimed at you for 4 seconds. Big move **Off Leash**: pets frenzy for 8 seconds, attacking twice as fast.
+- Stats: Charisma / Dexterity. Skills: animal handling, whips.
+- Drawback: your own attacks deal 30% less damage.
+- Offered when: a pet dealt 2,000 damage, or Animal Handling 5.
+- Tier 2: **Kennel Lord**. +1 pet slot, and pets share one buff you give any of them.
+
+**Exotic Pet Shop Clerk** — *Nets whatever the dungeon throws at them and sells it a collar.*
+- Hook: Tame. A monster below 25% health can be caught and becomes a pet, keeping one of its abilities.
+- Core **Catch Net**: a net that roots a monster; if it is below 25% health, it is tamed. Answer **Feeding Time**: heal
+  all pets and draw nearby monsters' attention to a thrown treat. Big move **Clearance Sale**: release a tamed pet
+  as a one-time burst of its strongest ability, then it returns to its cage.
+- Stats: Charisma / Dexterity. Skills: animal handling, traps.
+- Drawback: +1 pet slot only (2 total); elites and bosses cannot be tamed until tier 2.
+- Offered when: weakened 50 monsters below 25% health with a control ability, or adopted a pet.
+- Tier 2: **Menagerie Baron**. Can tame elites, and a tamed elite keeps one of its affixes.
+
+**Rooftop Pigeon Keeper** — *Whistles, and a flock of dive-bombing pigeons drops out of the rafters.*
+- Hook: Pack. The flock fills one pet slot and has 12 birds; lost birds come back slowly between fights.
+- Core **Release**: the flock dives at a target, each bird a small hit. Answer **Coop**: the flock wraps around you as
+  a shield that breaks after 5 hits. Big move **Homing Run**: every bird dive-bombs in a line across the room.
+- Stats: Dexterity / Charisma. Skills: animal handling, aim.
+- Drawback: area attacks kill birds fast; a hit that covers the flock can halve it.
+- Offered when: a pet survived 30 fights, or 150 ranged kills with a pet nearby.
+- Tier 2: **Lord of the Rooftops**. The flock grows to 20, and birds carry the element of your last ability.
+
 ## Controller
 
 **HOA Inquisitor** — *Stacks violations on monsters until the fine comes due.*
@@ -304,6 +337,6 @@ The System AI sighs every time one of these is picked, and keeps reminding the p
 
 ## Totals
 
-30 classes: Bruiser 2, Duelist 1, Guardian 4, Caster 4, Marksman 1, Summoner 4, Controller 5, Healer 2,
-Enchanter 3, Trapper 2, Plain 2. Thin archetypes (Duelist, Marksman, Healer, Trapper) get filled first on the way
+33 classes: Bruiser 2, Duelist 1, Guardian 4, Caster 4, Marksman 1, Summoner 4, Handler 3, Controller 5,
+Healer 2, Enchanter 3, Trapper 2, Plain 2. Thin archetypes (Duelist, Marksman, Healer, Trapper) get filled first on the way
 to 150.
