@@ -1,178 +1,97 @@
 # Lessons from other games
 
-What other games do well that fits our game, and the rule each one becomes here. Everything on this page is
-**Proposed** until Daka marks it. "Where it goes" names the page the rule would join once it is accepted.
+Ideas from other games that could fit ours, weighed evenly. No game gets priority: the test for every idea is
+whether it fits the systems your reference already shows for the source material, and the game Daka has
+decided on. Everything on this page is **Proposed** until Daka marks it.
 
-Written from general knowledge of these games, not from fresh research. Exact numbers in those games are not
-the point and are not copied; only the shape of each idea is.
+How to read the fit column:
 
-## Which ideas to adopt first
+| Fit | Meaning |
+| --- | --- |
+| **Strong** | The reference shows the same idea working in the source; the other game shows how to build it |
+| **Compatible** | The reference has nothing against it and something close to it |
+| **Differs** | The reference shows the source doing it another way. Only take it if Daka prefers it |
 
-| Priority | Idea | From | Why first |
+Record ids (CR01, AD08 and so on) point into Daka's reference. Ideas come from general knowledge of the games
+named, not fresh research; only the shape of each idea is used.
+
+## Best fits
+
+| # | Idea | From | Fit |
 | --- | --- | --- | --- |
-| 1 | Every class has its own resource that fills by fighting its way | Draw Steel, Diablo IV | Makes each class feel different from the first fight, and gives the "hook" a real shape |
-| 2 | Abilities level into small upgrade trees, with modifiers | Last Epoch, Diablo III and IV, Path of Exile | Daka wants abilities to level; this makes levelling a choice, not just bigger numbers |
-| 3 | Elite monsters carry visible affixes | Diablo II to IV | Daka wants elites marked; affixes make them dangerous in readable ways |
-| 4 | Achievements can grant titles with small effects | Draw Steel | Achievements become part of the build, not only loot boxes |
-| 5 | Gear with named powers, sets and combinations | Diablo II to IV | Daka wants Diablo-style gear with its own abilities |
+| 1 | Abilities gain new effects at set levels | Diablo III runes, Last Epoch skill trees | Strong (AD08) |
+| 2 | Show locked classes and what unlocks them | Final Fantasy Tactics | Strong (CR01, CR02, FL01) |
+| 3 | A memorial board of the dead | Diablo hardcore communities | Strong (AX004) |
+| 4 | Taming weakened monsters | Pokémon-style capture | Strong (SY05) |
+| 5 | Every class has its own resource | Draw Steel heroic resources | Compatible |
+| 6 | Achievements that grant titles | Draw Steel | Compatible (CR01, FL01) |
 
-## Diablo
+## Classes
 
-The series our game looks and plays most like. Ideas from across Diablo II, III and IV.
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| A resource per class, filled by doing the class's fantasy and spent on big abilities | Draw Steel heroic resources; Diablo IV class mechanics | Every class's hook includes its own resource. The Gym Bro's Pump fills by hitting; the Paladin's Settlement fills by taking hits | Compatible. The reference shows classes as packages (CR01) but no class resources | `04b-class-framework.md` |
+| Locked classes are visible, with their conditions | Final Fantasy Tactics job tree | From floor 1 the Dungeon Guide can show a few classes you are close to unlocking, so players can aim for one | Strong. The reference gates offers by achievements, skill levels and views (CR01, CR02, FL01) | `04-classes-and-races.md` |
+| Two parts combine into one named class | Grim Dawn dual masteries | The class generator joins a job and a fantasy school into one class with its own name | Compatible. The reference shows a class that draws a new role each floor (CR03) | `04b-class-framework.md` |
+| Tier 2 is earned by a trial | Path of Exile ascendancy | A short challenge on floor 4 or 5 built around the class's hook | Differs. The reference shows upgrades and a floor 6 specialty without trials (CL038, FL04) | `04-classes-and-races.md` |
 
-### Class mechanics — Diablo IV
+## Abilities and skills
 
-Each class has one system nobody else has: one class keeps a rack of weapons and swaps between them, one infuses
-spells with a chosen effect, one picks a page from a book of the dead to shape its minions.
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| New effects at ability levels, with a choice | Diablo III runes; Diablo IV and Last Epoch skill trees | At levels 5, 10 and 15 an ability gains a new effect; the player picks one of two | Strong. A source spell gains a bigger effect at levels 5, 10 and 15 (AD08). The choice is ours | `05-abilities-and-combat.md` |
+| Skills that strengthen related abilities | Diablo II synergies | Fire Magic makes every fire ability stronger; Cooking makes food healing stronger | Strong. Source skills stack with related abilities (AD01) | `05-abilities-and-combat.md` |
+| Items that change an ability | Path of Exile support gems | Found modifiers that slot onto an ability (split, chain, add an element) | Compatible. The reference keeps learned, gear and other effects as separate layers (AX007) | `05-abilities-and-combat.md` |
+| Ability evolutions | Vampire Survivors | An ability at max level plus a matching item or skill evolves into a named version | Compatible. The source shows abilities combining into stronger results (AD06, SY06) | `05-abilities-and-combat.md` |
 
-- **Rule:** every class has one **class mechanic**, a small system of its own on top of its abilities. It is the
-  "hook" in `04b-class-framework.md`, made bigger and given its own panel on screen.
-- Example: the **Toll Booth Warden** chooses what its booth charges (slow, damage or a stun), and swapping costs a
-  moment out of the fight.
-- Where it goes: `04b-class-framework.md`, step 3.
+## Creation and races
 
-### Ability modifiers — Diablo III runes, Diablo IV skill tree
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| A background that grants skills, a perk and a starting item | Draw Steel careers | Your past job grants 2 starting skills, 1 perk and 1 item | Compatible | `06-progression.md` |
+| An optional benefit-and-drawback pair at creation | Draw Steel complications | Each past job offers one optional complication: "Night-Shift Worker: see in the dark, weaker in daylight" | Compatible | `06-progression.md` |
+| A race is a signature trait plus picks from a menu | Draw Steel ancestries | Each race has one signature trait and 3 picks | Differs. Source races are fixed packages (CR06, CR10) | `04-classes-and-races.md` |
+| Quirks earned from what happens to you | Darkest Dungeon | Gross or odd things you do earn quirks that colour class offers and the AI's jokes | Compatible, mostly as achievements: the source rewards odd acts with achievements that unlock classes | `07-the-show.md` |
 
-In Diablo III each skill has a set of runes, and choosing one changes how the skill works (a frost version, a
-splitting version). In Diablo IV, points spent in a skill unlock a choice between enhancements.
+## Gear, crafting and loot
 
-- **Rule:** at ability levels 5, 10 and 15, the player picks **one of two modifiers** for that ability. A modifier
-  changes how it works, not just how hard it hits: it splits, chains, leaves a patch, gains an element, or turns
-  into a short channel.
-- Two players with the same ability end up using it differently.
-- Where it goes: `05-abilities-and-combat.md`.
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| Tiers: Common, Magic, Rare, Legendary, Set, Unique | Diablo series | Rarity sets how many stats and abilities an item carries | Compatible. Source gear carries its own effects (AD03, AD10) | `06-progression.md` |
+| Named powers that can be moved between items | Diablo IV aspects | A crafter can pull a Legendary power out of one item and put it into another | Compatible | `06-progression.md` |
+| Secret combinations that make a named item | Diablo II runewords | Socketed parts in the right order form a named item. Recipes are rare and secret | Strong. The source has hidden recipes that pass between crawlers (SY04) | `06-progression.md` |
 
-### Skills that strengthen each other — Diablo II synergies
+## Monsters and pets
 
-In Diablo II, points in one skill made related skills stronger.
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| Elite affixes on the name plate | Diablo series | Elites carry 1 to 3 visible traits, each with a visual tell and a counter (for example Turnpike Speed, Jughandle) | Strong. The source's labels can be wrong (AI03), so the System AI may lie about one | `09-multiplayer.md` |
+| Catch a monster at low health | Pokémon | Monsters under a health threshold can be caught and become pets | Strong. The source has a capture rule for creatures below 5% health (SY05) | `09-multiplayer.md` |
 
-- **Rule:** skills (not abilities) carry **synergies**. Levelling the Fire Magic skill makes every fire ability
-  stronger, and levelling Cooking makes food-based healing stronger. This is how the many skills a crawler picks
-  up on floors 1 and 2 stay useful after they take a class.
-- Where it goes: `05-abilities-and-combat.md`, Skills.
+## Gods
 
-### Elite affixes — the whole series
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| A pool of powers per god, offered a few at a time | Hades boons | Devotion opens a god's powers in small choices | Strong. Worship grants access and obligations (GO06) | `08-factions.md` |
+| Powers on a small map that opens with devotion | Grim Dawn devotion | Each god's powers are laid out as a small map | Compatible | `08-factions.md` |
+| Combined powers from two gods | Hades duo boons | Party members who follow different gods unlock a shared power | Differs. In the source, splitting devotion removed it (GO06) | `08-factions.md` |
 
-Elite and champion monsters spawn with random named traits: fast, fire-enchanted, teleporting, shielded, splits
-when hit. Their name plate lists them.
+## The show, death and the world
 
-- **Rule:** elite monsters carry **1 to 3 visible affixes**, listed on their name plate under Daka's elite warning.
-  Every affix has a clear visual tell and a counter.
-- The System AI names the affixes in its own voice, and sometimes lies about one.
-- Example affixes, Jersey flavoured: **Turnpike Speed** (fast), **Shore Burn** (leaves fire), **Jughandle** (circles
-  behind you), **Union Break** (stops to heal itself at half health).
-- Where it goes: `09-multiplayer.md`, warnings, and a new monsters page.
+| Idea | From | Rule here | Fit | Where it goes |
+| --- | --- | --- | --- | --- |
+| Titles from achievements | Draw Steel | Some achievements grant a title with a small effect; one is worn at a time | Compatible. Source achievements already shape class offers (CR01, FL01) | `07-the-show.md` |
+| A memorial board of the dead | Diablo hardcore | Safe rooms list the dead: class, floor, killer and best ability, in the System AI's voice | Strong. The source keeps memorial panels with a crawler's class and spells (AX004) | `02-crawler-and-death.md` |
+| Rare escape items | Diablo hardcore | One-use items that pull you out of a fight | Strong. The source has lethal-hit protections and second chances (AD05, AD07, CR10) | `02-crawler-and-death.md` |
+| Timed world events | Diablo IV | The System AI announces events (a raid, a giant on the move) that pull players together | Compatible. Source floors change rules mid-floor (SY07, FL06) | `03-floors.md` |
+| Small bonuses after the level cap | Diablo Paragon | Only needed if there is a cap | Open. Source crawlers pass level 60 with no cap shown | `06-progression.md` |
 
-### Item tiers and named powers — Diablo II to IV
+## Left out
 
-Common, magic, rare, set and unique items; Diablo IV's legendary powers (aspects) that can be pulled out of one
-item and put into another.
-
-- **Rule:** item tiers follow Diablo: **Common, Magic, Rare, Legendary, Set, Unique**.
-  - Legendary items carry a **named power** that changes an ability or class mechanic.
-  - A crafter at the right station can **pull a named power out** of an item (destroying it) and put it into
-    another. This gives crafting a real job in the endgame.
-  - **Set items** give extra powers when you wear several pieces of the same set.
-  - **Unique items** are hand-made, one-of-a-kind, and full of System AI jokes.
-- Where it goes: `06-progression.md`, Gear and loot.
-
-### Runewords — Diablo II
-
-Socket the right runes in the right order into the right base item, and it becomes a named, powerful item.
-
-- **Rule:** gear can have **sockets**. Certain combinations of socketed items, in the right order, form a **named
-  combination** with its own power. Recipes are rare finds or faction secrets.
-- This is the item side of Daka's "rules engine reacts to combinations nobody scripted".
-- Where it goes: `06-progression.md`.
-
-### Hardcore — Diablo II to IV
-
-Diablo's hardcore mode is permadeath. Players love it because every risk is real, and the loot dropped by
-the dead becomes a story.
-
-- **Rule:** borrow two habits from hardcore communities:
-  - A **memorial board** in every safe room listing the dead, their class, floor and killer, written by the System
-    AI.
-  - **Rare escape items**: one-use items that pull you out of a fight to the nearest safe room. They are precious,
-    never guaranteed, and fit "permadeath, ish".
-- Where it goes: `02-crawler-and-death.md`.
-
-### World events — Diablo IV
-
-Helltides and world bosses: timed events that pull everyone on the map toward one place.
-
-- **Rule:** each floor has **timed world events** announced by the System AI, for example a faction raid on an
-  attraction or a giant moving through an area. They draw the 2 to 20 players toward each other, which is how
-  strangers meet and form parties.
-- Where it goes: `03-floors.md`.
-
-### Paragon — Diablo III and IV
-
-After the level cap, experience still earns small permanent bonuses.
-
-- **Open question for Daka:** is there a level cap? If so, a Paragon-style track keeps experience meaningful.
-
-## Draw Steel
-
-A tactical tabletop RPG with very strong class and character building.
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| Each class has a **heroic resource** that fills during a fight through its signature behaviour (taking hits, landing blows) and pays for big abilities | Every class has its own resource, filled by doing the class's fantasy. The Gym Bro's Pump fills by hitting; the Personal Injury Paladin's Settlement fills by taking hits | `04b-class-framework.md` |
-| **Titles** earned by specific deeds, each with a small benefit | Some achievements grant a **title**: one equipped at a time, each with a small effect. Example: "Seventeen Bodies in a Food Court", +5% damage in crowded areas | `07-the-show.md` |
-| **Complications**: optional at creation, a benefit and a drawback together | Each past job comes with an optional **complication**. Example: Night-Shift Worker: see in the dark, but weaker in daylight | `06-progression.md`, character creation |
-| **Ancestries** with a signature trait plus a budget of points for optional traits | Each race has a **signature trait** and **3 picks from a menu of traits**, so two players of the same race can differ | `04-classes-and-races.md` |
-| **Careers**: a background that grants skills, a perk and an inciting incident | The past job grants **2 starting skills, 1 perk and 1 starting item** | `06-progression.md` |
-
-## Path of Exile
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| **Support gems**: link one to an ability and it changes it (more projectiles, chains, adds an element) | Found items called **modifiers** that slot onto an ability. The hotbar shows which modifiers each ability carries | `05-abilities-and-combat.md` |
-| A huge **passive tree** every class shares, starting from different points | Probably too big for us. A small version: each archetype has a short passive track | Open |
-| **Ascendancy**: a stronger subclass unlocked by beating a trial | Tier 2 classes are unlocked by a **class trial**, a short challenge on floor 4 or 5 built around the class's hook | `04-classes-and-races.md` |
-
-## Last Epoch
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| Every ability has its own **small upgrade tree**, filled as the ability levels | Combine with the Diablo modifier rule: each ability has a small tree of choices, opened by levelling it | `05-abilities-and-combat.md` |
-| Choose a **mastery** partway through, which shapes the rest of the class | Matches our tier system already | — |
-
-## Grim Dawn
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| Pick **two masteries**; each pair has its own class name | The class generator combines **two parts** (a job and a fantasy school) into one named class, with each pair given its own name | `04b-class-framework.md`, generator |
-| **Devotion**: a constellation map of god-like powers you unlock with points | A possible shape for **god worship**: each god has a small constellation of granted powers that open with devotion | `08-factions.md` |
-
-## Darkest Dungeon
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| **Quirks**, good and bad, gained from what happens to a character | The show's hidden file on each crawler can award **quirks** on floors 1 and 2: "Afraid of Water", "Fryer-Scarred". They show up in class offers and AI jokes | `06-progression.md` |
-| **Stress** and breaking points | Probably not: it slows an ARPG down | — |
-
-## Hades
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| Each god offers **boons** from their own pool | Each god has a pool of granted powers, offered a few at a time as devotion grows | `08-factions.md` |
-| **Duo boons**: a combined power when you hold boons from two gods | If multi-god worship is ever allowed, two gods' powers can combine. Otherwise: party members who worship different gods unlock a shared combined power | `08-factions.md` |
-
-## Final Fantasy Tactics and Final Fantasy V
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| **Job system**: levelling one job unlocks others, and you can carry abilities from an old job | The class offer list can show **locked classes with their conditions**, so players can aim for one on floors 1 and 2 | `04-classes-and-races.md` |
-
-## Vampire Survivors
-
-| Idea there | Rule here | Where it goes |
-| --- | --- | --- |
-| **Evolutions**: an item plus a matching passive at max level evolves into something stronger | An ability at level 15 plus a matching item or skill can **evolve** into a named stronger version | `05-abilities-and-combat.md` |
+- **Stress meters** (Darkest Dungeon): too slow for an ARPG.
+- **A huge passive tree** (Path of Exile): more than we can build; abilities and skills already do that job.
 
 ## Open
 
-- Does Daka want a level cap, and a Paragon-style track after it?
-- Which of these does Daka want in, out or changed?
+- Which of these are in, out or changed?
+- Is there a level cap?
