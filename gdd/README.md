@@ -27,3 +27,4 @@ becomes **Decided**.
 | [08-factions.md](08-factions.md) | Faction reputation; gods still open | Round 5 written |
 | [09-multiplayer.md](09-multiplayer.md) | Parties, markers, PvP, pets, companions | Round 5 written |
 | 10-tech-and-art.md | Godot, server, art pipeline | Later |
+| [11-lessons-from-other-games.md](11-lessons-from-other-games.md) | Ideas from Diablo, Draw Steel, Path of Exile and others, as Proposed rules | Proposed, waiting on Daka |
