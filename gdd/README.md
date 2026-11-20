@@ -20,6 +20,7 @@ becomes **Decided**.
 | [03-floors.md](03-floors.md) | How floors work, and floors 1 to 3 | Rounds 1 and 2 written |
 | [04-classes-and-races.md](04-classes-and-races.md) | When you get a class and race, ground rules for classes | Round 3 written, with a draft race list |
 | [04a-class-list.md](04a-class-list.md) | 33 classes, second draft | Daka likes the list; still Proposed class by class |
+| [04c-class-writing-guide.md](04c-class-writing-guide.md) | A complete, self-contained brief for writing the rest of the classes | Ready to use |
 | [04b-class-framework.md](04b-class-framework.md) | How to build a class: filters, archetypes, hooks, template | Filters Decided, menus Proposed |
 | [05-abilities-and-combat.md](05-abilities-and-combat.md) | Abilities, the hotbar, stats | Round 3 written |
 | [06-progression.md](06-progression.md) | Growth on floors 1 and 2, levels, stats, skills, loot | Round 2 written |
